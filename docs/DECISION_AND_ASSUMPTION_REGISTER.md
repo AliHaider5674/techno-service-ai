@@ -148,6 +148,104 @@ Phase 1 register contains the full rationale for each.
   the apply → rollback → re-apply contract. Documented in
   `docs/PHASE2_SUMMARY.md` §5 (operational note).
 
+### Phase 3 assumptions (new)
+
+#### ASS-PHASE3-001 — Engine layer is pure logic (no DB coupling)
+
+- **Description:** The 11 Phase 3 engine modules (`states`,
+  `gates`, `stages`, `verification`, `approval`, `notification`,
+  `escalation`, `handoff`, `exceptions`, `recovery`,
+  `orchestration`) are pure-logic modules with NO database coupling.
+  They are testable in isolation, fast, and the constitutional
+  invariants are enforced at the engine boundary.
+- **Governing source:** Document 04 §1.2 (Layered Architecture);
+  Document 06 (Workflow and AI Orchestration Design).
+- **Owner:** Implementation Engineer.
+- **Expiry / review:** Permanent.
+- **Constitutional impact:** None.
+- **Rationale:** Pure logic:
+  - Is testable in 0.1s (the 53 Phase 3 engine tests run in 0.1s).
+  - Documents the constitutional invariant in the code itself
+    (the `TransitionError`, `GateBypassError`, `IndependenceViolation`,
+    `SilenceNotApproval`, `SoDViolation`, `RollbackRequiresApproval`
+    error classes are the constitutional text).
+  - Is reusable: the same engines drive the application layer
+    (Phase 4), the AI Orchestration Service, the Reporting
+    Service (Phase 7), and the production deployment (Phase 8).
+
+#### ASS-PHASE3-002 — Producer ≠ Verifier at the strictest test (identity)
+
+- **Description:** The `IndependenceTracker` enforces independence
+  by checking `producer_id != verifier_id` (identity equality). The
+  broader test "the verifier may not be in the same role class as
+  the producer" is an APPLICATION-LEVEL policy that the service
+  layer in Phase 4 will add. The strict test matches the
+  constitutional text VER-IND-001..003 exactly.
+- **Governing source:** Document 06 §6.7 (VER-IND-001..003);
+  Constitution Article XVII paragraph 2(1).
+- **Owner:** Implementation Engineer.
+- **Expiry / review:** Re-evaluate at Phase 7 (data-layer hardening)
+  if a stricter role-class test is needed.
+- **Constitutional impact:** None.
+- **Rationale:** The constitutional text says "shall remain
+  separately identifiable on every material record" — i.e. the
+  identity must be distinct. The role-class test (e.g. an ANALYST
+  may not verify an ANALYST's claim even with a different id) is a
+  STRICTER rule that the Constitution permits but does not require.
+  The engine implements the constitutional floor; the service
+  layer can add the stricter rule without violating the
+  constitution.
+
+#### ASS-PHASE3-003 — 5 Verifier Agents modelled as one per role
+
+- **Description:** The 5 Verifier Agents of Document 06 §6 are
+  modelled as one `VerifierAgent` per role. The Independence
+  Tracker treats each agent's identity as the verifier_id, and
+  enforces producer != verifier at identity level. The roster
+  factory `five_agent_roster()` returns one agent per role with
+  default unique ids.
+- **Governing source:** Document 06 §6.1..6.5.
+- **Owner:** Implementation Engineer.
+- **Expiry / review:** Permanent.
+- **Constitutional impact:** None.
+- **Rationale:** The constitutional text distinguishes the 5
+  agents by ROLE; the engine mirrors that distinction. The
+  application service layer in Phase 4 may add per-agent metadata
+  (e.g. training, audit history) without changing the engine.
+
+#### ASS-PHASE3-004 — Required Approver Role resolution uses the Authority Matrix §3.4 table
+
+- **Description:** For Class 4 decisions, the Required Approver
+  Role is resolved from the per-decision-type table in Authority
+  Matrix Section 3.4 (e.g. "BINDING_BID" → "AUTHORISED_EXECUTIVE",
+  "SIGN_CONTRACT" → "CONSTITUTIONAL_OWNER"). The mapping is
+  encoded in the `CLASS_4_APPROVER` dict in `approval.py`.
+- **Governing source:** Authority Matrix §3.4 (15 named decision
+  types).
+- **Owner:** Implementation Engineer.
+- **Expiry / review:** Re-evaluate when the Authority Matrix is
+  amended.
+- **Constitutional impact:** None.
+- **Rationale:** Encodes the Authority Matrix table directly in
+  the engine, so the engine cannot approve a Class 4 binding
+  offer with a Constitutional Owner (the matrix says it must be
+  the Authorised Executive). The service layer in Phase 4 can
+  add additional decision types without changing the engine.
+
+#### ASS-PHASE3-005 — SMS is Class 3 / Class 4 only; Voice is Emergency only
+
+- **Description:** Per UI/UX §10 (NOT-001..005), SMS is reserved
+  for Class 3 and Class 4 notifications; Voice is reserved for
+  Emergency. The Notification Engine rejects any attempt to issue
+  a notification with the wrong channel/priority combination.
+- **Governing source:** UI/UX §10; Document 06 §9.
+- **Owner:** Implementation Engineer.
+- **Expiry / review:** Permanent.
+- **Constitutional impact:** None.
+- **Rationale:** Encodes the channel-eligibility rule in the
+  engine so the service layer cannot accidentally send a Class 1
+  reminder by SMS or a Class 3 escalation by voice.
+
 ---
 
 ## 3. Rejected Assumptions

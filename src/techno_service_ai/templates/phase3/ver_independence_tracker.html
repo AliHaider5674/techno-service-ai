@@ -1,0 +1,20 @@
+{% extends "phase3/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §6.7 — Verification Independence.</strong>
+  The producing Agent and the Independent Final Verifier Agent shall remain
+  separately identifiable on every material record. A discovering or
+  researching function may not be the sole verifier of its own material claim.
+</div>
+<h2>Verifier Roles</h2>
+<table>
+  <thead><tr><th>Role</th><th>Independence test</th></tr></thead>
+  <tbody>
+    {% for r in verifier_roles %}
+    <tr><td><span class="badge">{{ r.value }}</span></td><td>producer ≠ verifier</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p>Test coverage: <code>tests/test_phase3.py::test_producer_equals_verifier_rejected_with_each_role</code>
+  — the 5-role independence is enforced; producer == verifier is REJECTED for every role.</p>
+{% endblock %}

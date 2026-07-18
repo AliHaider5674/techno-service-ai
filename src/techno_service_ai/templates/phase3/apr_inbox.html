@@ -1,0 +1,20 @@
+{% extends "phase3/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §5.1 / Authority Matrix §3 — Approval Inbox.</strong>
+  Every Approval Request the persona is authorised to action, with
+  Decision Class, Required Approver Role, decision deadline, and quick action.
+</div>
+<h2>Buckets</h2>
+<ul>
+  <li>Pending</li>
+  <li>In Review</li>
+  <li>Approved</li>
+  <li>Rejected</li>
+  <li>Conditional</li>
+  <li>Expired</li>
+  <li>Revoked</li>
+</ul>
+<p>Per GATE-HA-006: silence, urgency, prior behaviour, similar historical
+  approval, or an Agent recommendation does NOT constitute Human Approval.</p>
+{% endblock %}

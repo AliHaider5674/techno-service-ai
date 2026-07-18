@@ -1,0 +1,19 @@
+{% extends "phase3/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §9 + UI/UX §10 — Notification Inbox.</strong>
+  Six categories, five channels, priority order: Class 4 &gt; Class 3 &gt;
+  Class 2 &gt; Class 1 &gt; Operational &gt; Informational. Suppression of
+  Class 3/4 notifications is FORBIDDEN.
+</div>
+<h2>The 6 Categories</h2>
+<ul>{% for c in categories %}<li><span class="badge">{{ c.value }}</span></li>{% endfor %}</ul>
+<h2>The 5 Channels</h2>
+<ul>{% for c in channels %}<li><span class="badge">{{ c.value }}</span>{% if c.value == "SMS" %} — Class 3 / Class 4 only{% endif %}{% if c.value == "VOICE" %} — Emergency only{% endif %}</li>{% endfor %}</ul>
+<h2>Priority Order</h2>
+<ol>{% for p in priorities %}<li><span class="badge badge-{{ p.value | lower }}">{{ p.value }}</span></li>{% endfor %}</ol>
+<p>Test coverage:
+  <code>tests/test_phase3.py::test_ac_p3_006_six_categories_five_channels_priority_order</code>,
+  <code>test_ac_p3_006_suppression_of_class_3_or_4_forbidden</code>,
+  <code>test_ac_p3_006_sms_reserved_for_class_3_4</code>.</p>
+{% endblock %}

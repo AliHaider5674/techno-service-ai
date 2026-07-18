@@ -1,0 +1,26 @@
+{% extends "phase3/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Authority Matrix Sections 1 + 3 — Approval Authority Matrix.</strong>
+  The four Decision Classes of Constitution Article XII, with the
+  Required Approver Role for each.
+</div>
+<h2>Decision Classes and Required Approver Roles</h2>
+<table>
+  <thead><tr><th>Class</th><th>Required Approver Role</th></tr></thead>
+  <tbody>
+    {% for c in decision_classes %}
+    <tr>
+      <td><span class="badge badge-{{ c.value | lower }}">{{ c.value }}</span></td>
+      <td><code>{{ required_approver_roles[c.value] }}</code></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<h2>Class 4 — Per-Decision-Type Approver (Authority Matrix §3.4)</h2>
+<p>Class 4 decisions have a specific named approver per the Authority Matrix
+  Section 3.4 table (e.g. Issuing a binding offer → Authorised Executive;
+  Signing a contract → Constitutional Owner). The Approval Engine resolves
+  the role at request time.</p>
+<p>Test coverage: <code>tests/test_phase3.py::test_ac_apr_006_four_decision_classes</code>.</p>
+{% endblock %}

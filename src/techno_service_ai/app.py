@@ -56,11 +56,16 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 def create_app() -> FastAPI:
     app = FastAPI(
         title="Techno Service AI Intelligence System",
-        version="1.0.0-phase1",
-        description="Phase 1 — Identity, Access, and Audit Foundation. "
+        version="1.0.0-phase3",
+        description="Phases 1-3: Identity, Access, Audit (1); Data Foundation (2); "
+                    "Workflow, Verification, and Approval Foundation (3). "
                     "Constitutional Authority: Constitution v2.3.",
     )
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+    # Phase 3 routes (Verification, Approval, Notification screens).
+    from .phase3_routes import add_phase3_routes
+    add_phase3_routes(app)
 
     @app.on_event("startup")
     def _startup() -> None:

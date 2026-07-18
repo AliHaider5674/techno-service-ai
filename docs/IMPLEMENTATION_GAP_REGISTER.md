@@ -93,6 +93,57 @@ routed to a Decision Register entry.
 - **Human Approval Required:** `No` (mechanical decision in Phase 7).
 - **Status:** `Open`.
 
+### GAP-PHASE3-001 — Engine layer is pure logic; service layer pending
+
+- **Description:** The Phase 3 engines (workflow, gates, verification,
+  approval, notification, escalation, handoff, exceptions, recovery)
+  are implemented as pure-logic modules. The service layer that
+  persists engine state to the DB and wires the engines to the Phase 2
+  data layer is the next deliverable.
+- **Impact:** `Cosmetic` for Phase 3 — the engines are testable in
+  isolation, and the data layer is queryable. The constitution
+  requires the engine behaviour to be correct; the persistence is
+  a Phase 4 task.
+- **Recommended resolution:** Phase 4 implements the service layer
+  that:
+    - Loads ApprovalRequest / ApprovalDecision from the DB.
+    - Persists every engine event to the audit log.
+    - Wires the engines to the data layer (Opportunity → Opportunity
+      State, etc.).
+- **Human Approval Required:** `No` (mechanical extension in Phase 4).
+- **Status:** `Open`.
+
+### GAP-PHASE3-002 — "Not Applicable" / "Replaced by Equivalent Control" path
+
+- **Description:** Document 06 §3.3 (ORCH-COND-001..003) defines the
+  conditional path: a stage may be marked Not Applicable, Deferred,
+  Skipped by Authorized Human Decision, or Replaced by an Equivalent
+  Control. This requires a Decision Log Entry plus an equivalent
+  control. The Phase 3 engine implements the 9 Exception Scenarios
+  but does not yet expose the constitutional omission path.
+- **Impact:** `Cosmetic` for Phase 3 — the 9 Exception Scenarios
+  cover the operational exceptions; the constitutional omission path
+  is a Human Approval path that lives in the service layer.
+- **Recommended resolution:** Phase 4 (Approval Engine service
+  layer) implements the omission path with a `StageOmissionRecord`
+  entity (a new constitutional entity) or as a Decision Log Entry
+  type.
+- **Human Approval Required:** `No` (mechanical extension).
+- **Status:** `Open`.
+
+### GAP-PHASE3-003 — Decision Log / Handoff Log / Escalation Log wiring
+
+- **Description:** The 3 Log entities (`decision_log_entry`,
+  `handoff_log_entry`, `escalation_log_entry`) exist in Phase 2.
+  The Phase 3 engine records events in-memory; the service layer
+  that writes them to the DB is Phase 4.
+- **Impact:** `Cosmetic` for Phase 3. `Major` for the audit
+  completeness story across phases 4+.
+- **Recommended resolution:** Phase 4 wires the engine events to
+  the Log entities via the existing audit service.
+- **Human Approval Required:** `No` (mechanical extension).
+- **Status:** `Open`.
+
 ---
 
 ## Resolved Gaps

@@ -45,6 +45,24 @@ column is the constitutional source that authorises it.
 | IMPL-P2-008 | Bootstrap calls `apply_all()` after `apply_schema()` | Document 05 §3 (Migrations are part of bootstrap) | `bootstrap.py:seed` |
 | IMPL-P2-009 | Test suite for AC-P2-001..006 + AC-DL-001..005 | Document 06 (Acceptance Criteria); Document 05 §4 | `tests/test_phase2.py` |
 
+### Phase 3 (new)
+
+| Backlog ID | Title | Constitutional / Lower Document clause | Code location |
+|---|---|---|---|
+| IMPL-P3-001 | Orchestration State Machine (10 states) | Document 06 §8 (STATE-001..010); Article XVIII, XIX, XX | `src/techno_service_ai/states.py` |
+| IMPL-P3-002 | 9 Decision Gates (non-bypassable) | Document 06 §4.1..4.9 (GATE-EV/VE/QA/HA/CO/RG/TN/PJ/CL-001..006) | `src/techno_service_ai/gates.py` |
+| IMPL-P3-003 | 24 Stages of the Discovery Order | Document 06 §2.1..2.24 (ORCH-SEQ-002) | `src/techno_service_ai/stages.py` |
+| IMPL-P3-004 | Verification Engine (5 agents + Independence Tracker) | Document 06 §6 (VER-PRE/SPE/IFV/IND-001..003); Article XVII paragraph 2(1) | `src/techno_service_ai/verification.py` |
+| IMPL-P3-005 | Approval Engine (4 classes, Required Approver, Conditional, Revocation, Silence != Approval) | Authority Matrix §1, §3, §5, §8, §9, §10; Article XII paragraph 7, Article XVII paragraph 2(15); GATE-HA-006; REQ-RULE-005 | `src/techno_service_ai/approval.py` |
+| IMPL-P3-006 | Notification Engine (6 categories, 5 channels, priority) | Document 06 §9; UI/UX §10 NOT-001..005; Article XVII paragraph 7 | `src/techno_service_ai/notification.py` |
+| IMPL-P3-007 | Escalation Engine (6 channels, unacknowledged promotion) | Document 06 §3.7 (ORCH-ESC-001..004); Interaction Matrix §7 | `src/techno_service_ai/escalation.py` |
+| IMPL-P3-008 | Handoff Service (Initiation, Acceptance, Audit) | Interaction Matrix §4; Document 06 §9.1, §9.6 (COLLAB-OWN-001..003, COLLAB-HO-001..002) | `src/techno_service_ai/handoff.py` |
+| IMPL-P3-009 | Exception Engine (9 scenarios) | Document 06 §7 (EXC-EV/DUP/CON/REG/COM/INC/AGT/HUM/EXT-001..003) | `src/techno_service_ai/exceptions.py` |
+| IMPL-P3-010 | Recovery Engine (Interrupted, Restart, Resume, Rollback) | Document 06 §12 (REC-INT/RES/RESUME/ROLL/AUD-001..003); Article XXV | `src/techno_service_ai/recovery.py` |
+| IMPL-P3-011 | Workflow Orchestrator (top-level engine) | Document 06 §3 (ORCH-SEQ-001..003, ORCH-ESC, ORCH-HUM); Article VI | `src/techno_service_ai/orchestration.py` |
+| IMPL-P3-012 | 11 Presentation Screens | UI/UX §4.6, §4.7, §10 (SCR-VER-001..006, SCR-APR-001..004, NOT-003) | `src/techno_service_ai/phase3_routes.py` + `templates/phase3/*.html` |
+| IMPL-P3-013 | Test suite for AC-P3-001..008, AC-VER-001..005, AC-APR-001..006 | Document 06 (Acceptance Criteria); Authority Matrix | `tests/test_phase3.py`, `tests/test_phase3_routes.py` |
+
 ## B. Constitutional clauses → implementation evidence
 
 | Clause | Test file(s) proving compliance |
@@ -78,13 +96,53 @@ column is the constitutional source that authorises it.
 | AC-DL-003 Registers are independent structures | `test_phase2.py:test_ac_dl_003_registers_are_independent_structures` |
 | AC-DL-004 Institutional Memory preserves history | `test_phase2.py:test_ac_dl_004_institutional_memory_preserves_history` |
 | AC-DL-005 (covered by AC-DL-004 — no silent erasure) | `test_phase2.py:test_ac_dl_004_institutional_memory_preserves_history` |
+| AC-P3-001 Workflow can be initiated, executed, transitioned, closed | `test_phase3.py:test_ac_p3_001_workflow_initiated_executed_transitioned_closed` |
+| AC-P3-002 Every Decision Gate enforces its conditions (9 gates, bypass REJECTED) | `test_phase3.py:test_ac_p3_002_nine_gates_registered` + parametrized `test_ac_p3_002_every_gate_bypass_rejected` |
+| AC-P3-003 Orchestration State Machine enforces allowed/forbidden | `test_phase3.py:test_ac_p3_003_ten_states_implemented` + `_forbidden_transition_rejected` + `_allowed_transitions_match_doc` |
+| AC-P3-004 Producer ≠ Verifier (REJECT same role) | `test_phase3.py:test_ac_p3_004_producer_not_equal_to_verifier_rejected` + `test_producer_equals_verifier_rejected_with_each_role` |
+| AC-P3-005 Approval routed to Required Approver Role; decision recorded | `test_phase3.py:test_ac_p3_005_approval_routed_to_required_approver` |
+| AC-P3-006 Notification: created, delivered, acknowledged | `test_phase3.py:test_ac_p3_006_notification_create_deliver_acknowledge` + `_six_categories_five_channels_priority_order` + `_suppression_of_class_3_or_4_forbidden` + `_sms_reserved_for_class_3_4` |
+| AC-P3-007 Independence of Verification preserved | `test_phase3.py:test_ac_p3_007_independence_preserved_throughout_workflow` |
+| AC-P3-008 Human Approval Gate cannot be bypassed | `test_phase3.py:test_ac_p3_008_human_approval_gate_not_bypassable` + 5 individual signal tests + 4 direct-bypass tests |
+| AC-VER-001 Five Verifier Roles implemented | `test_phase3.py:test_ac_ver_001_five_verifier_roles_implemented` |
+| AC-VER-002 Producer-Verifier separation | `test_phase3.py:test_ac_ver_002_producer_verifier_separation` |
+| AC-VER-003 Second Reviewer required for IFV on material claim | `test_phase3.py:test_ac_ver_003_second_reviewer_required_for_independent_final` |
+| AC-VER-004 Claim Classification (5 categories) | `test_phase3.py:test_ac_ver_004_claim_classification_enum` |
+| AC-VER-005 Verification outcomes (4 outcomes) | `test_phase3.py:test_ac_ver_005_verification_outcomes_recorded` |
+| AC-APR-001 Silence is not approval (5 signals REJECTED) | `test_phase3.py:test_ac_apr_001_silence_is_not_approval` |
+| AC-APR-002 Self-Approval Prohibited | `test_phase3.py:test_ac_apr_002_self_approval_prohibited` |
+| AC-APR-003 Conditional Approval requires terms | `test_phase3.py:test_ac_apr_003_conditional_approval_requires_terms` |
+| AC-APR-004 Approval Revocation | `test_phase3.py:test_ac_apr_004_approval_revocation` |
+| AC-APR-005 Decision Audit Trail | `test_phase3.py:test_ac_apr_005_decision_audit_trail` |
+| AC-APR-006 4 Decision Classes | `test_phase3.py:test_ac_apr_006_four_decision_classes` |
+| Discovery Order cannot be skipped / abbreviated / reordered | `test_phase3.py:test_discovery_order_cannot_be_skipped` + `_reordered` + `_abbreviated` |
+| 6 Escalation Channels | `test_phase3.py:test_escalation_six_channels` |
+| Unacknowledged escalation promotes | `test_phase3.py:test_escalation_unacknowledged_promotes` |
+| Handoff Initiation / Acceptance / Audit | `test_phase3.py:test_handoff_initiation_acceptance_audit` |
+| Handoff Rejected on missing criteria | `test_phase3.py:test_handoff_rejected_when_criteria_missing` |
+| 9 Exception Scenarios registered | `test_phase3.py:test_exception_engine_nine_scenarios` |
+| Rollback requires Human Approval (REC-ROLL-001) | `test_phase3.py:test_recovery_rollback_requires_approval` + `_rollback_with_approval_accepted` |
+| Resume Class 3/4 requires Human Approval (REC-RESUME-003) | `test_phase3.py:test_recovery_resume_class_3_or_4_requires_approval` |
+| 11 Phase 3 routes registered + render | `tests/test_phase3_routes.py` (4 tests) |
 | Document 04 §1.7 — Independence of Audit Service | `audit.record` is the only path to the audit_log table; the trigger makes any direct write fail. |
 | Document 05 §2.3 — Canonical Entity attributes (canonical_id, version) | `constitutional.py:ConstitutionalMixin`; verified in `test_ac_p2_002_canonical_entity_crud_versioned` |
 | Document 05 §3 — Migration framework (forward-only, versioned, reproducible, auditable) | `migrations.py`; verified in `test_ac_p2_006_*` |
 | Document 05 DB-PRIN-014 — Three Status dimensions are independent columns | `phase2_schema.py:Opportunity`; verified in `test_ac_p2_003_*` |
 | Document 05 DB-PRIN-018 — No-Silent-Amendment enforced at DB layer | `db.py:install_constitutional_triggers`; verified in `test_ac_p2_005_*` |
+| Document 06 §2 — 24 End-to-End Constitutional Workflow stages | `stages.py:STAGES`, `DISCOVERY_ORDER`; verified by `test_ac_p2_002` (entities) and `test_ac_p3_001` (24-stage run) |
+| Document 06 §3.1 ORCH-SEQ-002..003 — Discovery Order enforcement | `stages.py:is_valid_progression`; verified by `test_discovery_order_cannot_be_skipped/_reordered/_abbreviated` |
+| Document 06 §4 — 9 Decision Gates non-bypassable | `gates.py:GATES`, `GateEngine.bypass_attempt`; verified by parametrized test |
+| Document 06 §5 — Human Approval Workflow | `approval.py:ApprovalEngine`; verified by `test_ac_p3_005`, `test_ac_apr_001..005` |
+| Document 06 §6 — Verification Workflow + VER-IND-001..003 | `verification.py:IndependenceTracker`; verified by `test_ac_p3_004`, `test_ac_ver_*` |
+| Document 06 §7 — 9 Exception Scenarios | `exceptions.py:ExceptionEngine`; verified by `test_exception_engine_nine_scenarios` |
+| Document 06 §8 — Orchestration State Model | `states.py:ALLOWED_TRANSITIONS`, `StateMachine`; verified by `test_ac_p3_003_*` |
+| Document 06 §9 — Notification Engine (6 categories, 5 channels) | `notification.py:NotificationEngine`; verified by `test_ac_p3_006_*` |
+| Document 06 §12 — Recovery Model | `recovery.py:RecoveryEngine`; verified by `test_recovery_*` |
 | Document 07 §1, §12 — Mobile First | `static/styles.css` is mobile-first; breakpoints at 600/900/1400 px. |
+| Document 07 §4.6 — Verification Screens (SCR-VER-001..006) | `phase3_routes.py`; verified by `test_phase3_routes.py` |
+| Document 07 §4.7 — Approval Screens (SCR-APR-001..004) | `phase3_routes.py`; verified by `test_phase3_routes.py` |
+| Document 07 §10 — Notification Inbox (NOT-003) | `phase3_routes.py:notification_inbox`; verified by `test_phase3_routes.py` |
 
 ---
 
-*End of Constitutional Traceability — Phase 2.*
+*End of Constitutional Traceability — Phase 3.*

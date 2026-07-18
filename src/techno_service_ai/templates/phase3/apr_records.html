@@ -1,0 +1,17 @@
+{% extends "phase3/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Authority Matrix §12 — Approval Audit Trail.</strong>
+  Every Approval Request, Approval, Rejection, Conditional Approval,
+  Revocation, and Escalation is recorded in the Decision Log and the Audit Log.
+</div>
+<h2>Records by</h2>
+<ul>
+  <li>Decision Class</li>
+  <li>Approver</li>
+  <li>Opportunity / material</li>
+  <li>Date</li>
+</ul>
+<p>Test coverage: <code>tests/test_phase3.py::test_ac_apr_005_decision_audit_trail</code>
+  — every request, decision, and revocation is in the trail.</p>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "phase3/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Constitution Article XXIII — Claim Classification.</strong>
+  Every material claim is classified. The classification drives the
+  verification regime and the suppression rules.
+</div>
+<h2>The 5 Claim Classifications</h2>
+<table>
+  <thead><tr><th>Classification</th><th>Definition</th></tr></thead>
+  <tbody>
+    {% for c in classifications %}
+    <tr><td><span class="badge">{{ c.value }}</span></td><td>{{ c.name }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p>Available actions: classify, reclassify, link evidence, escalate.</p>
+{% endblock %}

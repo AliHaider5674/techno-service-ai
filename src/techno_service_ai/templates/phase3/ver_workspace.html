@@ -1,0 +1,22 @@
+{% extends "phase3/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §6 — Verification Workspace.</strong>
+  Workspace for a single verification record: material, evidence,
+  claim classifications, independence status, verifier, second reviewer,
+  outcome.
+</div>
+<h2>Material claim: <code>{{ claim_id }}</code></h2>
+<p>The verification record carries the producer identity, the verifier identity,
+  the claim classification, the source citations, the outcome, and the
+  second reviewer (for material claims). Producer == verifier is REJECTED
+  (see <code>tests/test_phase3.py::test_ac_p3_004_producer_not_equal_to_verifier_rejected</code>).</p>
+<h2>Layout</h2>
+<ul>
+  <li><strong>Header:</strong> material claim, classification, producer, verifier</li>
+  <li><strong>Evidence:</strong> source citations</li>
+  <li><strong>Independence:</strong> producer ≠ verifier; Second Reviewer (if material)</li>
+  <li><strong>Outcome:</strong> VALIDATED / QUALIFIED / REJECTED / PENDING</li>
+  <li><strong>Actions:</strong> complete, reject, escalate, record outcome</li>
+</ul>
+{% endblock %}

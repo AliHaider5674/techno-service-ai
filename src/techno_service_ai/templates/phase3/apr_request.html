@@ -1,0 +1,31 @@
+{% extends "phase3/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §5 — Approval Request.</strong>
+  The Approval Request shows the material, the Approval Package, the
+  Decision Class, the Required Approver Role, and the decision affordances.
+</div>
+<h2>Request <code>{{ request_id }}</code></h2>
+<h2>Approval Package (per APR-REQ-003 / APR-PKG-001..003)</h2>
+<ul>
+  <li>Verified material</li>
+  <li>Claim classifications</li>
+  <li>Evidence references</li>
+  <li>Verification references</li>
+  <li>Decision options</li>
+  <li>Risk register references</li>
+  <li>Performance data references</li>
+  <li>Constitutional Compliance Attestation</li>
+</ul>
+<h2>Decision Classes</h2>
+<table>
+  <thead><tr><th>Class</th><th>Default authority</th></tr></thead>
+  <tbody>
+    {% for c in decision_classes %}
+    <tr><td><span class="badge badge-{{ c.value | lower }}">{{ c.value }}</span></td><td>{{ c.name }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p>Available actions: Approve, Reject, Conditional Approve (with conditions,
+  duration, revocation conditions), Request clarification, Escalate.</p>
+{% endblock %}
