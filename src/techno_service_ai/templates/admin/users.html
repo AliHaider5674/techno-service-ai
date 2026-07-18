@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Users · Techno Service AI{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Users</h2>
+  <p class="muted">Manage user accounts, role assignments, and access status. All changes are recorded in the audit log.</p>
+  {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+  <p><a class="btn" href="/admin/users/new">+ New user</a></p>
+
+  <div class="table-wrap">
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Username</th><th>Display name</th><th>Email</th>
+        <th>Status</th><th>Active roles</th><th>Created</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+        <tr>
+          <td><code>{{ u.username }}</code></td>
+          <td>{{ u.display_name }}</td>
+          <td>{{ u.email }}</td>
+          <td>
+            {% if u.status.value == 'ACTIVE' %}<span class="badge ok">{{ u.status.value }}</span>
+            {% elif u.status.value == 'SUSPENDED' %}<span class="badge warn">{{ u.status.value }}</span>
+            {% else %}<span class="badge">{{ u.status.value }}</span>{% endif %}
+          </td>
+          <td>
+            {% set rs = u._role_codes %}
+            {% for r in rs %}<span class="badge">{{ r.code }}</span> {% endfor %}
+          </td>
+          <td class="muted">{{ u.created_at.strftime('%Y-%m-%d') if u.created_at else '—' }}</td>
+          <td><a href="/admin/users/{{ u.id }}">Manage</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

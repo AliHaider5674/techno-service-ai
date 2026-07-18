@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Edit access policy · Techno Service AI{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Edit access policy: <code>{{ policy.code }}</code></h2>
+  {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+  {% if success %}<div class="alert success">{{ success }}</div>{% endif %}
+  <form method="post" action="/admin/access-policies/{{ policy.id }}">
+    <div class="form-row"><label for="name">Name</label>
+      <input id="name" name="name" type="text" required value="{{ policy.name }}" /></div>
+    <div class="form-row"><label for="description">Description</label>
+      <input id="description" name="description" type="text" value="{{ policy.description }}" /></div>
+    <div class="form-row"><label for="decision_class">Decision class</label>
+      <select id="decision_class" name="decision_class">
+        {% for dc in ['CLASS_1', 'CLASS_2', 'CLASS_3', 'CLASS_4'] %}
+          <option value="{{ dc }}" {% if dc == policy.decision_class.name %}selected{% endif %}>{{ dc }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-row"><label for="required_approver_role_code">Required approver role code</label>
+      <input id="required_approver_role_code" name="required_approver_role_code" type="text" value="{{ policy.required_approver_role_code or '' }}" />
+    </div>
+    <div class="form-row"><label for="sod_exclusion_role_codes">SoD exclusion role codes (comma-separated)</label>
+      <input id="sod_exclusion_role_codes" name="sod_exclusion_role_codes" type="text" value="{{ policy.sod_exclusion_role_codes }}" />
+    </div>
+    <div class="form-row">
+      <label><input type="checkbox" name="active" {% if policy.active %}checked{% endif %} /> Active</label>
+    </div>
+    <button class="btn" type="submit">Save changes</button>
+    <a class="btn secondary" href="/admin/access-policies">Back</a>
+  </form>
+</div>
+{% endblock %}

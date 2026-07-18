@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Audit log · Techno Service AI{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Audit log</h2>
+  <p class="muted">
+    Every constitutional record is captured here. The log is append-only
+    (Constitution Article XX) — UPDATE and DELETE are forbidden at the
+    database level. Entries are hash-chained; tampering is detectable.
+  </p>
+
+  <p>
+    Chain integrity:
+    {% if chain_ok %}<span class="badge ok">VERIFIED</span>
+    {% else %}<span class="badge danger">TAMPERED</span>{% endif %}
+    · <a href="/api/audit-log/verify">Re-verify (JSON)</a>
+  </p>
+
+  <form class="filter-bar" method="get" action="/admin/audit-log">
+    <div class="form-row"><label for="event_type">Event type</label>
+      <input id="event_type" name="event_type" type="text" value="{{ filters.event_type }}" placeholder="e.g. IDENTITY.SIGN_IN" /></div>
+    <div class="form-row"><label for="actor_username">Actor username</label>
+      <input id="actor_username" name="actor_username" type="text" value="{{ filters.actor_username }}" /></div>
+    <div class="form-row"><label for="target_id">Target ID</label>
+      <input id="target_id" name="target_id" type="text" value="{{ filters.target_id }}" /></div>
+    <div class="form-row"><label for="limit">Limit</label>
+      <input id="limit" name="limit" type="number" min="1" max="1000" value="{{ filters.limit }}" /></div>
+    <div class="form-row"><button class="btn" type="submit">Apply</button></div>
+  </form>
+
+  <p>
+    <a class="btn secondary" href="/admin/audit-log/export.csv?event_type={{ filters.event_type }}&actor_username={{ filters.actor_username }}&target_id={{ filters.target_id }}">Export CSV</a>
+    <a class="btn secondary" href="/admin/audit-log/export.json?event_type={{ filters.event_type }}&actor_username={{ filters.actor_username }}&target_id={{ filters.target_id }}">Export JSON</a>
+  </p>
+
+  <div class="table-wrap">
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Seq</th><th>When (UTC)</th><th>Event</th>
+        <th>Actor</th><th>Target</th><th>Outcome</th>
+        <th>Payload</th><th>Hash</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in entries %}
+        <tr>
+          <td><code>{{ e.sequence }}</code></td>
+          <td class="muted">{{ e.occurred_at.strftime('%Y-%m-%d %H:%M:%S') if e.occurred_at else '—' }}</td>
+          <td>
+            <strong>{{ e.event_type }}</strong><br/>
+            <span class="muted">{{ e.action }}</span>
+          </td>
+          <td>
+            {% if e.actor_username %}<code>{{ e.actor_username }}</code>{% else %}—{% endif %}
+            {% if e.actor_role_code %}<br/><span class="muted">{{ e.actor_role_code }}</span>{% endif %}
+          </td>
+          <td>
+            {% if e.target_type %}{{ e.target_type }}{% else %}—{% endif %}
+            {% if e.target_id %}<br/><code class="muted">{{ e.target_id[:12] }}…</code>{% endif %}
+          </td>
+          <td>
+            {% if e.outcome == 'SUCCESS' %}<span class="badge ok">SUCCESS</span>
+            {% else %}<span class="badge danger">{{ e.outcome }}</span>{% endif %}
+          </td>
+          <td><code class="muted" style="font-size:11px;">{{ e.payload_json[:120] }}{% if e.payload_json|length > 120 %}…{% endif %}</code></td>
+          <td><code class="muted" title="{{ e.entry_hash }}">{{ e.entry_hash[:8] }}…</code></td>
+        </tr>
+      {% endfor %}
+      {% if not entries %}
+        <tr><td colspan="8" class="muted" style="text-align:center;">No entries match the current filters.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

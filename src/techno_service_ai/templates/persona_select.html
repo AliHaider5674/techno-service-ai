@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Select persona · Techno Service AI{% endblock %}
+{% block content %}
+<div class="narrow">
+  <div class="card">
+    <h2>Select persona</h2>
+    <p class="muted">You hold multiple roles. Select the persona you will operate under for this session. The selection is recorded in the audit log.</p>
+
+    {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+
+    {% if not personas %}
+      <div class="alert info">No active personas are available for your account. Contact an Administrator.</div>
+    {% else %}
+    <form method="post" action="/persona/select">
+      <div class="form-row">
+        {% for p in personas %}
+          <label style="display:block; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius); margin-bottom: 8px; cursor: pointer;">
+            <input type="radio" name="persona_id" value="{{ p.id }}" required style="margin-right: 8px;" />
+            <strong>{{ p.label }}</strong>
+            <span class="muted">({{ p.role.code }})</span>
+          </label>
+        {% endfor %}
+      </div>
+      <button class="btn" type="submit">Continue</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

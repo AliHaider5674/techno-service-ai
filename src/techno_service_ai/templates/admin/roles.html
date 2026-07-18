@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Roles · Techno Service AI{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Roles</h2>
+  <p class="muted">Roles are granted to users. The <code>sod_class</code> field is used by Separation of Duties (Article XVII) enforcement.</p>
+  {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+  <div class="table-wrap">
+  <table class="data">
+    <thead><tr><th>Code</th><th>Name</th><th>sod_class</th><th>Active</th><th>Description</th></tr></thead>
+    <tbody>
+      {% for r in roles %}
+        <tr>
+          <td><code>{{ r.code }}</code></td>
+          <td>{{ r.name }}</td>
+          <td><span class="badge">{{ r.sod_class }}</span></td>
+          <td>{% if r.active %}<span class="badge ok">Yes</span>{% else %}<span class="badge">No</span>{% endif %}</td>
+          <td>{{ r.description }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Create role</h3>
+  <form method="post" action="/admin/roles">
+    <div class="form-row"><label for="code">Code</label>
+      <input id="code" name="code" type="text" required /></div>
+    <div class="form-row"><label for="name">Name</label>
+      <input id="name" name="name" type="text" required /></div>
+    <div class="form-row"><label for="sod_class">SoD class</label>
+      <input id="sod_class" name="sod_class" type="text" value="DEFAULT" />
+      <p class="muted">Roles that share an sod_class may be held together. Roles from different sod_classes conflict.</p>
+    </div>
+    <div class="form-row"><label for="description">Description</label>
+      <input id="description" name="description" type="text" /></div>
+    <button class="btn" type="submit">Create role</button>
+  </form>
+</div>
+{% endblock %}

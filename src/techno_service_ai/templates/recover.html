@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Recover access · Techno Service AI{% endblock %}
+{% block content %}
+<div class="narrow">
+  <div class="card">
+    <h2>Recover access</h2>
+    <p class="muted">Provide your username, the answer to your recovery question, and a new password. All active sessions will be invalidated.</p>
+
+    {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+
+    <form method="post" action="/recover" autocomplete="on">
+      <div class="form-row">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" autocomplete="username" required value="{{ username }}" />
+      </div>
+      <div class="form-row">
+        <label for="recovery_answer">Recovery answer</label>
+        <input id="recovery_answer" name="recovery_answer" type="text" required />
+        <p class="muted">Enter the answer you provided at account creation.</p>
+      </div>
+      <div class="form-row">
+        <label for="new_password">New password</label>
+        <input id="new_password" name="new_password" type="password" autocomplete="new-password" required minlength="8" />
+      </div>
+      <div class="form-row">
+        <label for="new_password_confirm">Confirm new password</label>
+        <input id="new_password_confirm" name="new_password_confirm" type="password" autocomplete="new-password" required minlength="8" />
+      </div>
+      <button class="btn" type="submit">Reset password</button>
+      <a class="btn secondary" href="/sign-in">Back to sign in</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

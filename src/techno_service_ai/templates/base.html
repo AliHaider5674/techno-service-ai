@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>{% block title %}Techno Service AI{% endblock %}</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <meta name="theme-color" content="#1f3a8a" />
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="brand">
+        TECHNO SERVICE
+        <small>AI Intelligence System — Phase 1</small>
+      </div>
+      {% if principal %}
+        <div class="user-chip" title="{{ principal.display_name }}">
+          {{ principal.display_name }}
+          {% if principal.persona_label %}· {{ principal.persona_label }}{% else %}· (no persona){% endif %}
+        </div>
+        <a class="signout" href="/sign-out">Sign out</a>
+      {% endif %}
+    </header>
+
+    {% if principal %}
+    <nav class="app-nav" aria-label="Main navigation">
+      <a href="/home" class="{% if request.url.path == '/home' %}active{% endif %}">Home</a>
+      <a href="/persona/select" class="{% if '/persona' in request.url.path %}active{% endif %}">Persona</a>
+      <a href="/account/security" class="{% if '/account' in request.url.path %}active{% endif %}">Account &amp; Security</a>
+      {% if principal.role_codes and ('ADMIN' in principal.role_codes or 'COMPLIANCE' in principal.role_codes or 'AUDITOR' in principal.role_codes) %}
+        <a href="/admin/users" class="{% if '/admin/users' in request.url.path %}active{% endif %}">Users</a>
+        <a href="/admin/roles" class="{% if '/admin/roles' in request.url.path %}active{% endif %}">Roles</a>
+        <a href="/admin/access-policies" class="{% if '/admin/access-policies' in request.url.path %}active{% endif %}">Access Policies</a>
+        <a href="/admin/audit-log" class="{% if '/admin/audit-log' in request.url.path %}active{% endif %}">Audit Log</a>
+      {% endif %}
+    </nav>
+    {% endif %}
+
+    <main class="app-main">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="app-footer">
+      Constitution v2.3 · Phase 1 Identity, Access &amp; Audit Foundation · Build {{ principal and "1.0.0-phase1" or "1.0.0-phase1" }}
+    </footer>
+  </div>
+</body>
+</html>

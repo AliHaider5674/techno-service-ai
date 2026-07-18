@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Home · Techno Service AI{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Welcome, {{ principal.display_name }}</h2>
+  {% if principal.persona_label %}
+    <p>Active persona: <strong>{{ principal.persona_label }}</strong></p>
+  {% else %}
+    <div class="alert info">No persona is active. <a href="/persona/select">Select a persona</a> to proceed.</div>
+  {% endif %}
+  <p class="muted">Active roles: {{ principal.role_codes | join(', ') or '—' }}</p>
+</div>
+
+<div class="card">
+  <h3>Phase 1 — Identity, Access &amp; Audit Foundation</h3>
+  <p>This is the Phase 1 release. The following surfaces are operational:</p>
+  <ul>
+    <li><a href="/persona/select">Persona selection</a></li>
+    <li><a href="/account/security">Account &amp; security settings</a></li>
+    {% if 'ADMIN' in principal.role_codes or 'COMPLIANCE' in principal.role_codes %}
+      <li><a href="/admin/users">User management</a></li>
+      <li><a href="/admin/roles">Role management</a></li>
+      <li><a href="/admin/access-policies">Access policies</a></li>
+    {% endif %}
+    {% if 'ADMIN' in principal.role_codes or 'COMPLIANCE' in principal.role_codes or 'AUDITOR' in principal.role_codes %}
+      <li><a href="/admin/audit-log">Audit log</a></li>
+    {% endif %}
+  </ul>
+  <p class="muted">Subsequent phases (Data Foundation, Workflow / Verification / Approval, Discovery Order, Manufacturer / Commercial, etc.) are scoped in the Implementation Roadmap (Document 08).</p>
+</div>
+{% endblock %}

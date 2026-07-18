@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Access policies · Techno Service AI{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Access policies</h2>
+  <p class="muted">An AccessPolicy maps a Decision Class to a Required Approver Role and lists role codes that are excluded by SoD. Per Constitution Article XII.</p>
+  {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+  <div class="table-wrap">
+  <table class="data">
+    <thead><tr><th>Code</th><th>Name</th><th>Decision Class</th><th>Approver Role</th><th>SoD exclusions</th><th>Active</th><th></th></tr></thead>
+    <tbody>
+      {% for p in policies %}
+        <tr>
+          <td><code>{{ p.code }}</code></td>
+          <td>{{ p.name }}</td>
+          <td><span class="badge">Class {{ p.decision_class.value }}</span></td>
+          <td>{{ p.required_approver_role_code or '—' }}</td>
+          <td>{{ p.sod_exclusion_role_codes or '—' }}</td>
+          <td>{% if p.active %}<span class="badge ok">Yes</span>{% else %}<span class="badge">No</span>{% endif %}</td>
+          <td><a href="/admin/access-policies/{{ p.id }}">Edit</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Create access policy</h3>
+  <form method="post" action="/admin/access-policies">
+    <div class="form-row"><label for="code">Code</label>
+      <input id="code" name="code" type="text" required /></div>
+    <div class="form-row"><label for="name">Name</label>
+      <input id="name" name="name" type="text" required /></div>
+    <div class="form-row"><label for="description">Description</label>
+      <input id="description" name="description" type="text" /></div>
+    <div class="form-row"><label for="decision_class">Decision class</label>
+      <select id="decision_class" name="decision_class">
+        <option value="CLASS_1">Class 1 — Internal Intelligence</option>
+        <option value="CLASS_2">Class 2 — Qualification / Recommendation</option>
+        <option value="CLASS_3">Class 3 — External Action (requires Human Approval)</option>
+        <option value="CLASS_4">Class 4 — Binding / Financial / Legal / Strategic (requires Human Approval)</option>
+      </select>
+    </div>
+    <div class="form-row"><label for="required_approver_role_code">Required approver role code</label>
+      <input id="required_approver_role_code" name="required_approver_role_code" type="text" />
+    </div>
+    <div class="form-row"><label for="sod_exclusion_role_codes">SoD exclusion role codes (comma-separated)</label>
+      <input id="sod_exclusion_role_codes" name="sod_exclusion_role_codes" type="text" />
+    </div>
+    <button class="btn" type="submit">Create policy</button>
+  </form>
+</div>
+{% endblock %}

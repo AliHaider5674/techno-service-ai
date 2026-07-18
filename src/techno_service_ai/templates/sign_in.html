@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Sign in · Techno Service AI{% endblock %}
+{% block content %}
+<div class="narrow">
+  <div class="card">
+    <h2>Sign in</h2>
+    <p class="muted">Access the Techno Service AI Intelligence System. All actions are recorded in the audit log (Constitution Article XX).</p>
+
+    {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+    {% if request.query_params.get('recovered') %}<div class="alert success">Password reset. Please sign in with your new password.</div>{% endif %}
+
+    <form method="post" action="/sign-in" autocomplete="on">
+      <div class="form-row">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" autocomplete="username" required value="{{ username }}" />
+      </div>
+      <div class="form-row">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required />
+      </div>
+      <button class="btn" type="submit">Sign in</button>
+      <a class="btn secondary" href="/recover">Forgot password</a>
+    </form>
+  </div>
+
+  <p class="muted" style="text-align:center;">
+    Default development credentials: <code>admin</code> / <code>ChangeMe!2026</code>
+  </p>
+</div>
+{% endblock %}
