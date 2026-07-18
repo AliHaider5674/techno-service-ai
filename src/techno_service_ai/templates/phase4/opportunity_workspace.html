@@ -1,0 +1,32 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+{% if error %}
+<div class="constitutional" style="background:#fee;">
+  <strong>Error:</strong> {{ error }}
+</div>
+{% else %}
+<div class="constitutional">
+  <strong>Document 07 §5.5 — Opportunity Workspace.</strong>
+  The Workspace is the main surface for an Opportunity. It has
+  <strong>15 zones</strong> per the UI/UX Specification, listed below.
+</div>
+
+<h2>{{ opp.opportunity_title }}</h2>
+<div>
+  <span class="badge">{{ opp.intelligence_status }}</span>
+  <span class="badge">{{ opp.approval_status }}</span>
+  <span class="badge">{{ opp.commercial_status }}</span>
+  <small style="color:#666;">v{{ opp.version }} · created {{ opp.creation_date }}</small>
+</div>
+
+<h2>The 15 Zones (per UI/UX §5.5)</h2>
+{% for z in zones %}
+<div class="zone">
+  <div class="ztitle">Zone {{ loop.index }} — {{ z }}</div>
+  <div>Zone content rendered from constitutional records. Per the
+    UI/UX spec, this zone shows the live state of the {{ z | lower }}
+    for this Opportunity.</div>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

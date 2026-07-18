@@ -1,0 +1,19 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §2.10 — Stage 10 (Kuwait Suitability Review).</strong>
+  The KSR is the Entry Condition for Stage 11 (Manufacturer
+  Intelligence). Without a KSR record, the next stage is BLOCKED.
+</div>
+<h2>{% if ksr %}Kuwait Suitability Review{% else %}Not Found{% endif %}</h2>
+{% if ksr %}
+<div>
+  <p><strong>Status:</strong> {{ ksr.status }}</p>
+  <p><strong>Suitability description:</strong> {{ ksr.suitability_description or "—" }}</p>
+  <p><strong>Standards and certifications:</strong> {{ ksr.standards_and_certifications or "—" }}</p>
+  <p><strong>Environmental assessment:</strong> {{ ksr.environmental_assessment or "—" }}</p>
+  <p><strong>Suitability gap:</strong> {{ ksr.suitability_gap or "None" }}</p>
+  <p><strong>Comparative Analysis:</strong> <code>{{ ksr.comparative_analysis_id[:8] }}…</code></p>
+</div>
+{% endif %}
+{% endblock %}

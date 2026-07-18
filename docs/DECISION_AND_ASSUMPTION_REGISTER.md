@@ -1,10 +1,10 @@
 # Decision and Assumption Register
 
 **Project:** Techno Service AI Intelligence System
-**Phase:** 2 — Data Foundation (current phase)
+**Phase:** 4 — Discovery Order Operational Surfaces (current phase)
 **Governing Authority:** Constitution v2.3
 **Document Reference:** TS-AI-DAR-001
-**Status:** Issued for the Phase 2 release
+**Status:** Issued for the Phase 4 release
 
 This register is the single source of truth for every decision and temporary
 technical assumption taken during the implementation. It is required by the
@@ -272,5 +272,5 @@ architectural layer has been introduced. The Constitution has not been modified.
 
 ---
 
-*End of Decision and Assumption Register — Phase 2.*
+*End of Decision and Assumption Register — Phase 4.*
 

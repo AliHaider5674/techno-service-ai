@@ -144,6 +144,59 @@ routed to a Decision Register entry.
 - **Human Approval Required:** `No` (mechanical extension).
 - **Status:** `Open`.
 
+### GAP-PHASE3-001 — Engine service-layer wiring — RESOLVED in Phase 4
+
+- **Description:** The Phase 3 engines were pure logic; the service
+  layer that wires them to the data layer was Phase 4.
+- **Resolution:** Phase 4 implements `WorkflowService` (the
+  service layer) and `DiscoveryOrderWalker` (the end-to-end
+  orchestrator). The 10 agents are wired through the service layer
+  to the Phase 2 data layer. Every service call writes a canonical
+  record and an audit event.
+- **Status:** `Resolved (Phase 4)`.
+
+### GAP-PHASE3-002 — ORCH-COND path — RESOLVED in Phase 4
+
+- **Description:** The constitutional omission path (Document 06 §3.3)
+  was not yet exposed in the Phase 3 engine.
+- **Resolution:** Phase 4 implements `ORCHCONDEngine` with the 4
+  omission types (NOT_APPLICABLE, DEFERRED,
+  SKIPPED_BY_AUTHORIZED_HUMAN_DECISION,
+  REPLACED_BY_EQUIVALENT_CONTROL). SKIPPED and REPLACED require a
+  Human Approval; REPLACED requires an assurance statement.
+- **Status:** `Resolved (Phase 4)`.
+
+### GAP-PHASE4-001 — Notification / Handoff service layers for Stages 11+
+
+- **Description:** The Phase 3 Notification and Handoff engines are
+  in place; the Phase 4 service layer writes Decision Log entries
+  via the `LogService`. The Notification and Handoff service layers
+  for Stages 11+ (Manufacturer, Commercial, Registration, Tender,
+  Project) are deferred.
+- **Impact:** `Cosmetic` for Phase 4. `Major` for the live
+  notification/approval workflow.
+- **Recommended resolution:** Phase 5 implements the Notification
+  and Handoff service layers.
+- **Human Approval Required:** `No`.
+- **Status:** `Open`.
+
+### GAP-PHASE4-002 — 24-stage walk currently ends at S10
+
+- **Description:** The `DiscoveryOrderWalker` walks S01..S10. Stages
+  11-24 (Manufacturer Intelligence, Commercial Evaluation,
+  Verification, Quality Review, Human Approval, Business
+  Development, Registration, Market Entry, Tender Support, Project
+  Support, Commercial Outcome, Knowledge Capture, Institutional
+  Memory, Continuous Learning) require activating 14 more agents
+  in Phases 5-6.
+- **Impact:** `Cosmetic` for Phase 4. `Major` for the end-to-end
+  Discovery Order test.
+- **Recommended resolution:** Phase 5 activates Manufacturer,
+  Commercial, Registration agents (S11-S18). Phase 6 activates
+  Tender, Project, Knowledge agents (S19-S24).
+- **Human Approval Required:** `No`.
+- **Status:** `Open`.
+
 ---
 
 ## Resolved Gaps
@@ -151,6 +204,9 @@ routed to a Decision Register entry.
 | ID | Description | Resolution |
 |---|---|---|
 | GAP-PHASE1-006 | No implementation toolchain on the implementer machine | Installed Python 3.12.10 and Git 2.55.0.3 via `winget` with explicit user approval (Phase 1). |
+| GAP-PHASE3-001 | Engine service-layer wiring | Phase 4 implements WorkflowService + DiscoveryOrderWalker. |
+| GAP-PHASE3-002 | ORCH-COND path | Phase 4 implements ORCHCONDEngine with 4 omission types. |
+| GAP-PHASE3-003 | Decision Log / Handoff Log / Escalation Log wiring | Phase 4 implements LogService for the 3 Log entities. |
 
 ---
 
@@ -172,5 +228,5 @@ routed to a Decision Register entry.
 
 ---
 
-*End of Implementation Gap Register — Phase 2.*
+*End of Implementation Gap Register — Phase 4.*
 

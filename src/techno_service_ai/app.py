@@ -66,6 +66,9 @@ def create_app() -> FastAPI:
     # Phase 3 routes (Verification, Approval, Notification screens).
     from .phase3_routes import add_phase3_routes
     add_phase3_routes(app)
+    # Phase 4 routes (Industrial, Opportunity, Technology, AI Workspace, Dashboards).
+    from .phase4_routes import add_phase4_routes
+    add_phase4_routes(app)
 
     @app.on_event("startup")
     def _startup() -> None:

@@ -1,0 +1,33 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §2.7 — Technology Workspace.</strong>
+  The Technology Category Analysis is the foundation for Product
+  Discovery (S08) and Replacement Analysis (S09).
+</div>
+<h2>{% if tech %}{{ tech.technology_category }}{% else %}Not Found{% endif %}</h2>
+{% if tech %}
+<div>
+  <p><strong>Category fit rationale:</strong> {{ tech.category_fit_rationale or "—" }}</p>
+  <p><strong>Alternatives considered:</strong> {{ tech.alternatives_considered or "—" }}</p>
+  <p><strong>Status:</strong> {{ tech.status }}</p>
+</div>
+<h2>Products in this category ({{ products | length }})</h2>
+{% if products %}
+<table>
+  <thead><tr><th>Product</th><th>Standards</th><th>Performance</th></tr></thead>
+  <tbody>
+  {% for p in products %}
+    <tr>
+      <td><a href="/products/{{ p.id }}">{{ p.product_name }}</a></td>
+      <td>{{ (p.standards_and_certifications or "—")[:60] }}</td>
+      <td>{{ (p.performance_data or "—")[:60] }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No products in this category.</p>
+{% endif %}
+{% endif %}
+{% endblock %}

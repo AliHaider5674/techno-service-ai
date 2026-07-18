@@ -1,0 +1,25 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §2.8 — Stage 8 (Product Discovery).</strong>
+  The Product Analyst Agent identifies candidate Products within a
+  defined Technology Category. Constitutional register checks apply.
+</div>
+<h2>Products ({{ products | length }})</h2>
+{% if products %}
+<table>
+  <thead><tr><th>Product</th><th>Category</th><th>Standards</th></tr></thead>
+  <tbody>
+  {% for p in products %}
+    <tr>
+      <td><a href="/products/{{ p.id }}">{{ p.product_name }}</a></td>
+      <td><code>{{ p.technology_category_analysis_id[:8] }}…</code></td>
+      <td>{{ (p.standards_and_certifications or "—")[:60] }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No products yet.</p>
+{% endif %}
+{% endblock %}

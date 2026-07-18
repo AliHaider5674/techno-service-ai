@@ -1,0 +1,33 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §2.8 — Product Workspace.</strong>
+  The Product Analysis is the input to Stage 9 (Replacement Analysis)
+  where the VQR is applied.
+</div>
+<h2>{% if product %}{{ product.product_name }}{% else %}Not Found{% endif %}</h2>
+{% if product %}
+<div>
+  <p><strong>Evaluation criteria:</strong> {{ product.evaluation_criteria or "—" }}</p>
+  <p><strong>Performance data:</strong> {{ product.performance_data or "—" }}</p>
+  <p><strong>Standards and certifications:</strong> {{ product.standards_and_certifications or "—" }}</p>
+</div>
+<h2>Comparative Analyses ({{ comparatives | length }})</h2>
+{% if comparatives %}
+<table>
+  <thead><tr><th>VQR Classification</th><th>Current Solution</th><th>Intelligence</th></tr></thead>
+  <tbody>
+  {% for c in comparatives %}
+    <tr>
+      <td><span class="badge {{ c.value_qualification_classification | lower }}">{{ c.value_qualification_classification }}</span></td>
+      <td>{{ (c.current_solution_description or "—")[:60] }}</td>
+      <td>{{ c.intelligence_status }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No comparative analyses yet. Stage 9 will create one.</p>
+{% endif %}
+{% endif %}
+{% endblock %}

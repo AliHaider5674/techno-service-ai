@@ -45,3 +45,4 @@ debug_admin_used.py
 debug_test.py
 tests/debug_*.py
 tests/manual/
+src/techno_service_ai/templates/phase4/_list_with_table.html

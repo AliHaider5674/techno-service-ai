@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title or "Phase 4" }} — {{ app_name }}</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>
+    .phase4 { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+    .phase4 h1 { font-size: 1.4rem; margin: 0.5rem 0; }
+    .phase4 h2 { font-size: 1.1rem; margin: 1rem 0 0.3rem; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+    .phase4 h3 { font-size: 1rem; margin: 0.8rem 0 0.2rem; color: #445; }
+    .phase4 .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; background: #eef; color: #224; }
+    .phase4 .badge.qualifies { background: #dfd; color: #060; }
+    .phase4 .badge.unverified { background: #fed; color: #840; }
+    .phase4 .badge.conditional { background: #ffd; color: #880; }
+    .phase4 .badge.classified { background: #efd; color: #080; }
+    .phase4 .badge.validated { background: #dfd; color: #060; }
+    .phase4 .badge.established { background: #dfd; color: #060; }
+    .phase4 table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+    .phase4 th, .phase4 td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #eee; }
+    .phase4 th { background: #f6f6f9; }
+    .phase4 .constitutional { border: 1px solid #ccd; padding: 0.5rem 1rem; margin: 0.5rem 0; background: #fafafd; }
+    .phase4 .principal { font-size: 0.9rem; color: #555; margin-bottom: 1rem; }
+    .phase4 .kpi { display: inline-block; padding: 1rem 1.5rem; margin: 0.5rem; background: #f6f6f9; border-radius: 6px; }
+    .phase4 .kpi .n { font-size: 1.6rem; font-weight: 600; }
+    .phase4 .kpi .label { font-size: 0.85rem; color: #555; }
+    .phase4 .zone { border: 1px solid #ddd; padding: 0.6rem; margin: 0.4rem 0; background: #fff; }
+    .phase4 .zone .ztitle { font-size: 0.85rem; color: #777; margin-bottom: 0.3rem; }
+    .phase4 .empty { color: #888; font-style: italic; padding: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="phase4">
+    <h1>{{ title or "Phase 4" }}</h1>
+    {% if principal %}
+    <div class="principal">Signed in as <strong>{{ principal.display_name }}</strong> ({{ principal.username }}) — roles: {{ principal.role_codes | join(", ") }}</div>
+    {% endif %}
+    {% block body %}{% endblock %}
+    <hr />
+    <p>
+      <a href="/">← Home</a> ·
+      <a href="/dashboards/executive">Executive Dashboard</a> ·
+      <a href="/opportunities">Opportunities</a> ·
+      <a href="/industrial/environment">Industrial</a> ·
+      <a href="/technologies">Technology</a> ·
+      <a href="/ai/recommendations">AI Recommendations</a>
+    </p>
+  </div>
+</body>
+</html>

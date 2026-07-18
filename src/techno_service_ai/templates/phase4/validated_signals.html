@@ -1,0 +1,26 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §2.3 — Stage 3 (Validated Signal).</strong>
+  The Validated Signal Agent confirms the activity has cleared the
+  Preliminary Evidence Review (Document 06 §6.1).
+</div>
+<h2>Validated Signals ({{ signals | length }})</h2>
+{% if signals %}
+<table>
+  <thead><tr><th>Activity ID</th><th>Outcome</th><th>Status</th><th>Review Date</th></tr></thead>
+  <tbody>
+  {% for s in signals %}
+    <tr>
+      <td><code>{{ s.activity_id[:8] }}…</code></td>
+      <td><span class="badge {{ s.preliminary_review_outcome | lower }}">{{ s.preliminary_review_outcome }}</span></td>
+      <td>{{ s.status }}</td>
+      <td>{{ s.preliminary_review_date }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No validated signals yet.</p>
+{% endif %}
+{% endblock %}

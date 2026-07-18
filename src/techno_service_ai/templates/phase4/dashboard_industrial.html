@@ -1,0 +1,20 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>DASH-INT-001 — Industrial Intelligence Dashboard.</strong>
+  Visibility into the Industrial Intelligence Office: profiles,
+  activities, validated signals, source coverage, top findings.
+</div>
+<h2>Industrial Intelligence — Key Metrics</h2>
+<div>
+  <div class="kpi"><div class="n">{{ n_profiles }}</div><div class="label">Environmental Profiles</div></div>
+  <div class="kpi"><div class="n">{{ n_activities }}</div><div class="label">Industrial Activities</div></div>
+  <div class="kpi"><div class="n">{{ n_signals }}</div><div class="label">Validated Signals</div></div>
+</div>
+<h2>Sectoral KPIs</h2>
+<p>By sector, by date, by source — wired in Phase 7.</p>
+<h2>Source Coverage</h2>
+<p>By sector, by date, by source type — wired in Phase 7.</p>
+<h2>Top Findings</h2>
+<p>By sector, by date, by confidence — wired in Phase 7.</p>
+{% endblock %}

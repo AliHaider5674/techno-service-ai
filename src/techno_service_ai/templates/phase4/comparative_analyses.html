@@ -1,0 +1,28 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §2.9 + Article VII — Stage 9 (Replacement Analysis) + VQR.</strong>
+  The Comparative Analysis is the case that the VQR is applied to.
+  Per Article VII paragraph 1, a 25% measurable improvement is
+  required for QUALIFIES; otherwise the case is one of the
+  unverified statuses (UNVERIFIED_VALUE_HYPOTHESIS, etc.).
+</div>
+<h2>Comparative Analyses ({{ comparatives | length }})</h2>
+{% if comparatives %}
+<table>
+  <thead><tr><th>VQR Classification</th><th>Current Solution</th><th>Intelligence</th><th>Strategic Exception</th></tr></thead>
+  <tbody>
+  {% for c in comparatives %}
+    <tr>
+      <td><span class="badge {{ c.value_qualification_classification | lower }}">{{ c.value_qualification_classification }}</span></td>
+      <td>{{ (c.current_solution_description or "—")[:60] }}</td>
+      <td>{{ c.intelligence_status }}</td>
+      <td>{% if c.strategic_exception_flag %}<span class="badge">EXCEPTION</span>{% else %}—{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No comparative analyses yet. The VQR is applied at Stage 9.</p>
+{% endif %}
+{% endblock %}

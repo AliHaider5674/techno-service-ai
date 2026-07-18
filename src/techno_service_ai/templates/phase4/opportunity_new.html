@@ -1,0 +1,29 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §2.4 — Stage 4 (New Opportunity).</strong>
+  An Opportunity is created from a Validated Signal. The Discovery
+  Order is enforced end to end: S01 → S24.
+</div>
+<h2>Create Opportunity from a Validated Signal</h2>
+<h3>Available Validated Signals ({{ signals | length }})</h3>
+{% if signals %}
+<table>
+  <thead><tr><th>Signal ID</th><th>Outcome</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for s in signals %}
+    <tr>
+      <td><code>{{ s.canonical_id[:8] }}…</code></td>
+      <td>{{ s.preliminary_review_outcome }}</td>
+      <td>{{ s.status }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p>Use the API or the Opportunity Workspace to create the Opportunity
+  from a Validated Signal. The Discovery Order is enforced: an
+  Opportunity is created at S04 after the Validated Signal (S03).</p>
+{% else %}
+<p class="empty">No validated signals yet. Walk S01-S03 first.</p>
+{% endif %}
+{% endblock %}

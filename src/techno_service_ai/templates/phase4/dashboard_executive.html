@@ -1,0 +1,28 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>DASH-EXEC-001 — Executive Dashboard (the default Home for the
+  Executive persona).</strong>
+  The most important dashboard: strategic KPIs, decision-grade
+  information, approval actions, board-ready summary, AI Strategic
+  Recommendations, top risks, recent decisions.
+</div>
+<h2>Executive — Key Metrics</h2>
+<div>
+  <div class="kpi"><div class="n">{{ n_opps }}</div><div class="label">Active Opportunities</div></div>
+  <div class="kpi"><div class="n">{{ n_signals }}</div><div class="label">Validated Signals</div></div>
+  <div class="kpi"><div class="n">{{ n_comparatives }}</div><div class="label">Comparative Analyses</div></div>
+</div>
+<h2>Open Approvals</h2>
+<p>Per Decision Class and Required Approver Role — see
+  <a href="/approvals/inbox">/approvals/inbox</a>.</p>
+<h2>Open Verifications</h2>
+<p>Preliminary, Specialist, Independent Final — see
+  <a href="/verification/independent-final-queue">/verification/independent-final-queue</a>.</p>
+<h2>AI Strategic Recommendations</h2>
+<p>See <a href="/ai/recommendations">/ai/recommendations</a>.</p>
+<h2>Top Risks</h2>
+<p>Risk Register — wired in Phase 7.</p>
+<h2>Recent Decisions</h2>
+<p>Decision Log — see <a href="/approvals/records">/approvals/records</a>.</p>
+{% endblock %}

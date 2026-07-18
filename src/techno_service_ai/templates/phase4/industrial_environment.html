@@ -1,0 +1,28 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §2.1 — Stage 1 (Industrial Environment).</strong>
+  The Industrial Environment Monitor Agent maintains the Environmental
+  Profile per the constitutional entry conditions.
+</div>
+<h2>Environmental Profiles ({{ profiles | length }})</h2>
+{% if profiles %}
+<table>
+  <thead><tr><th>Sector</th><th>Geography</th><th>Last refreshed</th><th>Source</th></tr></thead>
+  <tbody>
+  {% for p in profiles %}
+    <tr>
+      <td>{{ p.sector }}</td>
+      <td>{{ p.geography }}</td>
+      <td>{{ p.last_refreshed_at or "—" }}</td>
+      <td><code>{{ p.source_citation[:60] }}…</code></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No profiles yet. The Industrial Environment Monitor Agent
+  (Document 02 §4.2.1) creates the first profile when a sector/geography
+  comes into scope.</p>
+{% endif %}
+{% endblock %}

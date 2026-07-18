@@ -1,0 +1,21 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Constitution Article X + UI/UX §9 AIW-002 — AI Recommendations.</strong>
+  Every AI Recommendation must carry: source, evidence, confidence,
+  explainability. A Recommendation without ANY of these is REJECTED.
+</div>
+<h2>AI Recommendations</h2>
+<p>The 4 mandatory properties of a constitutional AI Recommendation:</p>
+<table>
+  <thead><tr><th>Property</th><th>Source</th><th>Required</th></tr></thead>
+  <tbody>
+    <tr><td>Source citations</td><td>Article X paragraph 8 "No Fabrication"</td><td>at least 1</td></tr>
+    <tr><td>Evidence references</td><td>Article X paragraph 6 "Verified-Only Output"</td><td>at least 1</td></tr>
+    <tr><td>Confidence</td><td>UI/UX §9 AIW-003</td><td>0..1</td></tr>
+    <tr><td>Explainability</td><td>UI/UX §9 AIW-006</td><td>required (non-empty)</td></tr>
+  </tbody>
+</table>
+<p>Test coverage: <code>tests/test_phase4.py::test_ac_p4_005_ai_recommendation_must_be_sourced_evidenced_explainable</code>
+  — a Recommendation without source / evidence / confidence / explainability is REJECTED.</p>
+{% endblock %}

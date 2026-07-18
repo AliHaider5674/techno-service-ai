@@ -1,7 +1,7 @@
 # Constitutional Traceability
 
 **Project:** Techno Service AI Intelligence System
-**Phase:** 2 — Data Foundation (current phase)
+**Phase:** 4 — Discovery Order Operational Surfaces (current phase)
 
 This matrix is the bidirectional trace between the implementation
 artefacts (Phase 1 + Phase 2) and the constitutional clauses / Lower
@@ -145,4 +145,4 @@ column is the constitutional source that authorises it.
 
 ---
 
-*End of Constitutional Traceability — Phase 3.*
+*End of Constitutional Traceability — Phase 4.*

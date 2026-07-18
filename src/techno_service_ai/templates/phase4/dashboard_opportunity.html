@@ -1,0 +1,19 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>DASH-INT-002 — Opportunity Intelligence Dashboard.</strong>
+  Visibility into the Opportunity Intelligence Office: problems,
+  root causes, value cases, opportunities, AI recommendations.
+</div>
+<h2>Opportunity Intelligence — Key Metrics</h2>
+<div>
+  <div class="kpi"><div class="n">{{ n_opps }}</div><div class="label">Opportunities</div></div>
+  <div class="kpi"><div class="n">{{ n_problems }}</div><div class="label">Problems / Needs</div></div>
+  <div class="kpi"><div class="n">{{ n_roots }}</div><div class="label">Root Causes</div></div>
+  <div class="kpi"><div class="n">{{ n_values }}</div><div class="label">Value Cases</div></div>
+</div>
+<h2>AI Recommendations</h2>
+<p>Per Office, by confidence, by outcome — wired in Phase 7.</p>
+<h2>Top Opportunities</h2>
+<p>By stage, by status, by commercial impact — wired in Phase 7.</p>
+{% endblock %}

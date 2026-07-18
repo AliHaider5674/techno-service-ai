@@ -1,0 +1,20 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §3 — Workflow Timeline.</strong>
+  Every state transition is recorded (STATE-G-001). The Timeline shows
+  the full history of an Opportunity.
+</div>
+<h2>Timeline for Opportunity <code>{{ opportunity_id }}</code></h2>
+<p>The Timeline is composed of:</p>
+<ul>
+  <li>Stage events (start, complete, skip-rejected)</li>
+  <li>State transitions (RUNNING, WAITING, ESCALATED, etc.)</li>
+  <li>Gate events (PASSED, BYPASS_REJECTED)</li>
+  <li>Decision Log entries (Approvals, Rejections, Conditional)</li>
+  <li>Handoff Log entries (Cross-Office handoffs)</li>
+  <li>Escalation Log entries (raised, acknowledged, resolved)</li>
+  <li>Notification events (issued, delivered, acknowledged)</li>
+</ul>
+<p>See the Audit Log screen for the full audit chain.</p>
+{% endblock %}

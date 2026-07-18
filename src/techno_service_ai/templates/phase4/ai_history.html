@@ -1,0 +1,15 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Constitution Article XIX + UI/UX §9 AIW-005 — AI History.</strong>
+  Every AI Recommendation, every AI response, every AI action, every
+  AI decision support is recorded in the audit log.
+</div>
+<h2>AI History</h2>
+<p>Per UI/UX §9 AIW-005: "AI History records every AI Recommendation,
+  every AI response, every AI action, every AI decision support.
+  The user can see the history, filter the history, export the
+  history."</p>
+<p>The Phase 4 service layer writes AI events to the audit log via
+  the existing append-only API (Constitution Article XX).</p>
+{% endblock %}

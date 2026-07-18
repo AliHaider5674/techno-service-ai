@@ -1,0 +1,27 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §2.2 — Stage 2 (Industrial Activity Detection).</strong>
+  The Industrial Activity Detection Agent classifies each activity as
+  Confirmed, Announced, Probable, or Speculative.
+</div>
+<h2>Industrial Activities ({{ activities | length }})</h2>
+{% if activities %}
+<table>
+  <thead><tr><th>Sector</th><th>Geography</th><th>Description</th><th>Classification</th><th>Date</th></tr></thead>
+  <tbody>
+  {% for a in activities %}
+    <tr>
+      <td>{{ a.sector }}</td>
+      <td>{{ a.geography }}</td>
+      <td>{{ a.activity_description[:80] }}</td>
+      <td><span class="badge {{ a.classification | lower }}">{{ a.classification }}</span></td>
+      <td>{{ a.activity_date }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No industrial activities detected yet.</p>
+{% endif %}
+{% endblock %}

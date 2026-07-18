@@ -1,0 +1,26 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 06 §2.7 — Stage 7 (Technology Category).</strong>
+  The Technology Category Analyst Agent identifies the category
+  capable of addressing the established Value Case.
+</div>
+<h2>Technology Categories ({{ techs | length }})</h2>
+{% if techs %}
+<table>
+  <thead><tr><th>Category</th><th>Fit Rationale</th><th>Alternatives</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for t in techs %}
+    <tr>
+      <td><a href="/technologies/{{ t.id }}">{{ t.technology_category }}</a></td>
+      <td>{{ (t.category_fit_rationale or "—")[:80] }}</td>
+      <td>{{ (t.alternatives_considered or "—")[:60] }}</td>
+      <td>{{ t.status }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No technology categories yet.</p>
+{% endif %}
+{% endblock %}

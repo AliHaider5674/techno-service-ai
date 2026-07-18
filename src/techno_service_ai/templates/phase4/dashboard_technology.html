@@ -1,0 +1,17 @@
+{% extends "phase4/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>DASH-INT-003 — Technology Intelligence Dashboard.</strong>
+  Visibility into the Technology Intelligence Office: categories,
+  products, comparatives, Kuwait suitability reviews.
+</div>
+<h2>Technology Intelligence — Key Metrics</h2>
+<div>
+  <div class="kpi"><div class="n">{{ n_techs }}</div><div class="label">Technology Categories</div></div>
+  <div class="kpi"><div class="n">{{ n_products }}</div><div class="label">Products</div></div>
+  <div class="kpi"><div class="n">{{ n_comparatives }}</div><div class="label">Comparative Analyses</div></div>
+  <div class="kpi"><div class="n">{{ n_ksr }}</div><div class="label">Kuwait Suitability Reviews</div></div>
+</div>
+<h2>VQR Distribution</h2>
+<p>By classification (QUALIFIES, UNVERIFIED_VALUE_HYPOTHESIS, etc.) — wired in Phase 7.</p>
+{% endblock %}
