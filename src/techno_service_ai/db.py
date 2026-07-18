@@ -6,10 +6,12 @@ Architecture), the database engine is an implementer choice. The choice
 `docs/DECISION_AND_ASSUMPTION_REGISTER.md`.
 
 The schema is created by `apply_schema`, which:
-  1. Creates all ORM tables.
+  1. Creates all ORM tables (Phase 1 + Phase 2 entities).
   2. Installs SQLite triggers that REJECT UPDATE and DELETE on `audit_log`
      (AC-AUD-002 immutability).
-  3. Creates the audit hash-chain seed.
+  3. Installs SQLite triggers that REJECT UPDATE and DELETE on every
+     constitutional table (AC-P2-005, AC-DL-004 — no silent amendment).
+  4. Runs the migration framework (Phase 2 / IMPL-P2-023).
 """
 from __future__ import annotations
 
@@ -23,6 +25,11 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from .config import SETTINGS
 from .schema import Base
+
+# Importing phase2_schema registers all 20 Information Domains of Phase 2
+# with the SQLAlchemy Base, so that `Base.metadata.create_all` creates
+# them. The constitutional trigger installation below then protects them.
+from . import phase2_schema  # noqa: F401  (side-effect import)
 
 # Single shared engine. SQLite needs check_same_thread=False for FastAPI.
 _engine: Engine = create_engine(
@@ -89,6 +96,70 @@ def apply_schema(engine: Engine | None = None) -> None:
         with eng.begin() as conn:
             for stmt in _AUDIT_IMMUTABILITY_TRIGGERS:
                 conn.execute(text(stmt))
+        install_constitutional_triggers(eng)
+
+
+def install_constitutional_triggers(engine: Engine) -> None:
+    """Install BEFORE UPDATE and BEFORE DELETE triggers on every table
+    marked `__constitutional__ = True`.
+
+    Per Constitution Article XX paragraph 6 / DB-PRIN-018:
+    No material record may be silently deleted or overwritten.
+
+    The triggers raise `RAISE(ABORT)` with a table-specific message
+    so the violation is auditable. Updates are implemented by inserting
+    a new versioned row (same canonical_id, new version) — see
+    `ConstitutionalMixin` and the Phase 2 docs.
+    """
+    if engine.dialect.name != "sqlite":
+        return
+    # Tables that legitimately need to be updated: audit_log, migration,
+    # and the Phase 1 operational tables (user, role, user_role, persona,
+    # user_session, access_policy, access_policy_role). These are
+    # *operational* records, not constitutional records.
+    EXEMPT = {
+        "audit_log",
+        "migration",
+        "user", "role", "user_role", "persona",
+        "user_session", "access_policy", "access_policy_role",
+    }
+    constitutional_tables: set[str] = set()
+    # Pull the class attribute from each mapped class.
+    for mapper in Base.registry.mappers:
+        cls = mapper.class_
+        if getattr(cls, "__constitutional__", False):
+            tbl = getattr(cls, "__tablename__", None)
+            if tbl:
+                constitutional_tables.add(tbl)
+    # Also include any Table marked constitutional via Table.info (future-proofing).
+    for t in Base.metadata.tables.values():
+        if getattr(t, "info", {}).get("constitutional", False):
+            constitutional_tables.add(t.name)
+    # De-duplicate and exclude exempt tables.
+    targets = sorted({t for t in constitutional_tables if t not in EXEMPT})
+    with engine.begin() as conn:
+        for table in targets:
+            # Idempotent: drop any prior triggers we may have installed.
+            for trig in (f"{table}_no_update", f"{table}_no_delete"):
+                conn.execute(text(f"DROP TRIGGER IF EXISTS {trig}"))
+            conn.execute(text(
+                f"""
+                CREATE TRIGGER {table}_no_update
+                BEFORE UPDATE ON {table}
+                BEGIN
+                    SELECT RAISE(ABORT, '{table} is constitutional and append-only: UPDATE is forbidden (Constitution Article XX / DB-PRIN-018)');
+                END;
+                """
+            ))
+            conn.execute(text(
+                f"""
+                CREATE TRIGGER {table}_no_delete
+                BEFORE DELETE ON {table}
+                BEGIN
+                    SELECT RAISE(ABORT, '{table} is constitutional and append-only: DELETE is forbidden (Constitution Article XX / DB-PRIN-018)');
+                END;
+                """
+            ))
 
 
 def reset_schema(engine: Engine | None = None) -> None:

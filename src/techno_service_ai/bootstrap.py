@@ -80,6 +80,10 @@ DEFAULT_POLICIES: list[dict] = [
 
 def seed() -> None:
     apply_schema()
+    # Run the migration framework. Migrations are forward-only and
+    # idempotent; missing-applied migrations are applied in order.
+    from .migrations import apply_all
+    apply_all(applied_by="bootstrap")
     with session_scope() as s:
         # --- Roles ---
         existing = {r.code for r in s.execute(select(Role)).scalars()}

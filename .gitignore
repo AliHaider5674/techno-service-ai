@@ -36,3 +36,12 @@ data/
 
 # Logs
 *.log
+
+# Debug / probe scripts (transient — never tracked)
+debug_*.py
+probe.py
+debug_chain_used.py
+debug_admin_used.py
+debug_test.py
+tests/debug_*.py
+tests/manual/

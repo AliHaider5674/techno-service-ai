@@ -331,3 +331,38 @@ Index("ix_audit_event_type", AuditLog.event_type)
 Index("ix_audit_actor_user", AuditLog.actor_user_id)
 Index("ix_audit_target", AuditLog.target_type, AuditLog.target_id)
 Index("ix_audit_occurred_at", AuditLog.occurred_at)
+
+
+# ---------------------------------------------------------------------------
+# Migration — records every applied migration (Phase 2)
+# ---------------------------------------------------------------------------
+#
+# The `migration` table is OPERATIONAL (one of the 9 tables exempt from
+# the constitutional no-silent-amendment triggers) so that `_record_migration`
+# can do an UPSERT after a rollback-and-re-apply cycle. It is included in
+# `Base.metadata` so that `reset_schema` drops and recreates it cleanly.
+
+
+class Migration(Base):
+    """A record of one applied (or attempted) schema migration.
+
+    Forward-only, versioned, reproducible, auditable per Phase 2 requirements
+    (Constitution Article XX + Document 05 §3). The version is unique. A
+    migration can be in status `APPLIED`, `ROLLED_BACK`, or `FAILED`. The
+    `checksum` is a SHA-256 of (version | name | body_fingerprint) so that
+    drift is detectable.
+    """
+
+    __tablename__ = "migration"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    version: Mapped[str] = mapped_column(String(16), nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(String(128), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    applied_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    applied_by: Mapped[str] = mapped_column(String(64), nullable=False, default="system")
+    environment: Mapped[str] = mapped_column(String(32), nullable=False, default="development")
+    status: Mapped[str] = mapped_column(String(16), nullable=False, default="APPLIED")
+    checksum: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    duration_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
