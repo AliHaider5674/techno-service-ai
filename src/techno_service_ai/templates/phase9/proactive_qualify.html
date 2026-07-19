@@ -1,0 +1,75 @@
+{% extends "phase9/base.html" %}
+{% block title %}New Product Detector — 5 Qualification Filters{% endblock %}
+{% block content %}
+<h1>New Product Detector — §4.18.2</h1>
+<p class="pd-meta">SCR-PD-003. Apply the 5 qualification filters (F1..F5). All 5 must PASS for QUALIFIED.</p>
+
+{% if error %}<div class="pd-error">{{ error }}</div>{% endif %}
+
+<form method="post" action="/proactive/qualify">
+  <div class="pd-form-row">
+    <label for="discovery_id">Discovery ID</label>
+    <input id="discovery_id" name="discovery_id" required />
+  </div>
+
+  <h3 style="margin-top:1rem;">F1 — Kuwait Climate Suitability</h3>
+  <div class="pd-form-row">
+    <label for="f1_heat_rating">Heat Rating (must include 55C+ or 60C+)</label>
+    <input id="f1_heat_rating" name="f1_heat_rating" placeholder="e.g. -10C to +60C" value="-10C to +60C" />
+  </div>
+  <div class="pd-form-row">
+    <label for="f1_dust_rating">Dust Rating (IP65 / IP66 / NEMA 4)</label>
+    <input id="f1_dust_rating" name="f1_dust_rating" placeholder="e.g. IP66" value="IP66" />
+  </div>
+
+  <h3 style="margin-top:1rem;">F2 — Retrofit-Friendliness</h3>
+  <div class="pd-form-row">
+    <label><input type="checkbox" name="f2_requires_major_change" /> Requires major system change (FAIL if checked)</label>
+  </div>
+  <div class="pd-form-row">
+    <label for="f2_installation_complexity">Installation Complexity</label>
+    <select id="f2_installation_complexity" name="f2_installation_complexity">
+      <option value="LOW" selected>LOW</option>
+      <option value="MEDIUM">MEDIUM</option>
+      <option value="HIGH">HIGH</option>
+    </select>
+  </div>
+
+  <h3 style="margin-top:1rem;">F3 — No Agent in Kuwait</h3>
+  <div class="pd-form-row">
+    <label for="f3_existing_agents">Existing agents in Kuwait (comma-separated; empty = exclusive available)</label>
+    <input id="f3_existing_agents" name="f3_existing_agents" placeholder="" />
+  </div>
+
+  <h3 style="margin-top:1rem;">F4 — Low Operating Cost</h3>
+  <div class="pd-form-row">
+    <label><input type="checkbox" name="f4_requires_specialised_training" /> Requires specialised training (FAIL if checked)</label>
+  </div>
+  <div class="pd-form-row">
+    <label><input type="checkbox" name="f4_requires_engineering_team" /> Requires engineering team (FAIL if checked)</label>
+  </div>
+  <div class="pd-form-row">
+    <label for="f4_annual_maintenance_cost">Annual Maintenance Cost</label>
+    <select id="f4_annual_maintenance_cost" name="f4_annual_maintenance_cost">
+      <option value="LOW" selected>LOW</option>
+      <option value="MEDIUM">MEDIUM</option>
+      <option value="HIGH">HIGH</option>
+    </select>
+  </div>
+
+  <h3 style="margin-top:1rem;">F5 — Medium / Emerging Company</h3>
+  <div class="pd-form-row">
+    <label for="f5_employee_count">Employee Count (10..2000)</label>
+    <input type="number" id="f5_employee_count" name="f5_employee_count" value="200" />
+  </div>
+  <div class="pd-form-row">
+    <label for="f5_annual_revenue_usd">Annual Revenue USD (1M..500M)</label>
+    <input type="number" id="f5_annual_revenue_usd" name="f5_annual_revenue_usd" value="20000000" />
+  </div>
+  <div class="pd-form-row">
+    <label><input type="checkbox" name="f5_is_tier_1" /> Tier-1 manufacturer (FAIL if checked)</label>
+  </div>
+
+  <button type="submit" style="padding:.5rem 1rem;background:#111827;color:#fff;border:none;border-radius:4px;">Apply 5 Filters</button>
+</form>
+{% endblock %}

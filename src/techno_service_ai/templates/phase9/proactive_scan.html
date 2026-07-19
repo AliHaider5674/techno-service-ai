@@ -1,0 +1,67 @@
+{% extends "phase9/base.html" %}
+{% block title %}Global Product Monitor — Raise Discovery{% endblock %}
+{% block content %}
+<h1>Global Product Monitor — §4.18.1</h1>
+<p class="pd-meta">SCR-PD-002. Source citation is REQUIRED (Constitution Article X).</p>
+
+{% if error %}<div class="pd-error">{{ error }}</div>{% endif %}
+
+<form method="post" action="/proactive/scan">
+  <div class="pd-form-row">
+    <label for="product_name">Product Name</label>
+    <input id="product_name" name="product_name" required />
+  </div>
+  <div class="pd-form-row">
+    <label for="product_category">Product Category</label>
+    <select id="product_category" name="product_category">
+      <option value="INDUSTRIAL_MAINTENANCE">Industrial Maintenance</option>
+      <option value="OIL_GAS">Oil & Gas</option>
+      <option value="PROCESS_INSTRUMENTATION">Process Instrumentation</option>
+      <option value="ELECTRICAL">Electrical</option>
+      <option value="MECHANICAL">Mechanical</option>
+      <option value="CORROSION_PROTECTION">Corrosion Protection</option>
+      <option value="OTHER">Other</option>
+    </select>
+  </div>
+  <div class="pd-form-row">
+    <label for="sector">Sector</label>
+    <input id="sector" name="sector" required placeholder="e.g. Refinery Maintenance" />
+  </div>
+  <div class="pd-form-row">
+    <label for="manufacturer_name">Manufacturer Name</label>
+    <input id="manufacturer_name" name="manufacturer_name" required />
+  </div>
+  <div class="pd-form-row">
+    <label for="manufacturer_country">Manufacturer Country</label>
+    <input id="manufacturer_country" name="manufacturer_country" />
+  </div>
+  <div class="pd-form-row">
+    <label for="discovery_source">Discovery Source</label>
+    <select id="discovery_source" name="discovery_source">
+      <option value="WEB_SEARCH">Web Search</option>
+      <option value="TRADE_PUBLICATION">Trade Publication</option>
+      <option value="PATENT">Patent</option>
+      <option value="EXHIBITION">Exhibition</option>
+      <option value="REFERRAL">Referral</option>
+      <option value="PARTNER">Partner</option>
+    </select>
+  </div>
+  <div class="pd-form-row">
+    <label for="source_citation_url">Source Citation URL (REQUIRED)</label>
+    <input id="source_citation_url" name="source_citation_url" required placeholder="https://..." />
+  </div>
+  <div class="pd-form-row">
+    <label for="signal_strength">Signal Strength</label>
+    <select id="signal_strength" name="signal_strength">
+      <option value="HIGH">HIGH</option>
+      <option value="MEDIUM" selected>MEDIUM</option>
+      <option value="LOW">LOW</option>
+    </select>
+  </div>
+  <div class="pd-form-row">
+    <label for="notes">Notes</label>
+    <textarea id="notes" name="notes"></textarea>
+  </div>
+  <button type="submit" style="padding:.5rem 1rem;background:#111827;color:#fff;border:none;border-radius:4px;">Raise Discovery Signal</button>
+</form>
+{% endblock %}

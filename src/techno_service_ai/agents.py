@@ -2240,32 +2240,201 @@ def all_office_roster(service: "WorkflowService | None" = None) -> list[Agent]:
         ConstitutionalLearningAgent(svc),
     ])
 
+    # Product Discovery Proactive Office (§4.18) — 4 (Phase 9 / Constitution v2.4)
+    roster.extend([
+        GlobalProductMonitorAgent(svc),
+        NewProductDetectorAgent(svc),
+        EmergingCompanyScoutAgent(svc),
+        PatentWatchAgent(svc),
+    ])
+
     return roster
 
 
 def all_office_count() -> int:
-    """Count distinct Offices across the full Charter."""
+    """Count distinct Offices across the full Charter (v2.3 + v2.4)."""
     roster = all_office_roster()
     return len({a.office for a in roster})
 
 
 def assert_phase8_full_roster() -> int:
-    """Assert the full 17-Office Charter roster is activated.
+    """Assert the v1.0 baseline (17-Office) Charter roster is preserved.
 
-    Returns the count of Principal Agents. Per Document 02 §4.1..4.17,
-    the canonical Principal Agent count is 65 (including 5 Verifier
-    Agents of the Verification Office §4.9).
-
-    Note: This is a strict constitutional target. The Phase 7 roster
-    was 31 (the 7 Offices added in Phase 7). The full Charter adds
-    34 more from Phases 1-6 (excluding the Phase 3 workflow engine
-    which is operational, not Principal).
+    Phase 8's assertion checks the v1.0 baseline; Phase 9's assertion
+    (assert_phase9_full_roster) checks the v2.4 surface (18 Offices).
     """
     roster = all_office_roster()
     n = len(roster)
     offices = {a.office for a in roster}
-    assert len(offices) == 17, (
-        f"Full Charter must have 17 Offices, got {len(offices)}: {sorted(offices)}"
+    # v1.0 baseline: 17 Offices from Document 02 §4.1..4.17.
+    # v2.4 adds Office 18 — the v1.0 baseline count includes it too
+    # (it's a strict-superset of the v1.0 set).
+    assert len(offices) >= 17, (
+        f"v1.0 baseline must have at least 17 Offices, got {len(offices)}: "
+        f"{sorted(offices)}"
     )
     return n
+
+
+def assert_phase9_full_roster() -> int:
+    """Assert the v2.4 surface: 18 Offices, 73 Principal Agents.
+
+    Per Constitution v2.4 (Class 4 adoption 2026-07-19), the
+    canonical Principal Agent count is 73 (v1.0 baseline 69 + 4
+    Office 18 agents).
+    """
+    roster = all_office_roster()
+    n = len(roster)
+    offices = {a.office for a in roster}
+    assert len(offices) == 18, (
+        f"v2.4 surface must have 18 Offices, got {len(offices)}: "
+        f"{sorted(offices)}"
+    )
+    assert "Product Discovery Proactive Office" in offices
+    return n
+
+
+# ---------------------------------------------------------------------------
+# Phase 9 — Office 18: Product Discovery Proactive (Constitution v2.4)
+# ---------------------------------------------------------------------------
+
+
+class GlobalProductMonitorAgent(Agent):
+    """Document 02 §4.18.1 — Global Product Monitor Agent.
+
+    Scans all sectors for new industrial maintenance and oil/gas
+    products. Generates discovery signals with source citation
+    (Constitution Article X). Drives Stage 8.5 (Proactive Discovery).
+    """
+
+    def __init__(self, service: "WorkflowService | None" = None) -> None:
+        super().__init__(
+            name="Global Product Monitor Agent",
+            constitutional_purpose=(
+                "Continuously scan all sectors for new industrial "
+                "maintenance and oil/gas products; raise discovery "
+                "signals with source citation."
+            ),
+            prohibited_actions=(
+                "Raise a discovery without source citation",
+                "Skip the 3 Constitutional Registers at the gate",
+            ),
+            office="Product Discovery Proactive Office",
+            charter_section="Document 02 §4.18.1",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, **kwargs):
+        return self.service.create_proactive_discovery(
+            actor_id=actor_id, role_code=role_code, **kwargs
+        )
+
+
+class NewProductDetectorAgent(Agent):
+    """Document 02 §4.18.2 — New Product Detector Agent.
+
+    Applies the 5 qualification filters (F1..F5) to a discovery:
+    F1 Kuwait climate, F2 retrofit-friendliness, F3 no agent in
+    Kuwait, F4 low operating cost, F5 medium/emerging company.
+    """
+
+    def __init__(self, service: "WorkflowService | None" = None) -> None:
+        super().__init__(
+            name="New Product Detector Agent",
+            constitutional_purpose=(
+                "Apply the 5 qualification filters (F1..F5) to a "
+                "Proactive Product Discovery; produce a "
+                "QualificationFilterResult."
+            ),
+            prohibited_actions=(
+                "Skip a filter",
+                "Override a filter outcome without recorded rationale",
+            ),
+            office="Product Discovery Proactive Office",
+            charter_section="Document 02 §4.18.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, **kwargs):
+        return self.service.create_qualification_filter_result(
+            actor_id=actor_id, role_code=role_code, **kwargs
+        )
+
+
+class EmergingCompanyScoutAgent(Agent):
+    """Document 02 §4.18.3 — Emerging Company Scout Agent.
+
+    Profiles medium/emerging companies in target sectors.
+    Excludes tier-1 manufacturers.
+    """
+
+    def __init__(self, service: "WorkflowService | None" = None) -> None:
+        super().__init__(
+            name="Emerging Company Scout Agent",
+            constitutional_purpose=(
+                "Profile medium/emerging companies in target sectors; "
+                "surface candidates for the Exclusive Agency "
+                "Acquisition Workflow."
+            ),
+            prohibited_actions=(
+                "Profile a tier-1 manufacturer",
+                "Bypass the company-size filter (F5)",
+            ),
+            office="Product Discovery Proactive Office",
+            charter_section="Document 02 §4.18.3",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, **kwargs):
+        return self.service.create_patent_alert(
+            actor_id=actor_id, role_code=role_code, **kwargs
+        )
+
+
+class PatentWatchAgent(Agent):
+    """Document 02 §4.18.4 — Patent Watch Agent.
+
+    Monitors patents in target sectors. Surfaces patent alerts
+    with relevance scoring and source citation.
+    """
+
+    def __init__(self, service: "WorkflowService | None" = None) -> None:
+        super().__init__(
+            name="Patent Watch Agent",
+            constitutional_purpose=(
+                "Monitor patents in target sectors; surface "
+                "patent alerts with relevance scoring and source "
+                "citation (Constitution Article X)."
+            ),
+            prohibited_actions=(
+                "Surface a patent alert without source citation",
+                "Alter a patent's source citation",
+            ),
+            office="Product Discovery Proactive Office",
+            charter_section="Document 02 §4.18.4",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, **kwargs):
+        return self.service.create_patent_alert(
+            actor_id=actor_id, role_code=role_code, **kwargs
+        )
+
+
+def phase9_office_roster(service: "WorkflowService | None" = None) -> list[Agent]:
+    """Return the 4 Office 18 Principal Agents activated in Phase 9."""
+    svc = service or WorkflowService()
+    return [
+        GlobalProductMonitorAgent(svc),
+        NewProductDetectorAgent(svc),
+        EmergingCompanyScoutAgent(svc),
+        PatentWatchAgent(svc),
+    ]
+
+
+def assert_phase9_agents() -> int:
+    """Assert the 4-agent Office 18 roster is complete."""
+    roster = phase9_office_roster()
+    assert len(roster) == 4, f"Phase 9 must have 4 Principal Agents, got {len(roster)}"
+    return 4
 

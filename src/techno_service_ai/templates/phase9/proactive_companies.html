@@ -1,0 +1,24 @@
+{% extends "phase9/base.html" %}
+{% block title %}Emerging Companies — §4.18.3{% endblock %}
+{% block content %}
+<h1>Emerging Company Scout — §4.18.3</h1>
+<p class="pd-meta">SCR-PD-005. Profile medium/emerging companies. Tier-1 manufacturers are out of scope (filter F5).</p>
+
+{% if error %}<div class="pd-error">{{ error }}</div>{% endif %}
+
+{% if companies %}
+<table class="pd-table">
+  <thead><tr><th>Manufacturer</th><th>Country</th><th>Tier</th><th>Discovered</th></tr></thead>
+  <tbody>
+  {% for c in companies %}
+    <tr>
+      <td>{{ c.manufacturer_name or c.id[:8] }}</td>
+      <td>{{ c.country or "—" }}</td>
+      <td>{% if c.is_tier_1 %}<span class="pd-badge fail">TIER-1</span>{% else %}<span class="pd-badge pass">EMERGING</span>{% endif %}</td>
+      <td>{{ c.created_at }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}<p class="pd-meta">No manufacturer profiles yet.</p>{% endif %}
+{% endblock %}

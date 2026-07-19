@@ -1113,6 +1113,161 @@ class ApprovalRequest(ConstitutionalMixin, Base):
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="PENDING")
 
 
+# ---------------------------------------------------------------------------
+# Information Domain 21 — Proactive Product Discovery (Constitution v2.4)
+#
+# Added 2026-07-19 under Class 4 adoption of Constitution Amendment v2.4
+# (techno_service_constitution_v2.4_amendment.md). Phase 9 implements
+# Office 18 (Product Discovery Proactive) with 4 Principal Agents, 5
+# qualification filters, and the Exclusive Agency Acquisition Workflow.
+#
+# These 6 entities are ADDITIVE — they extend the schema to v2.4 surface
+# without removing or modifying any of the 92 v2.3 entities.
+# ---------------------------------------------------------------------------
+
+
+class ProactiveProductDiscovery(ConstitutionalMixin, Base):
+    """ENT-PD-001 — Proactive Product Discovery record.
+
+    A signal raised by the Global Product Monitor Agent (§4.18.1)
+    when a new industrial maintenance or oil/gas product is detected
+    across the global market. The discovery then flows through the
+    5 qualification filters (New Product Detector Agent §4.18.2) and
+    either graduates to a Qualified Discovery (and on to Stage 8.5
+    of the Discovery Order) or is REJECTED.
+    """
+
+    __tablename__ = "proactive_product_discovery"
+    __constitutional__ = True  # type: ignore[attr-defined]
+
+    product_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    product_category: Mapped[str] = mapped_column(String(64), nullable=False)  # INDUSTRIAL_MAINTENANCE / OIL_GAS / etc.
+    sector: Mapped[str] = mapped_column(String(64), nullable=False)
+    manufacturer_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    manufacturer_country: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    discovery_source: Mapped[str] = mapped_column(String(64), nullable=False)  # WEB_SEARCH / TRADE_PUB / PATENT / etc.
+    source_citation_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    signal_strength: Mapped[str] = mapped_column(String(16), nullable=False)  # HIGH / MEDIUM / LOW
+    discovered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+
+class QualificationFilterResult(ConstitutionalMixin, Base):
+    """ENT-PD-002 — Qualification Filter Result.
+
+    The result of applying the 5 qualification filters (F1..F5) to
+    a Proactive Product Discovery. Each filter produces a pass/fail
+    with a rationale. A discovery is QUALIFIED only if all 5 filters
+    pass; otherwise it is REJECTED with the failed-filter rationale
+    recorded.
+    """
+
+    __tablename__ = "qualification_filter_result"
+    __constitutional__ = True  # type: ignore[attr-defined]
+
+    discovery_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    f1_kuwait_climate: Mapped[str] = mapped_column(String(16), nullable=False)  # PASS / FAIL
+    f1_rationale: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    f2_retrofit: Mapped[str] = mapped_column(String(16), nullable=False)
+    f2_rationale: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    f3_no_agent_kuwait: Mapped[str] = mapped_column(String(16), nullable=False)
+    f3_rationale: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    f4_low_operating_cost: Mapped[str] = mapped_column(String(16), nullable=False)
+    f4_rationale: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    f5_company_size: Mapped[str] = mapped_column(String(16), nullable=False)
+    f5_rationale: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    overall: Mapped[str] = mapped_column(String(16), nullable=False)  # QUALIFIED / REJECTED
+    reviewed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class WatchList(ConstitutionalMixin, Base):
+    """ENT-PD-003 — Watch List entry.
+
+    A subscription to ongoing monitoring of a product category,
+    sector, or manufacturer. Maintained by the Global Product
+    Monitor Agent. WatchList entries generate daily discovery
+    signals.
+    """
+
+    __tablename__ = "watch_list"
+    __constitutional__ = True  # type: ignore[attr-defined]
+
+    watch_label: Mapped[str] = mapped_column(String(255), nullable=False)
+    watch_type: Mapped[str] = mapped_column(String(32), nullable=False)  # CATEGORY / SECTOR / MANUFACTURER / KEYWORD
+    watch_target: Mapped[str] = mapped_column(String(255), nullable=False)
+    owner_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class PatentAlert(ConstitutionalMixin, Base):
+    """ENT-PD-004 — Patent Alert.
+
+    A relevant patent surfaced by the Patent Watch Agent (§4.18.4).
+    Used for competitive intelligence and to identify emerging
+    companies in the medium/emerging segment.
+    """
+
+    __tablename__ = "patent_alert"
+    __constitutional__ = True  # type: ignore[attr-defined]
+
+    patent_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    title: Mapped[str] = mapped_column(String(512), nullable=False)
+    assignee: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    filing_date: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    relevance_score: Mapped[str] = mapped_column(String(16), nullable=False)  # HIGH / MEDIUM / LOW
+    relevance_rationale: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    source_citation_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    surfaced_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ExclusiveAgencyOpportunity(ConstitutionalMixin, Base):
+    """ENT-PD-005 — Exclusive Agency Opportunity.
+
+    A qualified proactive discovery that has graduated to the
+    Exclusive Agency Acquisition Workflow (10 steps). The
+    workflow requires Class 3 approval at step 6 (initial
+    outreach) and Class 4 approval at step 8 (signing).
+    """
+
+    __tablename__ = "exclusive_agency_opportunity"
+    __constitutional__ = True  # type: ignore[attr-defined]
+
+    discovery_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    manufacturer_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    product_summary: Mapped[str] = mapped_column(Text, nullable=False)
+    workflow_step: Mapped[int] = mapped_column(Integer, nullable=False, default=1)  # 1..10
+    class_3_approval_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
+    class_4_approval_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="OPEN")  # OPEN / IN_PROGRESS / WON / LOST / WITHDRAWN
+    opened_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    closed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class ProactiveDiscoveryReport(ConstitutionalMixin, Base):
+    """ENT-PD-006 — Proactive Discovery Report.
+
+    A daily report consolidating discoveries, qualification results,
+    patent alerts, and exclusive agency opportunities. The report
+    carries source citation (per Article X) and the date of the
+    report (per Document 06 freshness rule).
+    """
+
+    __tablename__ = "proactive_discovery_report"
+    __constitutional__ = True  # type: ignore[attr-defined]
+
+    report_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    period_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    period_end: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    n_discoveries: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    n_qualified: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    n_rejected: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    n_patents: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    n_agency_opportunities: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    source_citation: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+
 class ApprovalPackage(ConstitutionalMixin, Base):
     """ENT-APR-002 — Approval Package (the material that goes to the approver)."""
 

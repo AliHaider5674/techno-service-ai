@@ -48,6 +48,22 @@ from .quality import (
     StandardsComplianceEngine,
     StandardsComplianceSpec,
 )
+from .proactive_discovery import (
+    DiscoverySource,
+    EmergingCompanyProfile,
+    EmergingCompanyScoutEngine,
+    ExclusiveAgencyOpportunity,
+    ExclusiveAgencyWorkflowEngine,
+    GlobalProductMonitorEngine,
+    NewProductDetectorEngine,
+    PatentAlertSpec,
+    PatentRelevance,
+    PatentWatchEngine,
+    ProactiveDiscoverySpec,
+    QualificationFilterInputs,
+    SignalStrength,
+    WatchListSpec,
+)
 from .knowledge import (
     InstitutionalMemoryIndexSpec,
     KnowledgeEngine,
@@ -80,6 +96,7 @@ from .phase2_schema import (
     DisclosurePermission,
     EnvironmentalUpdate,
     EnterpriseRisk,
+    ExclusiveAgencyOpportunity,
     GovernmentEntityProfile,
     IndustrialActivity,
     IndustrialEnvironmentProfile,
@@ -100,13 +117,17 @@ from .phase2_schema import (
     NotificationRecord,
     Opportunity,
     OutputAuditReport,
+    PatentAlert,
     PartnerProfile,
     PartnerRelationshipHistory,
+    QualificationFilterResult,
+    PatentAlert,
     PrequalificationStatusReport,
     PreliminaryReview,
     PricingAnalysis,
     ProblemOrNeed,
-    QualityReview,
+    ProactiveDiscoveryReport,
+    ProactiveProductDiscovery,
     ProductAnalysis,
     ProjectStatusReport,
     QuotationDossier,
@@ -124,6 +145,7 @@ from .phase2_schema import (
     TenderQualificationReport,
     ValidatedSignal,
     ValueCase,
+    WatchList,
 )
 from .phase7_engines import (
     ClaimClassification as ReportClaimClassification,
@@ -2865,6 +2887,311 @@ class WorkflowService:
                 "standard": standard,
                 "compliance_status": result.compliance_status.value,
                 "human_approval_required": result.human_approval_required,
+            },
+        )
+        return rec
+
+    # -----------------------------------------------------------------
+    # Phase 9 — Office 18: Product Discovery Proactive (Constitution v2.4)
+    # -----------------------------------------------------------------
+
+    def create_proactive_discovery(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        product_name: str,
+        product_category: str,
+        sector: str,
+        manufacturer_name: str,
+        manufacturer_country: str = "",
+        discovery_source: str = "WEB_SEARCH",
+        source_citation_url: str = "",
+        signal_strength: str = "MEDIUM",
+        discovered_at: str = "",
+        notes: str = "",
+    ) -> ProactiveProductDiscovery:
+        """§4.18.1 — Global Product Monitor Agent.
+
+        Pure-logic engine validates the discovery; if it passes
+        (source citation present), persists a
+        ProactiveProductDiscovery record.
+        """
+        spec = ProactiveDiscoverySpec(
+            product_name=product_name,
+            product_category=product_category
+            if isinstance(product_category, str)
+            else product_category.value,
+            sector=sector,
+            manufacturer_name=manufacturer_name,
+            manufacturer_country=manufacturer_country or None,
+            discovery_source=DiscoverySource(discovery_source),
+            source_citation_url=source_citation_url or None,
+            signal_strength=SignalStrength(signal_strength),
+            notes=notes,
+        )
+        signal_id = GlobalProductMonitorEngine().raise_signal(spec)
+        rec = ProactiveProductDiscovery(
+            id=_uuid(),
+            canonical_id=signal_id,
+            version=1,
+            product_name=spec.product_name,
+            product_category=spec.product_category,
+            sector=spec.sector,
+            manufacturer_name=spec.manufacturer_name,
+            manufacturer_country=spec.manufacturer_country,
+            discovery_source=spec.discovery_source.value,
+            source_citation_url=spec.source_citation_url,
+            signal_strength=spec.signal_strength.value,
+            discovered_at=_parse_iso(discovered_at) if discovered_at else _now(),
+            source_citation=(
+                f"Proactive Discovery ({spec.signal_strength.value}): "
+                f"{spec.product_name} by {spec.manufacturer_name} "
+                f"({spec.discovery_source.value}) — {spec.source_citation_url or 'no URL'}"
+            ),
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "PROACTIVE_DISCOVERY",
+            {
+                "stage": "8.5",
+                "product_name": product_name,
+                "manufacturer_name": manufacturer_name,
+                "signal_strength": signal_strength,
+                "discovery_source": discovery_source,
+            },
+        )
+        return rec
+
+    def create_qualification_filter_result(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        discovery_id: str,
+        f1_inputs: dict,
+        f2_inputs: dict,
+        f3_inputs: dict,
+        f4_inputs: dict,
+        f5_inputs: dict,
+    ) -> QualificationFilterResult:
+        """§4.18.2 — New Product Detector Agent.
+
+        Applies the 5 qualification filters (F1..F5) to a discovery
+        and persists a QualificationFilterResult record.
+        """
+        inputs = QualificationFilterInputs(
+            f1_heat_rating=f1_inputs.get("heat_rating", "UNKNOWN"),
+            f1_dust_rating=f1_inputs.get("dust_rating", "UNKNOWN"),
+            f1_wind_rating=f1_inputs.get("wind_rating", "UNKNOWN"),
+            f2_requires_major_change=bool(f2_inputs.get("requires_major_change", False)),
+            f2_installation_complexity=f2_inputs.get("installation_complexity", "LOW"),
+            f3_existing_agents_in_kuwait=list(f3_inputs.get("existing_agents_in_kuwait", [])),
+            f4_requires_specialised_training=bool(f4_inputs.get("requires_specialised_training", False)),
+            f4_requires_engineering_team=bool(f4_inputs.get("requires_engineering_team", False)),
+            f4_annual_maintenance_cost=f4_inputs.get("annual_maintenance_cost", "LOW"),
+            f5_employee_count=int(f5_inputs.get("employee_count", 0)),
+            f5_annual_revenue_usd=int(f5_inputs.get("annual_revenue_usd", 0)),
+            f5_is_tier_1=bool(f5_inputs.get("is_tier_1", False)),
+        )
+        result = NewProductDetectorEngine().apply_filters(inputs)
+        rec = QualificationFilterResult(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            discovery_id=discovery_id,
+            f1_kuwait_climate=result.f1.value,
+            f1_rationale=result.f1_rationale,
+            f2_retrofit=result.f2.value,
+            f2_rationale=result.f2_rationale,
+            f3_no_agent_kuwait=result.f3.value,
+            f3_rationale=result.f3_rationale,
+            f4_low_operating_cost=result.f4.value,
+            f4_rationale=result.f4_rationale,
+            f5_company_size=result.f5.value,
+            f5_rationale=result.f5_rationale,
+            overall=result.overall.value,
+            reviewed_at=_now(),
+            source_citation=(
+                f"Qualification Filter Result ({result.overall.value}) "
+                f"for discovery {discovery_id}: F1={result.f1.value}, "
+                f"F2={result.f2.value}, F3={result.f3.value}, "
+                f"F4={result.f4.value}, F5={result.f5.value}"
+            ),
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "QUALIFICATION_FILTER",
+            {
+                "discovery_id": discovery_id,
+                "overall": result.overall.value,
+                "f1": result.f1.value,
+                "f2": result.f2.value,
+                "f3": result.f3.value,
+                "f4": result.f4.value,
+                "f5": result.f5.value,
+            },
+        )
+        return rec
+
+    def create_patent_alert(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        patent_id: str,
+        title: str,
+        assignee: str = "",
+        filing_date: str = "",
+        relevance: str = "MEDIUM",
+        relevance_rationale: str = "",
+        source_citation_url: str = "",
+    ) -> PatentAlert:
+        """§4.18.4 — Patent Watch Agent (also used by §4.18.3 for
+        emerging-company competitive intelligence)."""
+        spec = PatentAlertSpec(
+            patent_id=patent_id,
+            title=title,
+            assignee=assignee or None,
+            filing_date=filing_date or None,
+            relevance=PatentRelevance(relevance),
+            relevance_rationale=relevance_rationale,
+            source_citation_url=source_citation_url or None,
+        )
+        result = PatentWatchEngine().surface_alert(spec)
+        rec = PatentAlert(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            patent_id=result.patent_id,
+            title=result.title,
+            assignee=result.assignee,
+            filing_date=_parse_iso(result.filing_date) if result.filing_date else None,
+            relevance_score=result.relevance.value,
+            relevance_rationale=result.relevance_rationale,
+            source_citation_url=result.source_citation_url,
+            surfaced_at=_now(),
+            source_citation=(
+                f"Patent Alert ({result.relevance.value}): "
+                f"{result.patent_id} — {result.title} "
+                f"({result.source_citation_url or 'no URL'})"
+            ),
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "PATENT_ALERT",
+            {
+                "patent_id": patent_id,
+                "relevance": relevance,
+                "assignee": assignee or None,
+            },
+        )
+        return rec
+
+    def advance_exclusive_agency_workflow(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        discovery_id: str,
+        manufacturer_name: str,
+        product_summary: str,
+        current_step: int = 1,
+        target_step: int = 1,
+        class_3_approval_id: str = "",
+        class_4_approval_id: str = "",
+    ) -> ExclusiveAgencyOpportunity:
+        """Execute the 10-step Exclusive Agency Acquisition Workflow.
+
+        Steps 1..10 per Constitution v2.4 / Document 06 §10.
+        Class 3 approval required at step 6.
+        Class 4 approval required at step 8.
+        """
+        opp = ExclusiveAgencyOpportunity(
+            discovery_id=discovery_id,
+            manufacturer_name=manufacturer_name,
+            product_summary=product_summary,
+            workflow_step=current_step,
+        )
+        new_opp = ExclusiveAgencyWorkflowEngine().advance(
+            opp,
+            target_step,
+            class_3_approval_id=class_3_approval_id or None,
+            class_4_approval_id=class_4_approval_id or None,
+        )
+        rec = ExclusiveAgencyOpportunity(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            discovery_id=new_opp.discovery_id,
+            manufacturer_name=new_opp.manufacturer_name,
+            product_summary=new_opp.product_summary,
+            workflow_step=new_opp.workflow_step,
+            class_3_approval_id=new_opp.class_3_approval_id,
+            class_4_approval_id=new_opp.class_4_approval_id,
+            status=new_opp.status.value,
+            opened_at=_now(),
+            closed_at=_now() if new_opp.workflow_step == 10 else None,
+            source_citation=(
+                f"Exclusive Agency Acquisition Workflow step "
+                f"{new_opp.workflow_step}/10 for {new_opp.manufacturer_name} "
+                f"({new_opp.status.value})"
+            ),
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "EXCLUSIVE_AGENCY_WORKFLOW",
+            {
+                "discovery_id": discovery_id,
+                "workflow_step": new_opp.workflow_step,
+                "status": new_opp.status.value,
+                "class_3_approval_id": new_opp.class_3_approval_id,
+                "class_4_approval_id": new_opp.class_4_approval_id,
+            },
+        )
+        return rec
+
+    def create_proactive_discovery_report(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        report_date: str = "",
+        period_start: str = "",
+        period_end: str = "",
+        n_discoveries: int = 0,
+        n_qualified: int = 0,
+        n_rejected: int = 0,
+        n_patents: int = 0,
+        n_agency_opportunities: int = 0,
+        source_citation: str = "",
+        notes: str = "",
+    ) -> ProactiveDiscoveryReport:
+        """Persist a daily Proactive Discovery Report (ENT-PD-006)."""
+        rec = ProactiveDiscoveryReport(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            report_date=_parse_iso(report_date) if report_date else _now(),
+            period_start=_parse_iso(period_start) if period_start else _now(),
+            period_end=_parse_iso(period_end) if period_end else _now(),
+            n_discoveries=n_discoveries,
+            n_qualified=n_qualified,
+            n_rejected=n_rejected,
+            n_patents=n_patents,
+            n_agency_opportunities=n_agency_opportunities,
+            source_citation=source_citation or "Daily Proactive Discovery Report",
+            notes=notes,
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "PROACTIVE_DISCOVERY_REPORT",
+            {
+                "n_discoveries": n_discoveries,
+                "n_qualified": n_qualified,
+                "n_rejected": n_rejected,
+                "n_patents": n_patents,
+                "n_agency_opportunities": n_agency_opportunities,
             },
         )
         return rec
