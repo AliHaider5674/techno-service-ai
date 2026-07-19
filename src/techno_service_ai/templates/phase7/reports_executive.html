@@ -1,0 +1,27 @@
+{% extends "phase7/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Executive Reports Center — Document 02 §4.15.</strong>
+  Every Report carries a Constitutional Compliance Attestation
+  (Constitution Article XXVIII).
+</div>
+<div class="kpi"><div class="n">{{ reports | length }}</div><div class="label">Executive reports</div></div>
+
+<h3>Executive Reports</h3>
+{% if reports %}
+<table>
+  <thead><tr><th>Date</th><th>Title</th><th>Source (Attestation)</th></tr></thead>
+  <tbody>
+  {% for r in reports %}
+    <tr>
+      <td>{{ r.report_date or r.created_at }}</td>
+      <td>{{ r.title }}</td>
+      <td>{{ r.source_citation or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No executive reports yet. The Executive Report Composer Agent (§4.15.1) creates the first report when invoked.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "phase7/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>SLA Monitor — Document 02 §4.16 (SLA Monitor).</strong>
+  SLA performance across the system.
+</div>
+{% if metrics %}
+<table>
+  <thead><tr><th>Metric</th><th>Status</th><th>Date</th></tr></thead>
+  <tbody>
+  {% for m in metrics %}
+    <tr>
+      <td>{{ m.target_type }}</td>
+      <td><span class="badge active">tracked</span></td>
+      <td>{{ m.created_at }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No SLA metrics yet.</p>
+{% endif %}
+{% endblock %}

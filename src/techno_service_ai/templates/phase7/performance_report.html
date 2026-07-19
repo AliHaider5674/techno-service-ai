@@ -1,0 +1,26 @@
+{% extends "phase7/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Performance Report — Document 02 §4.17.1.</strong>
+  KPIs and trends. The Performance Measurement Agent records the
+  metrics; the Commercial Outcomes Analyst records realized outcomes.
+</div>
+<div class="kpi"><div class="n">{{ metrics | length }}</div><div class="label">Performance metrics</div></div>
+
+{% if metrics %}
+<table>
+  <thead><tr><th>Date</th><th>Metric</th><th>Value</th></tr></thead>
+  <tbody>
+  {% for m in metrics %}
+    <tr>
+      <td>{{ m.created_at }}</td>
+      <td>{{ m.target_type }}</td>
+      <td>{{ m.target_id }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No performance metrics yet.</p>
+{% endif %}
+{% endblock %}

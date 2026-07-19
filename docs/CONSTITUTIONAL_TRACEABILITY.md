@@ -1,7 +1,7 @@
 # Constitutional Traceability
 
 **Project:** Techno Service AI Intelligence System
-**Phase:** 6 — Tender, Project, Knowledge, and the 24-Stage Walk (current phase)
+**Phase:** 7 — Every Office Alive: Performance, Reporting, Notification, Risk, Security, Relationship, Executive (current phase)
 
 This matrix is the bidirectional trace between the implementation
 artefacts (Phase 1 + Phase 2) and the constitutional clauses / Lower
@@ -188,4 +188,51 @@ column is the constitutional source that authorises it.
 
 ---
 
-*End of Constitutional Traceability — Phase 6.*
+## C. Phase 7 implementation items → constitutional source
+
+| Backlog ID | Title | Constitutional / Lower Document clause | Code location |
+|---|---|---|---|
+| IMPL-P7-001 | S24 Continuous Learning engine (4-step review path) | Document 02 §4.17; Constitution Article VI (Discovery Order); Article XX (Institutional Memory) | `src/techno_service_ai/continuous_learning.py:ContinuousLearningEngine` |
+| IMPL-P7-002 | Performance Engine (ON_TRACK / AT_RISK / OFF_TRACK bands) | Document 02 §4.17.1; Constitution Article XIV (Performance) | `src/techno_service_ai/phase7_engines.py:PerformanceEngine` |
+| IMPL-P7-003 | Reporting Engine (Compliance Attestation, Claim Classification, Verification references, freshness date) | Document 02 §4.15; Constitution Article XX paragraph 7 (Audit completeness); Article XXVII (Compliance Review) | `src/techno_service_ai/phase7_engines.py:ReportingEngine` |
+| IMPL-P7-004 | Notification Engine (6 categories × 5 channels, suppression of Class 3/4 FORBIDDEN) | Document 06 §9; UI/UX §10 NOT-001..005; Article XVII paragraph 7 | `src/techno_service_ai/phase7_engines.py:NotificationEngine` |
+| IMPL-P7-005 | Risk Engine (HIGH/CRITICAL → Human Approval) | Document 02 §4.11; Constitution Article XII (Human Approval) | `src/techno_service_ai/phase7_engines.py:RiskEngine` |
+| IMPL-P7-006 | Compliance Engine (compliance status evaluation) | Document 02 §4.11.2; Constitution Article XXVII | `src/techno_service_ai/phase7_engines.py:ComplianceEngine` |
+| IMPL-P7-007 | Constitutional Incident Engine (CRITICAL escalation, reporter_id REQUIRED) | Document 02 §4.11.4; Constitution Article XX paragraph 7 | `src/techno_service_ai/phase7_engines.py:ConstitutionalIncidentEngine` |
+| IMPL-P7-008 | 31 Principal Agents across 7 Offices | Document 02 §4.1, §4.11, §4.12, §4.14, §4.15, §4.16, §4.17 | `src/techno_service_ai/agents.py:thirty_one_agent_roster` |
+| IMPL-P7-009 | 5 Dashboards (Operations, Verification, Commercial, AI Activity, KPI) | UI/UX §4.3, §4.12, §4.13 | `templates/phase7/dashboard_*.html` |
+| IMPL-P7-010 | 4 Reports Centers (Executive, Operational, Compliance, Commercial) | UI/UX §4.3, §4.13 | `templates/phase7/reports_*.html` |
+| IMPL-P7-011 | Notification Center, Settings | UI/UX §10 | `templates/phase7/notifications_*.html` |
+| IMPL-P7-012 | Incident Response, Performance, Bottleneck, SLA, Workload screens | UI/UX §4.13 | `templates/phase7/incidents.html`, `performance_*.html`, `bottleneck_*.html`, `sla_*.html`, `office_workload.html` |
+| IMPL-P7-013 | Continuous Learning workflow | Document 02 §4.17; Constitution Article XX (Institutional Memory); Article XXVIII (Document Hierarchy) | `templates/phase7/continuous_learning.html` |
+| IMPL-P7-014 | Test suite for AC-P7-001..006 + 31-agent roster + S24 + Reporting + Notification + Risk + Performance | Document 02; Document 06 | `tests/test_phase7.py` (30 tests) |
+
+## D. Phase 7 constitutional clauses → implementation evidence
+
+| Clause | Test file(s) proving compliance |
+|---|---|
+| Article VI — Discovery Order (S24 implemented) | `tests/test_phase7.py:test_continuous_learning_engine_approves_safe_proposal` + 4 more S24 tests |
+| Article VIII — Constitutional Registers (Register Steward activation) | `tests/test_phase7.py:test_phase7_agent_roster_31_agents` (RegisterStewardAgent present) |
+| Article XII — Human Approval (HIGH/CRITICAL risk, Constitutional Amendment) | `tests/test_phase7.py:test_risk_engine_high_severity_requires_human_approval` + `test_continuous_learning_engine_rejects_constitutional_amendment_without_approval` |
+| Article XVII paragraph 7 — Suppression of Class 3/4 is FORBIDDEN | `tests/test_phase7.py:test_notification_engine_rejects_suppression_of_class_3` + `_of_class_4` + `_allows_suppression_of_operational` |
+| Article XX paragraph 7 — Constitutional Incident reporter_id REQUIRED | `tests/test_phase7.py:test_constitutional_incident_engine_requires_reporter` |
+| Article XX — Institutional Memory (Continuous Learning reversible) | `tests/test_phase7.py:test_continuous_learning_engine_rejects_irreversible` |
+| Article XX — Audit completeness (Constitutional Incident escalates CRITICAL) | `tests/test_phase7.py:test_constitutional_incident_engine_escalates_critical` |
+| Article XX — Invariable constitutional clauses (12 clauses) | `tests/test_phase7.py:test_continuous_learning_engine_rejects_constitutional_amendment_without_approval` + `test_constitutional_amendment_error_typed` |
+| Article XX — Reporting: every Report has Compliance Attestation (AC-P7-006) | `tests/test_phase7.py:test_reporting_engine_valid_report_with_attestation` + `_rejects_missing_freshness` |
+| Article XXV — Security and Data Governance (Continuity, Data Governance agents activated) | `tests/test_phase7.py:test_phase7_agent_roster_31_agents` (ContinuityAndRecoveryAgent, DataGovernanceAgent present) |
+| Article XXVII — Compliance Review (ComplianceMonitor, ComplianceReport agents) | `tests/test_phase7.py:test_phase7_agent_roster_31_agents` + `test_compliance_engine_evaluates_status` |
+| Article XXVIII — Document Hierarchy (no new entities, no Constitution changes) | `docs/DECISION_AND_ASSUMPTION_REGISTER.md` (Phase 7 Update) + `docs/IMPLEMENTATION_GAP_REGISTER.md` (GAP-PHASE6-001/002 closed) |
+| AC-P7-001 Performance / Bottleneck / SLA reports | `tests/test_phase7.py:test_performance_engine_evaluates_metric_on_track` + `_detects_bottleneck` + `_checks_sla` |
+| AC-P7-002 Reports with Compliance Attestation | `tests/test_phase7.py:test_reporting_engine_valid_report_with_attestation` + `_rejects_missing_freshness` |
+| AC-P7-003 Notification Center; Class 3/4 suppression REJECTED | `tests/test_phase7.py:test_notification_engine_rejects_suppression_of_class_3` + `_of_class_4` |
+| AC-P7-004 Constitutional Incidents recorded, escalated, remediated | `tests/test_phase7.py:test_constitutional_incident_engine_escalates_critical` + `_requires_reporter` |
+| AC-P7-005 Continuous Learning with constitutional impact review | `tests/test_phase7.py:test_continuous_learning_engine_approves_safe_proposal` + 4 more S24 tests |
+| AC-P7-006 Compliance Attestation on every Report | `tests/test_phase7.py:test_reporting_engine_valid_report_with_attestation` + `test_reporting_engine_reports_require_attestation` |
+| AC-AUD-001..005 (carried forward from Phase 1) | `tests/test_ac_aud_001_to_005.py` |
+| GAP-PHASE6-001 closure (S24 engine) | `tests/test_phase7.py` (5 S24 tests) |
+| GAP-PHASE6-002 closure (Performance and Learning Office) | `tests/test_phase7.py:test_phase7_agent_roster_31_agents` (4 §4.17 agents) + `test_performance_engine_*` |
+
+---
+
+*End of Constitutional Traceability — Phase 7.*

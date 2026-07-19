@@ -1,0 +1,30 @@
+{% extends "phase7/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Incident Response — Document 02 §4.11.3 + Article XXIII.</strong>
+  Constitutional Incidents are recorded, escalated, and remediated.
+  Critical incidents suspend the affected operation pending
+  remediation.
+</div>
+<div class="kpi"><div class="n">{{ incidents | length }}</div><div class="label">Constitutional Incidents</div></div>
+
+<h3>Incidents</h3>
+{% if incidents %}
+<table>
+  <thead><tr><th>Title</th><th>Severity</th><th>Affected Clause</th><th>Status</th><th>Created</th></tr></thead>
+  <tbody>
+  {% for i in incidents %}
+    <tr>
+      <td>{{ i.target_id }}</td>
+      <td>—</td>
+      <td>{{ i.target_id }}</td>
+      <td>—</td>
+      <td>{{ i.created_at }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No Constitutional Incidents recorded.</p>
+{% endif %}
+{% endblock %}

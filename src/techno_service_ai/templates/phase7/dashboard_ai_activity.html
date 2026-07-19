@@ -1,0 +1,26 @@
+{% extends "phase7/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>AI Activity Dashboard — Document 02 §4.10 (Quality) + §4.16.</strong>
+  Recent AI recommendations and their audit trail.
+</div>
+<div class="kpi"><div class="n">{{ ai_logs | length }}</div><div class="label">AI log entries</div></div>
+
+<h3>Recent AI Activity</h3>
+{% if ai_logs %}
+<table>
+  <thead><tr><th>Date</th><th>Recommendation</th><th>Confidence</th></tr></thead>
+  <tbody>
+  {% for a in ai_logs %}
+    <tr>
+      <td>{{ a.created_at }}</td>
+      <td>{{ a.recommendation_id }}</td>
+      <td>{{ a.confidence if a.confidence else "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No AI activity yet.</p>
+{% endif %}
+{% endblock %}

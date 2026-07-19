@@ -1,0 +1,30 @@
+{% extends "phase7/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Notification Center — Document 02 §4.16.</strong>
+  6 categories × 5 channels. Priority: Class 4 → Class 3 → Class 2 →
+  Class 1 → Operational → Informational. Suppression of Class 3/4
+  notifications is FORBIDDEN.
+</div>
+<div class="kpi"><div class="n">{{ notifications | length }}</div><div class="label">Notifications</div></div>
+<div class="kpi"><div class="n">{{ channels | length }}</div><div class="label">Channels</div></div>
+
+<h3>Recent Notifications</h3>
+{% if notifications %}
+<table>
+  <thead><tr><th>Date</th><th>Type</th><th>Subject</th><th>Channels</th></tr></thead>
+  <tbody>
+  {% for n in notifications %}
+    <tr>
+      <td>{{ n.created_at }}</td>
+      <td>{{ n.notification_type }}</td>
+      <td>{{ n.subject }}</td>
+      <td>{{ n.source_citation or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No notifications yet.</p>
+{% endif %}
+{% endblock %}

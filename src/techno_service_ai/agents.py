@@ -1108,3 +1108,808 @@ def assert_phase6_agents() -> int:
     assert len(roster) == 11, f"Phase 6 must have 11 Principal Agents, got {len(roster)}"
     return 11
 
+
+# ---------------------------------------------------------------------------
+# Phase 7 — Performance and Learning Office (§4.17)
+# ---------------------------------------------------------------------------
+
+
+class CommercialOutcomesAnalystAgent(Agent):
+    """Document 02 §4.17.2 — Commercial Outcomes Analyst Agent.
+
+    Drives the realization of Commercial Outcomes (WON / LOST /
+    CLOSED). Records the outcome, revenue, margin, and lessons
+    learned.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Commercial Outcomes Analyst Agent",
+            constitutional_purpose=(
+                "Analyse realised commercial outcomes and surface lessons learned."
+            ),
+            prohibited_actions=("Bind Techno Service",),
+            office="Performance and Learning Office",
+            charter_section="Document 02 §4.17.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, opportunity_id: str, outcome: str, **kwargs):
+        return self.service.create_commercial_outcome(
+            actor_id=actor_id, role_code=role_code,
+            opportunity_id=opportunity_id, outcome=outcome, **kwargs
+        )
+
+
+class PerformanceMeasurementAgent(Agent):
+    """Document 02 §4.17.1 — Performance Measurement Agent.
+
+    Records Performance metrics (KPIs, trends).
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Performance Measurement Agent",
+            constitutional_purpose="Measure and report system performance.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Performance and Learning Office",
+            charter_section="Document 02 §4.17.1",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, metric_name: str, metric_value: str, **kwargs):
+        return self.service.create_performance_record(
+            actor_id=actor_id, role_code=role_code,
+            metric_name=metric_name, metric_value=metric_value, **kwargs
+        )
+
+
+class LearningCoordinationAgent(Agent):
+    """Document 02 §4.17.3 — Learning Coordination Agent.
+
+    Drives Stage 24 (Continuous Learning). Reviews every Learning
+    Update proposal against the Constitution.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Learning Coordination Agent",
+            constitutional_purpose=(
+                "Coordinate the system's continuous learning cycle with "
+                "Constitutional Impact Review."
+            ),
+            prohibited_actions=(
+                "Amend the Constitution",
+                "Bind Techno Service",
+            ),
+            office="Performance and Learning Office",
+            charter_section="Document 02 §4.17.3",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, proposal, **kwargs):
+        return self.service.review_learning_update(
+            actor_id=actor_id, role_code=role_code, proposal=proposal, **kwargs
+        )
+
+
+class ConstitutionalLearningAgent(Agent):
+    """Document 02 §4.17.4 — Compliance Review Agent
+    (Constitutional Learning Agent).
+
+    Ensures that no Learning update violates the Constitution.
+    Performs a constitutional review of every Learning proposal.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Constitutional Learning Agent",
+            constitutional_purpose=(
+                "Ensure that no system learning violates the Constitution."
+            ),
+            prohibited_actions=(
+                "Amend the Constitution",
+                "Bind Techno Service",
+            ),
+            office="Performance and Learning Office",
+            charter_section="Document 02 §4.17.4",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, office: str, status: str, **kwargs):
+        return self.service.create_compliance_review(
+            actor_id=actor_id, role_code=role_code,
+            office=office, status=status, **kwargs
+        )
+
+
+# ---------------------------------------------------------------------------
+# Phase 7 — Reporting and Decision Support Office (§4.15)
+# ---------------------------------------------------------------------------
+
+
+class ReportAuthorAgent(Agent):
+    """Document 02 §4.15.3 — Detailed Report Composer Agent
+    (Report Author). Composes every Report."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Report Author Agent",
+            constitutional_purpose="Compose every system Report.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Reporting and Decision Support Office",
+            charter_section="Document 02 §4.15.3",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, title: str, **kwargs):
+        return self.service.create_report(
+            actor_id=actor_id, role_code=role_code,
+            title=title, **kwargs
+        )
+
+
+class BoardReportAgent(Agent):
+    """Document 02 §4.15.2 — Board Report Composer Agent.
+
+    Composes board-grade reports with Constitutional Compliance
+    Attestation.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Board Report Agent",
+            constitutional_purpose=(
+                "Compose board-grade reports with Constitutional "
+                "Compliance Attestation."
+            ),
+            prohibited_actions=("Bind Techno Service",),
+            office="Reporting and Decision Support Office",
+            charter_section="Document 02 §4.15.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, title: str, **kwargs):
+        return self.service.create_report(
+            actor_id=actor_id, role_code=role_code,
+            title=title, report_type="BOARD", **kwargs
+        )
+
+
+class OperationalReportAgent(Agent):
+    """Document 02 §4.15.3 — Detailed Report Composer Agent
+    (Operational Report). Operational dashboards and reports."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Operational Report Agent",
+            constitutional_purpose="Operational dashboards and reports.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Reporting and Decision Support Office",
+            charter_section="Document 02 §4.15.3",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, title: str, **kwargs):
+        return self.service.create_report(
+            actor_id=actor_id, role_code=role_code,
+            title=title, report_type="OPERATIONAL", **kwargs
+        )
+
+
+class ComplianceReportAgent(Agent):
+    """Document 02 §4.15.1 — Executive Report Composer Agent
+    (Compliance Report). Constitutional compliance reports."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Compliance Report Agent",
+            constitutional_purpose="Constitutional compliance reports.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Reporting and Decision Support Office",
+            charter_section="Document 02 §4.15.1",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, title: str, **kwargs):
+        return self.service.create_report(
+            actor_id=actor_id, role_code=role_code,
+            title=title, report_type="COMPLIANCE", **kwargs
+        )
+
+
+class CommercialReportAgent(Agent):
+    """Document 02 §4.15.3 — Detailed Report Composer Agent
+    (Commercial Report). Commercial reports."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Commercial Report Agent",
+            constitutional_purpose="Commercial reports.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Reporting and Decision Support Office",
+            charter_section="Document 02 §4.15.3",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, title: str, **kwargs):
+        return self.service.create_report(
+            actor_id=actor_id, role_code=role_code,
+            title=title, report_type="COMMERCIAL", **kwargs
+        )
+
+
+# ---------------------------------------------------------------------------
+# Phase 7 — Notification and Monitoring Office (§4.16)
+# ---------------------------------------------------------------------------
+
+
+class NotificationComposerAgent(Agent):
+    """Document 02 §4.16.1 — Notification Router Agent
+    (Notification Composer). Composes 6 categories of notifications."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Notification Composer Agent",
+            constitutional_purpose=(
+                "Compose and route Notifications across 6 categories "
+                "and 5 channels."
+            ),
+            prohibited_actions=("Suppress Class 3/4 notifications",),
+            office="Notification and Monitoring Office",
+            charter_section="Document 02 §4.16.1",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, **kwargs):
+        return self.service.route_notification(
+            actor_id=actor_id, role_code=role_code, **kwargs
+        )
+
+
+class EscalationCoordinatorAgent(Agent):
+    """Document 02 §4.16.2 — Monitoring Agent (Escalation
+    Coordinator). Routes escalations."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Escalation Coordinator Agent",
+            constitutional_purpose="Route escalations.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Notification and Monitoring Office",
+            charter_section="Document 02 §4.16.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, workflow_canonical_id: str, event_type: str, **kwargs):
+        return self.service.create_workflow_event(
+            actor_id=actor_id, role_code=role_code,
+            workflow_canonical_id=workflow_canonical_id,
+            event_type=event_type, **kwargs
+        )
+
+
+class WorkflowMonitorAgent(Agent):
+    """Document 02 §4.16.2 — Monitoring Agent (Workflow Monitor).
+    Monitors workflow state."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Workflow Monitor Agent",
+            constitutional_purpose="Monitor workflow state.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Notification and Monitoring Office",
+            charter_section="Document 02 §4.16.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, workflow_canonical_id: str, event_type: str = "STATE_CHANGE", **kwargs):
+        return self.service.create_workflow_event(
+            actor_id=actor_id, role_code=role_code,
+            workflow_canonical_id=workflow_canonical_id,
+            event_type=event_type, **kwargs
+        )
+
+
+class BottleneckDetectorAgent(Agent):
+    """Document 02 §4.16.2 — Monitoring Agent (Bottleneck Detector).
+    Detects bottlenecks."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Bottleneck Detector Agent",
+            constitutional_purpose="Detect workflow bottlenecks.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Notification and Monitoring Office",
+            charter_section="Document 02 §4.16.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, stage_name: str, avg_cycle_hours: float, threshold_hours: float):
+        return self.service.detect_bottleneck(
+            actor_id=actor_id, role_code=role_code,
+            stage_name=stage_name,
+            avg_cycle_hours=avg_cycle_hours,
+            threshold_hours=threshold_hours,
+        )
+
+
+class SLAMonitorAgent(Agent):
+    """Document 02 §4.16.2 — Monitoring Agent (SLA Monitor). Monitors
+    SLAs."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="SLA Monitor Agent",
+            constitutional_purpose="Monitor SLAs.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Notification and Monitoring Office",
+            charter_section="Document 02 §4.16.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, sla_name: str, target_hours: float, actual_hours: float):
+        return self.service.check_sla(
+            actor_id=actor_id, role_code=role_code,
+            sla_name=sla_name, target_hours=target_hours, actual_hours=actual_hours,
+        )
+
+
+class ChiefOrchestrationAgent(Agent):
+    """Document 02 §4.16 (Phase 7 scope) — Chief Orchestration Agent.
+    Top-level orchestrator across all Offices."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Chief Orchestration Agent",
+            constitutional_purpose=(
+                "Top-level orchestrator across all Offices and the "
+                "constitutional workflow."
+            ),
+            prohibited_actions=("Bind Techno Service",),
+            office="Notification and Monitoring Office",
+            charter_section="Document 02 §4.1.1 (canonical) / Phase 7 §4.16",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, **kwargs):
+        # The Chief Orchestration Agent delegates to the WorkflowService
+        # for cross-office orchestration. The exact orchestration
+        # logic is owned by the WorkflowEngine (Phase 3) and the
+        # DiscoveryOrderWalker.
+        return {"status": "delegated", "actor_id": actor_id}
+
+
+# ---------------------------------------------------------------------------
+# Phase 7 — Risk and Compliance Office (§4.11)
+# ---------------------------------------------------------------------------
+
+
+class RiskAnalystAgent(Agent):
+    """Document 02 §4.11.1 — Enterprise Risk Manager Agent
+    (Risk Analyst). Maintains the risk register."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Risk Analyst Agent",
+            constitutional_purpose="Maintain the risk register.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Risk and Compliance Office",
+            charter_section="Document 02 §4.11.1",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, title: str, **kwargs):
+        return self.service.create_enterprise_risk(
+            actor_id=actor_id, role_code=role_code, title=title, **kwargs
+        )
+
+
+class ComplianceMonitorAgent(Agent):
+    """Document 02 §4.11.2 — Compliance Officer Agent (Compliance
+    Monitor). Monitors compliance."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Compliance Monitor Agent",
+            constitutional_purpose="Monitor compliance.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Risk and Compliance Office",
+            charter_section="Document 02 §4.11.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, office: str, status: str, evidence: str):
+        return self.service.evaluate_compliance(
+            actor_id=actor_id, role_code=role_code,
+            office=office, status=status, evidence=evidence,
+        )
+
+
+class RegisterStewardAgent(Agent):
+    """Document 02 §4.11.2 — Compliance Officer Agent (Register
+    Steward). Manages the three Constitutional Registers."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Register Steward Agent",
+            constitutional_purpose="Manage the three Constitutional Registers.",
+            prohibited_actions=("Silently amend Registers",),
+            office="Risk and Compliance Office",
+            charter_section="Document 02 §4.11.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, office: str, status: str, evidence: str):
+        # The Register Steward uses the Compliance evaluation as its
+        # primary action. A fuller register-management implementation
+        # is out of Phase 7 scope.
+        return self.service.evaluate_compliance(
+            actor_id=actor_id, role_code=role_code,
+            office=office, status=status, evidence=evidence,
+        )
+
+
+class ConstitutionalIncidentInvestigatorAgent(Agent):
+    """Document 02 §4.11.3 — Constitutional Incident Investigator
+    Agent. Investigates Constitutional Incidents."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Constitutional Incident Investigator Agent",
+            constitutional_purpose=(
+                "Investigate, escalate, and remediate Constitutional Incidents."
+            ),
+            prohibited_actions=("Bind Techno Service",),
+            office="Risk and Compliance Office",
+            charter_section="Document 02 §4.11.3",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, title: str, **kwargs):
+        return self.service.investigate_constitutional_incident(
+            actor_id=actor_id, role_code=role_code, title=title, **kwargs
+        )
+
+
+# ---------------------------------------------------------------------------
+# Phase 7 — Security and Data Governance Office (§4.12)
+# ---------------------------------------------------------------------------
+
+
+class SecurityOperationsAgent(Agent):
+    """Document 02 §4.12.1 — Security Operations Agent. Security
+    monitoring."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Security Operations Agent",
+            constitutional_purpose="Security monitoring.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Security and Data Governance Office",
+            charter_section="Document 02 §4.12.1",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, event_type: str, severity: str, description: str):
+        return self.service.create_security_event(
+            actor_id=actor_id, role_code=role_code,
+            event_type=event_type, severity=severity, description=description,
+        )
+
+
+class AccessControlAgent(Agent):
+    """Document 02 §4.12.3 — Access Control Agent. Access control
+    enforcement."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Access Control Agent",
+            constitutional_purpose="Access control enforcement.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Security and Data Governance Office",
+            charter_section="Document 02 §4.12.3",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, user_id: str, target_resource: str, action: str):
+        return self.service.evaluate_access_control(
+            actor_id=actor_id, role_code=role_code,
+            user_id=user_id, target_resource=target_resource, action=action,
+        )
+
+
+class DataGovernanceAgent(Agent):
+    """Document 02 §4.12.2 — Data Governance Steward Agent (Data
+    Governance). Data governance."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Data Governance Agent",
+            constitutional_purpose="Data governance.",
+            prohibited_actions=("Silently delete records",),
+            office="Security and Data Governance Office",
+            charter_section="Document 02 §4.12.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, data_canonical_id: str, classification: str, **kwargs):
+        return self.service.classify_data(
+            actor_id=actor_id, role_code=role_code,
+            data_canonical_id=data_canonical_id, classification=classification, **kwargs
+        )
+
+
+class ContinuityAndRecoveryAgent(Agent):
+    """Document 02 §4.12.4 — Continuity and Recovery Agent.
+    Continuity, backup, recovery."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Continuity and Recovery Agent",
+            constitutional_purpose="Continuity, backup, recovery.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Security and Data Governance Office",
+            charter_section="Document 02 §4.12.4",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, event_type: str, description: str):
+        return self.service.create_continuity_event(
+            actor_id=actor_id, role_code=role_code,
+            event_type=event_type, description=description,
+        )
+
+
+# ---------------------------------------------------------------------------
+# Phase 7 — Relationship Management Office (§4.14)
+# ---------------------------------------------------------------------------
+
+
+class CustomerRelationshipAgent(Agent):
+    """Document 02 §4.14.2 — Customer Relationship Agent. Maintains
+    customer profiles and history."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Customer Relationship Agent",
+            constitutional_purpose="Maintain customer profiles and history.",
+            prohibited_actions=("Contact without Human Approval",),
+            office="Relationship Management Office",
+            charter_section="Document 02 §4.14.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, customer_name: str, **kwargs):
+        return self.service.create_customer_relationship(
+            actor_id=actor_id, role_code=role_code,
+            customer_name=customer_name, **kwargs
+        )
+
+
+class PartnerRelationshipAgent(Agent):
+    """Document 02 §4.14.3 — Partner and Channel Relationship Agent
+    (Partner Relationship). Maintains partner profiles."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Partner Relationship Agent",
+            constitutional_purpose="Maintain partner profiles.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Relationship Management Office",
+            charter_section="Document 02 §4.14.3",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, partner_name: str, **kwargs):
+        return self.service.create_partner_relationship(
+            actor_id=actor_id, role_code=role_code,
+            partner_name=partner_name, **kwargs
+        )
+
+
+class ManufacturerRelationshipAgent(Agent):
+    """Document 02 §4.14.1 — Manufacturer Relationship Agent.
+    Maintains manufacturer relationships."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Manufacturer Relationship Agent",
+            constitutional_purpose="Maintain manufacturer relationships.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Relationship Management Office",
+            charter_section="Document 02 §4.14.1",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, manufacturer_id: str, **kwargs):
+        return self.service.create_manufacturer_relationship(
+            actor_id=actor_id, role_code=role_code,
+            manufacturer_id=manufacturer_id, **kwargs
+        )
+
+
+# ---------------------------------------------------------------------------
+# Phase 7 — Executive AI Office (§4.1)
+# ---------------------------------------------------------------------------
+
+
+class ConstitutionalCoordinationAgent(Agent):
+    """Document 02 §4.1.1 — Chief Orchestration Agent (Constitutional
+    Coordination). Coordinates constitutional workflow."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Constitutional Coordination Agent",
+            constitutional_purpose=(
+                "Coordinate the constitutional workflow across all "
+                "Offices and Agents."
+            ),
+            prohibited_actions=("Bind Techno Service",),
+            office="Executive AI Office",
+            charter_section="Document 02 §4.1.1",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, **kwargs):
+        return {"status": "coordinating", "actor_id": actor_id}
+
+
+class ConstitutionalComplianceCoordinationAgent(Agent):
+    """Document 02 §4.1.2 — Constitutional Compliance Coordination
+    Agent. Coordinates constitutional compliance reviews."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Constitutional Compliance Coordination Agent",
+            constitutional_purpose=(
+                "Coordinate constitutional compliance reviews across "
+                "all Offices."
+            ),
+            prohibited_actions=("Bind Techno Service",),
+            office="Executive AI Office",
+            charter_section="Document 02 §4.1.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, office: str, status: str, **kwargs):
+        return self.service.create_compliance_review(
+            actor_id=actor_id, role_code=role_code,
+            office=office, status=status, **kwargs
+        )
+
+
+class ConstitutionalDiscoveryCoordinationAgent(Agent):
+    """Document 02 §4.1.1 — Chief Orchestration Agent (Constitutional
+    Discovery Coordination). Coordinates the Discovery Order."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Constitutional Discovery Coordination Agent",
+            constitutional_purpose=(
+                "Coordinate the constitutional Discovery Order across "
+                "all 24 stages."
+            ),
+            prohibited_actions=("Bind Techno Service",),
+            office="Executive AI Office",
+            charter_section="Document 02 §4.1.1",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, workflow_canonical_id: str, event_type: str = "DISCOVERY_EVENT", **kwargs):
+        return self.service.create_workflow_event(
+            actor_id=actor_id, role_code=role_code,
+            workflow_canonical_id=workflow_canonical_id,
+            event_type=event_type, **kwargs
+        )
+
+
+class ConstitutionalDecisionSupportAgent(Agent):
+    """Document 02 §4.15.4 — Decision Support Analyst Agent
+    (Constitutional Decision Support). Provides decision support."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Constitutional Decision Support Agent",
+            constitutional_purpose="Provide constitutional decision support.",
+            prohibited_actions=("Bind Techno Service",),
+            office="Executive AI Office",
+            charter_section="Document 02 §4.15.4",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, title: str, **kwargs):
+        return self.service.create_report(
+            actor_id=actor_id, role_code=role_code,
+            title=title, report_type="EXECUTIVE", **kwargs
+        )
+
+
+class HumanEscalationCoordinationAgent(Agent):
+    """Document 02 §4.1.3 — Human Escalation Coordination Agent.
+    Coordinates human escalations."""
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Human Escalation Coordination Agent",
+            constitutional_purpose="Coordinate human escalations.",
+            prohibited_actions=("Bypass Human Approval",),
+            office="Executive AI Office",
+            charter_section="Document 02 §4.1.3",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, workflow_canonical_id: str, event_type: str = "ESCALATION", **kwargs):
+        return self.service.create_workflow_event(
+            actor_id=actor_id, role_code=role_code,
+            workflow_canonical_id=workflow_canonical_id,
+            event_type=event_type, **kwargs
+        )
+
+
+# ---------------------------------------------------------------------------
+# Phase 7 Roster — 31 Principal Agents
+# ---------------------------------------------------------------------------
+
+
+def thirty_one_agent_roster(service: WorkflowService | None = None) -> list[Agent]:
+    """Return the 31 Principal Agents activated in Phase 7.
+
+    Performance and Learning Office (§4.17): 4
+    Reporting and Decision Support Office (§4.15): 5
+    Notification and Monitoring Office (§4.16): 6
+    Risk and Compliance Office (§4.11): 4
+    Security and Data Governance Office (§4.12): 4
+    Relationship Management Office (§4.14): 3
+    Executive AI Office (§4.1): 5
+    Total: 31.
+    """
+    svc = service or WorkflowService()
+    return [
+        # Performance and Learning Office (§4.17) — 4
+        CommercialOutcomesAnalystAgent(svc),
+        PerformanceMeasurementAgent(svc),
+        LearningCoordinationAgent(svc),
+        ConstitutionalLearningAgent(svc),
+        # Reporting and Decision Support Office (§4.15) — 5
+        ReportAuthorAgent(svc),
+        BoardReportAgent(svc),
+        OperationalReportAgent(svc),
+        ComplianceReportAgent(svc),
+        CommercialReportAgent(svc),
+        # Notification and Monitoring Office (§4.16) — 6
+        NotificationComposerAgent(svc),
+        EscalationCoordinatorAgent(svc),
+        WorkflowMonitorAgent(svc),
+        BottleneckDetectorAgent(svc),
+        SLAMonitorAgent(svc),
+        ChiefOrchestrationAgent(svc),
+        # Risk and Compliance Office (§4.11) — 4
+        RiskAnalystAgent(svc),
+        ComplianceMonitorAgent(svc),
+        RegisterStewardAgent(svc),
+        ConstitutionalIncidentInvestigatorAgent(svc),
+        # Security and Data Governance Office (§4.12) — 4
+        SecurityOperationsAgent(svc),
+        AccessControlAgent(svc),
+        DataGovernanceAgent(svc),
+        ContinuityAndRecoveryAgent(svc),
+        # Relationship Management Office (§4.14) — 3
+        CustomerRelationshipAgent(svc),
+        PartnerRelationshipAgent(svc),
+        ManufacturerRelationshipAgent(svc),
+        # Executive AI Office (§4.1) — 5
+        ConstitutionalCoordinationAgent(svc),
+        ConstitutionalComplianceCoordinationAgent(svc),
+        ConstitutionalDiscoveryCoordinationAgent(svc),
+        ConstitutionalDecisionSupportAgent(svc),
+        HumanEscalationCoordinationAgent(svc),
+    ]
+
+
+def assert_phase7_agents() -> int:
+    """Assert the 31-agent Phase 7 roster is complete. Returns the count."""
+    roster = thirty_one_agent_roster()
+    assert len(roster) == 31, f"Phase 7 must have 31 Principal Agents, got {len(roster)}"
+    return 31
+

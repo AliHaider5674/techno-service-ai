@@ -1,0 +1,28 @@
+{% extends "phase7/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Commercial Reports Center — Document 02 §4.15.3 + §4.17.2.</strong>
+  Commercial reports and realized outcomes.
+</div>
+<div class="kpi"><div class="n">{{ reports | length }}</div><div class="label">Commercial reports</div></div>
+<div class="kpi"><div class="n">{{ outcomes | length }}</div><div class="label">Realized outcomes</div></div>
+
+<h3>Realized Outcomes</h3>
+{% if outcomes %}
+<table>
+  <thead><tr><th>Opportunity</th><th>Outcome</th><th>Revenue</th><th>Margin</th></tr></thead>
+  <tbody>
+  {% for o in outcomes %}
+    <tr>
+      <td>{{ o.opportunity_id }}</td>
+      <td><span class="badge {{ o.outcome | lower }}">{{ o.outcome }}</span></td>
+      <td>{{ o.revenue or "—" }}</td>
+      <td>{{ o.margin or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No realized outcomes yet.</p>
+{% endif %}
+{% endblock %}

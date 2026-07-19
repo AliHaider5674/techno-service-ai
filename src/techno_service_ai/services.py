@@ -34,6 +34,11 @@ from .commercial import (
     EngagementType,
     PricingAnalysisSpec,
 )
+from .continuous_learning import (
+    ContinuousLearningEngine,
+    LearningUpdateProposal,
+    LearningUpdateScope,
+)
 from .db import SessionLocal
 from .knowledge import (
     InstitutionalMemoryIndexSpec,
@@ -58,22 +63,36 @@ from .phase2_schema import (
     CommercialEvaluation,
     CommercialModelOption,
     ComparativeAnalysis,
+    ComplianceReviewReport,
     ConflictDoNotPursueEntity,
+    ConstitutionalIncident,
     ConstitutionalMixin,
+    CustomerProfile,
+    CustomerRelationshipHistory,
+    DisclosurePermission,
     EnvironmentalUpdate,
+    EnterpriseRisk,
+    GovernmentEntityProfile,
     IndustrialActivity,
     IndustrialEnvironmentProfile,
     InstitutionalMemoryIndex,
     KnowledgeBaseInventory,
     KnowledgeRecord,
     KuwaitSuitabilityReview,
+    LearningUpdate,
     LessonLearned,
     ManufacturerComparisonReport,
     ManufacturerCredibilityAssessment,
     ManufacturerProfile,
+    ManufacturerRelationshipRecord,
     MarketEntryOptionsReport,
     NegotiationAnalysis,
+    NotificationChannel,
+    NotificationPreference,
+    NotificationRecord,
     Opportunity,
+    PartnerProfile,
+    PartnerRelationshipHistory,
     PrequalificationStatusReport,
     PreliminaryReview,
     PricingAnalysis,
@@ -81,15 +100,44 @@ from .phase2_schema import (
     ProductAnalysis,
     ProjectStatusReport,
     QuotationDossier,
+    Report,
+    ReportExportRecord,
+    ReportTemplate,
     RepresentedPrincipal,
     RegistrationStatusReport,
     RestrictedProhibitedEntity,
     RootCause,
+    SecurityEvent,
     TechnologyCategoryAnalysis,
     Tender,
     TenderQualificationReport,
     ValidatedSignal,
     ValueCase,
+)
+from .phase7_engines import (
+    ClaimClassification as ReportClaimClassification,
+    ComplianceEngine,
+    ComplianceStatus,
+    ConstitutionalIncidentEngine,
+    ConstitutionalIncidentSeverity,
+    ConstitutionalIncidentSpec,
+    NotificationCategory,
+    NotificationChannel as NotifChannel,
+    NotificationEngine,
+    NotificationPriority,
+    NotificationSpec,
+    PerformanceEngine,
+    PerformanceMetricDirection,
+    PerformanceMetricSpec,
+    ReportClaim,
+    ReportFreshnessClass,
+    ReportingEngine,
+    ReportSpec,
+    ReportType,
+    RiskEngine,
+    RiskEntrySpec,
+    RiskSeverity,
+    RiskStatus,
 )
 from .register_compliance import (
     GateKind,
@@ -151,6 +199,14 @@ class WorkflowService:
         self.register_engine = RegisterComplianceEngine()
         self.tender_project_engine = TenderProjectEngine()
         self.knowledge_engine = KnowledgeEngine()
+        # Phase 7 engines
+        self.continuous_learning_engine = ContinuousLearningEngine()
+        self.reporting_engine = ReportingEngine()
+        self.notification_engine = NotificationEngine()
+        self.risk_engine = RiskEngine()
+        self.compliance_engine = ComplianceEngine()
+        self.constitutional_incident_engine = ConstitutionalIncidentEngine()
+        self.performance_engine = PerformanceEngine()
 
     # -----------------------------------------------------------------
     # Industrial Intelligence (S01-S03)
@@ -1715,6 +1771,883 @@ class WorkflowService:
             },
         )
         return a
+
+    # -----------------------------------------------------------------
+    # Phase 7 — Performance and Learning Office (§4.17)
+    # -----------------------------------------------------------------
+
+    def create_performance_record(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        target_type: str,
+        target_id: str,
+        metric_name: str,
+        metric_value: str,
+        period_start: str,
+        period_end: str,
+        source_citation: str = "",
+    ) -> LearningUpdate:
+        """§4.17.1 — Performance Measurement Agent. Records a
+        Performance metric."""
+        rec = LearningUpdate(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            target_type=target_type,
+            target_id=target_id,
+            description=(
+                f"Performance metric '{metric_name}' = {metric_value} "
+                f"for period {period_start} → {period_end}"
+            ),
+            source_citation=source_citation or f"Performance: {metric_name}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "PERFORMANCE_RECORD",
+            {"target_type": target_type, "metric_name": metric_name, "metric_value": metric_value},
+        )
+        return rec
+
+    def create_commercial_outcome(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        opportunity_id: str,
+        outcome: str,
+        revenue: str = "",
+        margin: str = "",
+        lessons_learned: str = "",
+    ) -> LearningUpdate:
+        """§4.17.2 — Commercial Outcomes Analyst Agent. Records a
+        realized Commercial Outcome (WON / LOST / CLOSED)."""
+        rec = LearningUpdate(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            target_type="OPPORTUNITY",
+            target_id=opportunity_id,
+            description=(
+                f"Commercial Outcome: {outcome}. Revenue: {revenue}. "
+                f"Margin: {margin}. Lessons: {lessons_learned}"
+            ),
+            source_citation=f"Commercial Outcome: {outcome}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "COMMERCIAL_OUTCOME",
+            {"opportunity_id": opportunity_id, "outcome": outcome},
+        )
+        return rec
+
+    def review_learning_update(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        proposal: LearningUpdateProposal,
+    ) -> LearningUpdate:
+        """§4.17.3 — Learning Coordination Agent. Reviews a Learning
+        Update proposal against the Constitution.
+
+        Per Constitution Article XXVIII, the engine does NOT
+        have authority to amend the Constitution. Proposals that
+        would amend, suspend, override, or weaken any constitutional
+        clause are REJECTED. CONSTITUTIONAL_AMENDMENT proposals
+        REQUIRE Human Approval.
+
+        Returns the recorded LearningUpdate.
+        """
+        result = self.continuous_learning_engine.review(proposal)
+        if result.outcome.value != "APPROVED":
+            # Record the rejected proposal anyway (audit trail).
+            rec = LearningUpdate(
+                id=_uuid(),
+                canonical_id=_uuid(),
+                version=1,
+                target_type=result.target_type,
+                target_id=result.target_id,
+                description=f"REJECTED: {result.rationale} | {proposal.description}",
+                source_citation=f"Learning Update: {result.outcome.value}",
+                created_by=actor_id,
+            )
+            self._commit_and_audit(
+                rec, actor_id, role_code, "LEARNING_UPDATE_REJECTED",
+                {"outcome": result.outcome.value, "rationale": result.rationale},
+            )
+            return rec
+        rec = LearningUpdate(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            target_type=result.target_type,
+            target_id=result.target_id,
+            description=result.description,
+            source_citation=f"Learning Update (approved): {result.rationale}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "LEARNING_UPDATE_APPROVED",
+            {"scope": result.scope.value, "rationale": result.rationale},
+        )
+        return rec
+
+    def create_compliance_review(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        office: str,
+        status: str,
+        notes: str = "",
+    ) -> ComplianceReviewReport:
+        """§4.17.4 — Compliance Review Agent (Constitutional Learning
+        Agent). Records a Compliance Review."""
+        rec = ComplianceReviewReport(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            target_type="OFFICE",
+            target_id=office,
+            report_text=f"Compliance status: {status}. {notes}",
+            source_citation=f"Compliance Review: {office}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "COMPLIANCE_REVIEW",
+            {"office": office, "status": status},
+        )
+        return rec
+
+    # -----------------------------------------------------------------
+    # Phase 7 — Reporting and Decision Support Office (§4.15)
+    # -----------------------------------------------------------------
+
+    def create_report(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        title: str,
+        body: str,
+        report_type: str,
+        freshness_date: str,
+        claims: list,
+        freshness_class: str = "AD_HOC",
+    ) -> Report:
+        """§4.15 — generic Report creation. Validates the spec, runs
+        the Constitutional Compliance Attestation, and writes the
+        Report record.
+        """
+        # Convert claims (list of dicts) to ReportClaim tuples.
+        report_claims = tuple(
+            ReportClaim(
+                claim_text=c["claim_text"],
+                classification=ReportClaimClassification(c["classification"].upper()),
+                source_citation=c["source_citation"],
+                verification_reference=c.get("verification_reference"),
+            )
+            for c in claims
+        )
+        spec = ReportSpec(
+            report_type=ReportType(report_type.upper()),
+            title=title,
+            body=body,
+            freshness_date=freshness_date,
+            freshness_class=ReportFreshnessClass(freshness_class.upper()),
+            claims=report_claims,
+        )
+        result = self.reporting_engine.validate_report(spec)
+        rec = Report(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            title=result.title,
+            body=result.body,
+            format="HTML",
+            report_date=datetime.now(timezone.utc),
+            source_citation=(
+                f"{result.report_type.value} Report ({result.freshness_class.value}): "
+                f"{result.material_claims_count} material claims, "
+                f"{result.unverified_claims_count} unverified. "
+                f"Attestation: {result.attestation.outcome.value}."
+            ),
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "REPORT",
+            {
+                "report_type": result.report_type.value,
+                "material_claims": result.material_claims_count,
+                "unverified_claims": result.unverified_claims_count,
+                "attestation": result.attestation.outcome.value,
+            },
+        )
+        return rec
+
+    def create_report_template(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        template_name: str,
+        template_body: str,
+        category: str = "OPERATIONAL",
+    ) -> ReportTemplate:
+        """§4.15 — Report Template creation."""
+        rec = ReportTemplate(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            template_name=template_name,
+            template_body=template_body,
+            category=category,
+            source_citation=f"Report Template: {template_name}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "REPORT_TEMPLATE",
+            {"template_name": template_name},
+        )
+        return rec
+
+    def create_report_export(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        report_id: str,
+        format: str,
+        file_path: str = "",
+    ) -> ReportExportRecord:
+        """§4.15 — Report Export (CSV/PDF) — constitutional-grade."""
+        rec = ReportExportRecord(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            report_id=report_id,
+            format=format.upper(),
+            exported_by=actor_id,
+            source_citation=f"Report export: {report_id} as {format}",
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "REPORT_EXPORT",
+            {"report_id": report_id, "format": format},
+        )
+        return rec
+
+    # -----------------------------------------------------------------
+    # Phase 7 — Notification and Monitoring Office (§4.16)
+    # -----------------------------------------------------------------
+
+    def route_notification(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        category: str,
+        priority: str,
+        subject: str,
+        body: str,
+        target_user_id: str,
+        channels: list,
+        suppressed: bool = False,
+    ) -> NotificationRecord:
+        """§4.16 — Notification routing. SMS reserved for Class 3/4;
+        Voice reserved for Emergency; suppression of Class 3/4 is
+        REJECTED."""
+        spec = NotificationSpec(
+            category=NotificationCategory(category.upper()),
+            priority=NotificationPriority[priority.upper()],
+            subject=subject,
+            body=body,
+            target_user_id=target_user_id,
+            channels=tuple(NotifChannel(c.upper()) for c in channels),
+            suppressed=suppressed,
+        )
+        result = self.notification_engine.route(spec)
+        rec = NotificationRecord(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            target_type="USER",
+            target_id=target_user_id,
+            notification_type=result.category.value,
+            subject=result.subject,
+            body=result.body,
+            source_citation=(
+                f"Notification ({result.priority.name}, {result.category.value}) "
+                f"via {', '.join(c.value for c in result.channels)}"
+            ),
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "NOTIFICATION",
+            {
+                "category": result.category.value,
+                "priority": result.priority.name,
+                "channels": [c.value for c in result.channels],
+                "suppressed": suppressed,
+            },
+        )
+        return rec
+
+    def create_notification_channel(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        channel_name: str,
+        channel_type: str,
+        enabled: bool = True,
+    ) -> NotificationChannel:
+        """§4.16 — Register a Notification channel."""
+        rec = NotificationChannel(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            channel_name=channel_name,
+            channel_type=channel_type,
+            enabled=enabled,
+            source_citation=f"Notification Channel: {channel_name} ({channel_type})",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "NOTIFICATION_CHANNEL",
+            {"channel_name": channel_name, "channel_type": channel_type},
+        )
+        return rec
+
+    def set_notification_preference(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        user_id: str,
+        channel_type: str,
+        category: str,
+        enabled: bool = True,
+    ) -> NotificationPreference:
+        """§4.16 — set a User's Notification preference for a
+        category / channel combination. Note: this is a USER-level
+        preference and does NOT enable suppression of Class 3/4."""
+        rec = NotificationPreference(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            user_id=user_id,
+            channel_type=channel_type,
+            category=category,
+            enabled=enabled,
+            source_citation=f"Notification preference: {user_id} / {category} / {channel_type}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "NOTIFICATION_PREFERENCE",
+            {"user_id": user_id, "category": category, "channel_type": channel_type},
+        )
+        return rec
+
+    def create_workflow_event(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        workflow_canonical_id: str,
+        event_type: str,
+        description: str = "",
+    ) -> dict:
+        """§4.16 — Workflow Monitor Agent. Records a workflow event
+        (state change, bottleneck, etc.)."""
+        with SessionLocal() as s:
+            LogService().write_decision_log(
+                decision_type=f"WORKFLOW_{event_type.upper()}",
+                decision_summary=description or f"Workflow event: {event_type}",
+                decision_class="CLASS_1",
+                decided_by=actor_id,
+                decided_by_role=role_code,
+                material_canonical_id=workflow_canonical_id,
+                decided_at=_now().isoformat(),
+            )
+        return {"event_type": event_type, "workflow": workflow_canonical_id}
+
+    def detect_bottleneck(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        stage_name: str,
+        avg_cycle_hours: float,
+        threshold_hours: float,
+    ) -> bool:
+        """§4.16 — Bottleneck Detector Agent. Returns True if a
+        bottleneck is detected."""
+        return self.performance_engine.detect_bottleneck(
+            stage_name=stage_name,
+            avg_cycle_hours=avg_cycle_hours,
+            threshold_hours=threshold_hours,
+        )
+
+    def check_sla(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        sla_name: str,
+        target_hours: float,
+        actual_hours: float,
+    ) -> bool:
+        """§4.16 — SLA Monitor Agent. Returns True if the SLA is met."""
+        return self.performance_engine.check_sla(
+            sla_name=sla_name,
+            target_hours=target_hours,
+            actual_hours=actual_hours,
+        )
+
+    # -----------------------------------------------------------------
+    # Phase 7 — Risk and Compliance Office (§4.11)
+    # -----------------------------------------------------------------
+
+    def create_enterprise_risk(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        title: str,
+        description: str,
+        severity: str,
+        owner_office: str,
+        source_citation: str = "",
+    ) -> EnterpriseRisk:
+        """§4.11 — Enterprise Risk Manager Agent (Risk Analyst)."""
+        spec = RiskEntrySpec(
+            title=title, description=description,
+            severity=RiskSeverity(severity.upper()),
+            owner_office=owner_office,
+            source_citation=source_citation,
+        )
+        result = self.risk_engine.validate_risk(spec)
+        rec = EnterpriseRisk(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            risk_title=result.title,
+            risk_description=result.description,
+            severity=result.severity.value,
+            status=result.status.value,
+            owner_office=result.owner_office,
+            source_citation=result.source_citation,
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "ENTERPRISE_RISK",
+            {"title": title, "severity": severity.upper(), "requires_approval": result.requires_human_approval},
+        )
+        return rec
+
+    def evaluate_compliance(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        office: str,
+        status: str,
+        evidence: str,
+    ) -> ComplianceStatus:
+        """§4.11 — Compliance Officer Agent (Compliance Monitor)."""
+        result = self.compliance_engine.evaluate_compliance(
+            office=office, status=ComplianceStatus(status.upper()), evidence=evidence,
+        )
+        return result
+
+    def investigate_constitutional_incident(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        title: str,
+        description: str,
+        severity: str,
+        affected_clause: str,
+        reporter_id: str,
+        source_citation: str = "",
+    ) -> ConstitutionalIncident:
+        """§4.11 — Constitutional Incident Investigator Agent.
+        Records, investigates, and (if critical) escalates."""
+        spec = ConstitutionalIncidentSpec(
+            title=title, description=description,
+            severity=ConstitutionalIncidentSeverity(severity.upper()),
+            affected_clause=affected_clause, reporter_id=reporter_id,
+            source_citation=source_citation,
+        )
+        result = self.constitutional_incident_engine.investigate(spec)
+        rec = ConstitutionalIncident(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            target_type="CLAUSE",
+            target_id=result.affected_clause,
+            description=(
+                f"{result.title}: {result.description} | "
+                f"Status: {result.status.value} | "
+                f"Remediation: {', '.join(result.remediation_actions)}"
+            ),
+            source_citation=result.title or f"Constitutional Incident: {title}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "CONSTITUTIONAL_INCIDENT",
+            {
+                "severity": result.severity.value,
+                "affected_clause": result.affected_clause,
+                "status": result.status.value,
+                "escalated_to_human": result.escalated_to_human,
+            },
+        )
+        return rec
+
+    # -----------------------------------------------------------------
+    # Phase 7 — Security and Data Governance Office (§4.12)
+    # -----------------------------------------------------------------
+
+    def create_security_event(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        event_type: str,
+        severity: str,
+        description: str,
+    ) -> SecurityEvent:
+        """§4.12 — Security Operations Agent. Records a security
+        event for audit."""
+        rec = SecurityEvent(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            event_type=event_type,
+            severity=severity,
+            description=description,
+            source_citation=f"Security event: {event_type} ({severity})",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "SECURITY_EVENT",
+            {"event_type": event_type, "severity": severity},
+        )
+        return rec
+
+    def evaluate_access_control(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        user_id: str,
+        target_resource: str,
+        action: str,
+    ) -> bool:
+        """§4.12 — Access Control Agent. Returns True if the access
+        is granted (Article XXV + Phase 1 AccessPolicy engine).
+        Returns False if denied. The Phase 1 access policy engine
+        is the canonical source of truth — this method is a
+        pass-through that also records the access attempt."""
+        from .access import evaluate_access
+        granted = evaluate_access(
+            user_id=user_id, target_resource=target_resource, action=action,
+        )
+        # Audit every access evaluation (granted OR denied).
+        with SessionLocal() as s:
+            LogService().write_decision_log(
+                decision_type="ACCESS_EVALUATION",
+                decision_summary=(
+                    f"User {user_id} {action} on {target_resource}: "
+                    f"{'GRANTED' if granted else 'DENIED'}"
+                ),
+                decision_class="CLASS_1",
+                decided_by=actor_id,
+                decided_by_role=role_code,
+                material_canonical_id=target_resource,
+                decided_at=_now().isoformat(),
+            )
+        return granted
+
+    def classify_data(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        data_canonical_id: str,
+        classification: str,
+        rationale: str = "",
+    ) -> dict:
+        """§4.12 — Data Governance Steward Agent. Returns a
+        classification dict (the actual entity is in
+        DataClassificationEntry)."""
+        from .phase2_schema import DataClassificationEntry
+        rec = DataClassificationEntry(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            data_canonical_id=data_canonical_id,
+            classification=classification,
+            rationale=rationale,
+            source_citation=f"Data classification: {classification}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "DATA_CLASSIFICATION",
+            {"data_canonical_id": data_canonical_id, "classification": classification},
+        )
+        return {"data_canonical_id": data_canonical_id, "classification": classification}
+
+    def create_continuity_event(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        event_type: str,
+        description: str,
+    ) -> dict:
+        """§4.12 — Continuity and Recovery Agent. Records a
+        continuity event (DR drill, outage, recovery)."""
+        from .phase2_schema import ContinuityEvent
+        rec = ContinuityEvent(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            event_type=event_type,
+            description=description,
+            source_citation=f"Continuity event: {event_type}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "CONTINUITY_EVENT",
+            {"event_type": event_type},
+        )
+        return rec
+
+    # -----------------------------------------------------------------
+    # Phase 7 — Relationship Management Office (§4.14)
+    # -----------------------------------------------------------------
+
+    def create_customer_relationship(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        customer_name: str,
+        contact_info: str = "",
+    ) -> CustomerProfile:
+        """§4.14 — Customer Relationship Agent. Creates a Customer
+        Profile."""
+        rec = CustomerProfile(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            customer_name=customer_name,
+            contact_info=contact_info or None,
+            source_citation=f"Customer: {customer_name}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "CUSTOMER_RELATIONSHIP",
+            {"customer_name": customer_name},
+        )
+        return rec
+
+    def create_partner_relationship(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        partner_name: str,
+        partner_type: str = "CHANNEL",
+    ) -> PartnerProfile:
+        """§4.14 — Partner Relationship Agent. Creates a Partner
+        Profile."""
+        rec = PartnerProfile(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            partner_name=partner_name,
+            partner_type=partner_type,
+            source_citation=f"Partner: {partner_name} ({partner_type})",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "PARTNER_RELATIONSHIP",
+            {"partner_name": partner_name, "partner_type": partner_type},
+        )
+        return rec
+
+    def create_manufacturer_relationship(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        manufacturer_id: str,
+        relationship_type: str = "DISTRIBUTION",
+    ) -> ManufacturerRelationshipRecord:
+        """§4.14 — Manufacturer Relationship Agent."""
+        from .phase2_schema import ManufacturerRelationshipRecord
+        rec = ManufacturerRelationshipRecord(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            manufacturer_id=manufacturer_id,
+            relationship_type=relationship_type,
+            source_citation=f"Manufacturer relationship: {manufacturer_id} ({relationship_type})",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "MANUFACTURER_RELATIONSHIP",
+            {"manufacturer_id": manufacturer_id, "relationship_type": relationship_type},
+        )
+        return rec
+
+    # -----------------------------------------------------------------
+    # Phase 7 — Executive AI Office (§4.1)
+    # -----------------------------------------------------------------
+
+    def create_government_entity_relationship(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        entity_name: str,
+        jurisdiction: str = "",
+    ) -> GovernmentEntityProfile:
+        """§4.1 — Constitutional Coordination (Government Entity
+        relationships)."""
+        rec = GovernmentEntityProfile(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            entity_name=entity_name,
+            jurisdiction=jurisdiction or None,
+            source_citation=f"Government Entity: {entity_name}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "GOVERNMENT_ENTITY",
+            {"entity_name": entity_name},
+        )
+        return rec
+
+    def create_disclosure_permission(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        target_user_id: str,
+        target_entity_id: str,
+        scope: str,
+        granted_by: str,
+    ) -> DisclosurePermission:
+        """§4.1 — Constitutional Compliance Coordination (disclosure
+        permissions)."""
+        rec = DisclosurePermission(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            target_user_id=target_user_id,
+            target_entity_id=target_entity_id,
+            scope=scope,
+            granted_by=granted_by,
+            source_citation=f"Disclosure: {target_user_id} → {target_entity_id} ({scope})",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "DISCLOSURE_PERMISSION",
+            {"scope": scope, "granted_by": granted_by},
+        )
+        return rec
+
+    def create_relationship_history(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        relationship_type: str,
+        entity_id: str,
+        interaction_summary: str,
+    ) -> dict:
+        """§4.1 — Constitutional Discovery / Decision Support
+        (relationship history). Records an interaction."""
+        from .phase2_schema import (
+            CustomerRelationshipHistory,
+            PartnerRelationshipHistory,
+        )
+        if relationship_type.upper() == "CUSTOMER":
+            cls = CustomerRelationshipHistory
+        elif relationship_type.upper() == "PARTNER":
+            cls = PartnerRelationshipHistory
+        else:
+            cls = CustomerRelationshipHistory  # default
+        rec = cls(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            entity_id=entity_id,
+            interaction_summary=interaction_summary,
+            source_citation=f"Relationship history: {relationship_type} {entity_id}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "RELATIONSHIP_HISTORY",
+            {"relationship_type": relationship_type, "entity_id": entity_id},
+        )
+        return rec
+
+    def create_customer_relationship_history(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        customer_id: str,
+        interaction_summary: str,
+    ) -> CustomerRelationshipHistory:
+        """§4.1 — Customer Relationship History (per Customer)."""
+        rec = CustomerRelationshipHistory(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            customer_id=customer_id,
+            interaction_summary=interaction_summary,
+            source_citation=f"Customer history: {customer_id}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "CUSTOMER_HISTORY",
+            {"customer_id": customer_id},
+        )
+        return rec
+
+    def create_partner_relationship_history(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        partner_id: str,
+        interaction_summary: str,
+    ) -> PartnerRelationshipHistory:
+        """§4.1 — Partner Relationship History (per Partner)."""
+        rec = PartnerRelationshipHistory(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            partner_id=partner_id,
+            interaction_summary=interaction_summary,
+            source_citation=f"Partner history: {partner_id}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "PARTNER_HISTORY",
+            {"partner_id": partner_id},
+        )
+        return rec
 
     # -----------------------------------------------------------------
     # Internal: write + audit

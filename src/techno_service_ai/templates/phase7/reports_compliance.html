@@ -1,0 +1,27 @@
+{% extends "phase7/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Compliance Reports Center — Document 02 §4.15.1 + §4.11.</strong>
+  Compliance reviews and constitutional compliance reports.
+</div>
+<div class="kpi"><div class="n">{{ reports | length }}</div><div class="label">Compliance reports</div></div>
+<div class="kpi"><div class="n">{{ reviews | length }}</div><div class="label">Compliance reviews</div></div>
+
+<h3>Compliance Reviews</h3>
+{% if reviews %}
+<table>
+  <thead><tr><th>Office</th><th>Status</th><th>Date</th></tr></thead>
+  <tbody>
+  {% for r in reviews %}
+    <tr>
+      <td>{{ r.target_id }}</td>
+      <td><span class="badge {{ r.report_text.split(' ')[2] | lower if r.report_text else 'pending' }}">{{ (r.report_text or "").split(' ')[2] if r.report_text else "—" }}</span></td>
+      <td>{{ r.created_at }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No compliance reviews yet.</p>
+{% endif %}
+{% endblock %}

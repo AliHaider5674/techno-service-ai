@@ -1,0 +1,28 @@
+{% extends "phase7/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Commercial Dashboard — Document 02 §4.6 + §4.17.</strong>
+  Commercial evaluations, pricing analyses, and realized outcomes.
+</div>
+<div class="kpi"><div class="n">{{ evaluations | length }}</div><div class="label">Commercial evaluations</div></div>
+<div class="kpi"><div class="n">{{ pricings | length }}</div><div class="label">Pricing analyses</div></div>
+
+<h3>Recent Commercial Evaluations</h3>
+{% if evaluations %}
+<table>
+  <thead><tr><th>Date</th><th>Opportunity</th><th>Status</th><th>Margin</th></tr></thead>
+  <tbody>
+  {% for e in evaluations %}
+    <tr>
+      <td>{{ e.evaluation_date }}</td>
+      <td>{{ e.opportunity_id }}</td>
+      <td><span class="badge {{ e.status | lower }}">{{ e.status }}</span></td>
+      <td>{{ e.margin_estimate or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No commercial evaluations yet.</p>
+{% endif %}
+{% endblock %}

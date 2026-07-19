@@ -75,6 +75,9 @@ def create_app() -> FastAPI:
     # Phase 6 routes (Tender, Project, Knowledge screens — closes the 24-stage lifecycle).
     from .phase6_routes import add_phase6_routes
     add_phase6_routes(app)
+    # Phase 7 routes (Performance, Reporting, Notification, Risk, Security, Relationship, Executive — Every Office Alive).
+    from .phase7_routes import add_phase7_routes
+    add_phase7_routes(app)
 
     @app.on_event("startup")
     def _startup() -> None:

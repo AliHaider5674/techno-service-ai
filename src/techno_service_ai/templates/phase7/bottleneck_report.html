@@ -1,0 +1,23 @@
+{% extends "phase7/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Bottleneck Report — Document 02 §4.16 (Bottleneck Detector).</strong>
+  Workflow bottlenecks detected by the Bottleneck Detector Agent.
+</div>
+{% if incidents %}
+<table>
+  <thead><tr><th>Title</th><th>Description</th><th>Date</th></tr></thead>
+  <tbody>
+  {% for i in incidents %}
+    <tr>
+      <td>{{ i.target_id }}</td>
+      <td>{{ i.description[:60] }}…</td>
+      <td>{{ i.created_at }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No bottlenecks detected.</p>
+{% endif %}
+{% endblock %}

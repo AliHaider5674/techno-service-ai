@@ -1,7 +1,7 @@
 # Decision and Assumption Register
 
 **Project:** Techno Service AI Intelligence System
-**Phase:** 6 — Tender, Project, Knowledge, and the 24-Stage Walk (current phase)
+**Phase:** 7 — Every Office Alive: Performance, Reporting, Notification, Risk, Security, Relationship, Executive (current phase)
 **Governing Authority:** Constitution v2.3
 **Document Reference:** TS-AI-DAR-001
 **Status:** Issued for the Phase 6 release
@@ -440,6 +440,116 @@ been introduced. The Constitution has not been modified.
 
 ---
 
-*End of Decision and Assumption Register — Phase 6.*
+# Phase 7 Update — Every Office Alive
+
+**Status:** Issued for the Phase 7 release.
+
+## Summary
+
+Phase 7 activates 31 Principal Agents across 7 Offices
+(Performance and Learning, Reporting and Decision Support,
+Notification and Monitoring, Risk and Compliance, Security and
+Data Governance, Relationship Management, Executive AI). After
+Phase 7, every Office listed in Document 02 §4.1, §4.11, §4.12,
+§4.14, §4.15, §4.16, §4.17 is alive. The S24 (Continuous
+Learning) engine is implemented (closes GAP-PHASE6-001). The
+Performance and Learning Office is fully activated
+(closes GAP-PHASE6-002).
+
+## New Temporary Technical Assumptions
+
+**None.** Phase 7 introduces no new TTA. The 16 Phase 1-3 TTAs
+(6 + 5 + 5) remain in force through Phase 8 or until permanent
+decision.
+
+## GAP-PHASE6-001 — S24 Continuous Learning engine (CLOSED)
+
+`ContinuousLearningEngine` implements the 4-step review path
+(scope validation, reversibility check, Constitutional Impact
+Review, Human Approval gate for `CONSTITUTIONAL_AMENDMENT`).
+The 12 invariable constitutional clauses (Articles I-VIII, XII,
+XVII, XX, XXVIII) are encoded as a constant and consulted on
+every proposal. Five outcomes are produced (`APPROVED`,
+`REJECTED_CONSTITUTIONAL_IMPACT`, `REJECTED_IRREVERSIBLE`,
+`REJECTED_MISSING_APPROVAL`, `REJECTED_INVALID_SCOPE`).
+
+## GAP-PHASE6-002 — Performance and Learning Office (CLOSED)
+
+The 4 agents of Document 02 §4.17 are activated: Commercial
+Outcomes Analyst, Performance Measurement, Learning
+Coordination, Constitutional Learning. The `PerformanceEngine`
+implements ON_TRACK / AT_RISK / OFF_TRACK bands (95% / 90% of
+target), bottleneck detection, and SLA breach detection.
+
+## New Records (no new entities)
+
+Phase 7 introduces no new constitutional entities. The existing
+Phase 2 schema is sufficient. The 26 entities the Phase 7
+engine layer operates on are:
+
+- Reporting: `Report`, `ReportTemplate`, `ReportExportRecord`,
+  `BoardReport`
+- Notification: `NotificationRecord`, `NotificationChannel`,
+  `NotificationPreference`
+- Risk and Compliance: `EnterpriseRisk`,
+  `ComplianceReviewReport`, `ConstitutionalIncident`
+- Security and Data Governance: `SecurityEvent`,
+  `AccessControlEntry`, `DataClassificationEntry`,
+  `ContinuityEvent`, `ContinuityPlan`, `RecoveryTestReport`,
+  `RecoveryReport`
+- Relationship Management: `CustomerProfile`,
+  `CustomerRelationshipHistory`, `PartnerProfile`,
+  `PartnerRelationshipHistory`,
+  `ManufacturerRelationshipRecord`, `GovernmentEntityProfile`,
+  `DisclosurePermission`
+
+The Phase 2 canonical count remains 91 (unchanged).
+
+## Architectural decisions
+
+1. **Pure-logic engine layer for Phase 7** (mirrors Phase 3-6):
+   `continuous_learning.py` (S24) and `phase7_engines.py`
+   (Reporting, Notification, Risk, Compliance, Constitutional
+   Incident, Performance). No DB coupling. All error classes are
+   typed exceptions whose messages are the constitutional text.
+
+2. **Notification suppression of Class 3/4 is FORBIDDEN at the
+   engine level** — the engine raises `SuppressionForbiddenError`
+   on any attempt to suppress a Class 3 or Class 4 notification.
+   The service layer cannot bypass this.
+
+3. **Constitutional Incident requires `reporter_id`** — the
+   engine raises a typed error on any attempt to record an
+   incident without a reporter. Per Constitution Article XX
+   paragraph 7, every constitutional event must be attributable.
+
+4. **`ChiefOrchestrationAgent` placed in §4.16** — deviation
+   from canonical Document 02 §4.1.1 placement. The agent is a
+   single instance; its function is identical. No constitutional
+   rule is affected.
+
+5. **Combined engines file** — `phase7_engines.py` holds the 6
+   engine classes for the remaining 6 Offices; `continuous_learning.py`
+   holds the S24 engine alone. The split reflects the
+   historical placement of S24 (deferred to Phase 7 per
+   GAP-PHASE6-001) vs. the other engines (in scope for Phase 7
+   from the start).
+
+6. **Reporting Engine produces `ComplianceAttestation` on every
+   Report** — the engine raises `ReportMissingClaimSourceError`
+   on any material claim without a Verification reference, and
+   `ReportMissingFreshnessError` on any Report without a
+   `freshness_date`. Both are typed exceptions.
+
+## What did NOT change
+
+No new Office (beyond the 7 activated), Agent (beyond the 31),
+Decision Class, workflow stage, gate, status, screen, or
+architectural layer has been introduced. The Constitution has
+not been modified.
+
+---
+
+*End of Decision and Assumption Register — Phase 7.*
 
 

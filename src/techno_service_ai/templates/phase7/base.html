@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title or "Phase 7" }} — {{ app_name }}</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>
+    .phase7 { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+    .phase7 h1 { font-size: 1.4rem; margin: 0.5rem 0; }
+    .phase7 h2 { font-size: 1.1rem; margin: 1rem 0 0.3rem; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+    .phase7 .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; background: #eef; color: #224; }
+    .phase7 .badge.compliant, .phase7 .badge.approved, .phase7 .badge.active, .phase7 .badge.cleared { background: #dfd; color: #060; }
+    .phase7 .badge.at_risk, .phase7 .badge.pending, .phase7 .badge.in_progress, .phase7 .badge.under_investigation { background: #ffd; color: #880; }
+    .phase7 .badge.non_compliant, .phase7 .badge.rejected, .phase7 .badge.critical, .phase7 .badge.escalated { background: #fdd; color: #800; }
+    .phase7 .badge.medium, .phase7 .badge.high, .phase7 .badge.low { background: #ffd; color: #880; }
+    .phase7 .badge.class_4, .phase7 .badge.class_3 { background: #fdd; color: #800; }
+    .phase7 .badge.class_2, .phase7 .badge.class_1 { background: #dfd; color: #060; }
+    .phase7 .badge.operational, .phase7 .badge.informational { background: #eef; color: #224; }
+    .phase7 table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+    .phase7 th, .phase7 td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #eee; }
+    .phase7 th { background: #f6f6f9; }
+    .phase7 .constitutional { border: 1px solid #ccd; padding: 0.5rem 1rem; margin: 0.5rem 0; background: #fafafd; }
+    .phase7 .principal { font-size: 0.9rem; color: #555; margin-bottom: 1rem; }
+    .phase7 .kpi { display: inline-block; padding: 1rem 1.5rem; margin: 0.5rem; background: #f6f6f9; border-radius: 6px; }
+    .phase7 .kpi .n { font-size: 1.6rem; font-weight: 600; }
+    .phase7 .kpi .label { font-size: 0.85rem; color: #555; }
+    .phase7 .empty { color: #888; font-style: italic; padding: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="phase7">
+    <h1>{{ title or "Phase 7" }}</h1>
+    {% if principal %}
+    <div class="principal">Signed in as <strong>{{ principal.display_name }}</strong> ({{ principal.username }}) — roles: {{ principal.role_codes | join(", ") }}</div>
+    {% endif %}
+    {% block body %}{% endblock %}
+    <hr />
+    <p>
+      <a href="/">← Home</a> ·
+      <a href="/dashboards/operations">Operations</a> ·
+      <a href="/dashboards/kpi">KPI</a> ·
+      <a href="/reports/executive">Reports</a> ·
+      <a href="/notifications/center">Notifications</a> ·
+      <a href="/incidents">Incidents</a> ·
+      <a href="/continuous-learning">Continuous Learning</a>
+    </p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{% extends "phase7/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Office Workload — Document 02 §4.16.</strong>
+  Activity counts per entity type across all 7 Offices.
+</div>
+
+<div class="kpi"><div class="n">{{ risk_count }}</div><div class="label">Risks</div></div>
+<div class="kpi"><div class="n">{{ incident_count }}</div><div class="label">Incidents</div></div>
+<div class="kpi"><div class="n">{{ notification_count }}</div><div class="label">Notifications</div></div>
+<div class="kpi"><div class="n">{{ report_count }}</div><div class="label">Reports</div></div>
+<div class="kpi"><div class="n">{{ knowledge_count }}</div><div class="label">Knowledge records</div></div>
+<div class="kpi"><div class="n">{{ lesson_count }}</div><div class="label">Lessons Learned</div></div>
+{% endblock %}

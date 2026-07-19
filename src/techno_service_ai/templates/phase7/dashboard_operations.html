@@ -1,0 +1,47 @@
+{% extends "phase7/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Operations Dashboard — Document 02 §4.16.</strong>
+  Workflow throughput, active risks, and Constitutional Incidents.
+</div>
+<div class="kpi"><div class="n">{{ risks | length }}</div><div class="label">Enterprise risks</div></div>
+<div class="kpi"><div class="n">{{ incidents | length }}</div><div class="label">Constitutional Incidents</div></div>
+
+<h3>Active Risks</h3>
+{% if risks %}
+<table>
+  <thead><tr><th>Title</th><th>Severity</th><th>Owner</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for r in risks %}
+    <tr>
+      <td>{{ r.risk_title }}</td>
+      <td><span class="badge {{ r.severity | lower }}">{{ r.severity }}</span></td>
+      <td>{{ r.owner_office }}</td>
+      <td><span class="badge {{ r.status | lower }}">{{ r.status }}</span></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No active risks.</p>
+{% endif %}
+
+<h3>Constitutional Incidents</h3>
+{% if incidents %}
+<table>
+  <thead><tr><th>Title</th><th>Severity</th><th>Affected Clause</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for i in incidents %}
+    <tr>
+      <td>{{ i.target_id }}</td>
+      <td><span class="badge {{ i.severity | lower }}">{{ i.severity }}</span></td>
+      <td>{{ i.target_id }}</td>
+      <td>—</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No Constitutional Incidents recorded.</p>
+{% endif %}
+{% endblock %}
