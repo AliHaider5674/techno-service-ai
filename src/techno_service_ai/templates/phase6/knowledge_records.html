@@ -1,0 +1,48 @@
+{% extends "phase6/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Knowledge Records — Document 02 §4.13.1.</strong>
+  The Knowledge Base Curator Agent maintains the Knowledge Base.
+  Every record carries provenance (source citation). Quality status
+  transitions are governed (DRAFT → REVIEWED → PUBLISHED → DEPRECATED).
+  Silent deletion is constitutionally PROHIBITED.
+</div>
+
+<h3>Knowledge Records ({{ records | length }})</h3>
+{% if records %}
+<table>
+  <thead><tr><th>Title</th><th>Domain</th><th>Quality</th><th>Source</th><th>Created</th></tr></thead>
+  <tbody>
+  {% for r in records %}
+    <tr>
+      <td><a href="/knowledge/{{ r.id }}">{{ r.title }}</a></td>
+      <td>{{ r.domain }}</td>
+      <td><span class="badge {{ r.quality_status | lower }}">{{ r.quality_status }}</span></td>
+      <td>{{ (r.source_citation[:60] + "…") if r.source_citation and r.source_citation|length > 60 else (r.source_citation or "—") }}</td>
+      <td>{{ r.created_at }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No knowledge records yet. The Knowledge Base Curator Agent (§4.13.1) creates the first record when invoked.</p>
+{% endif %}
+
+<h3>Knowledge Base Inventory ({{ inventory | length }})</h3>
+{% if inventory %}
+<table>
+  <thead><tr><th>Record</th><th>Classification</th><th>Review date</th></tr></thead>
+  <tbody>
+  {% for i in inventory %}
+    <tr>
+      <td>{{ i.knowledge_record_id }}</td>
+      <td>{{ i.classification }}</td>
+      <td>{{ i.review_date or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No inventory entries yet.</p>
+{% endif %}
+{% endblock %}

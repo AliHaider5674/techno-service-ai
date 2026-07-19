@@ -725,3 +725,386 @@ def assert_phase5_agents() -> int:
     assert len(roster) == 9, f"Phase 5 must have 9 Principal Agents, got {len(roster)}"
     return 9
 
+
+# ---------------------------------------------------------------------------
+# Phase 6 — Tender and Project Intelligence Office (§4.8)
+# ---------------------------------------------------------------------------
+
+
+class TenderMonitorAgent(Agent):
+    """Document 02 §4.8.1 — Tender Monitor Agent.
+
+    Drives Stage 19 (Tender Support). Monitors tenders; classifies
+    opportunities; flags material opportunities. Does NOT submit bids.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Tender Monitor Agent",
+            constitutional_purpose=(
+                "Continuously monitor tenders, requests for information, "
+                "requests for quotation, expressions of interest, and "
+                "framework agreements."
+            ),
+            prohibited_actions=(
+                "Submit bids",
+                "Represent Techno Service",
+                "Bind Techno Service",
+            ),
+            office="Tender and Project Intelligence Office",
+            charter_section="Document 02 §4.8.1",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, **kwargs):
+        return self.service.create_tender(
+            actor_id=actor_id, role_code=role_code, **kwargs
+        )
+
+
+class TenderQualificationAgent(Agent):
+    """Document 02 §4.8.2 — Tender Qualification Agent.
+
+    Qualifies tenders. Issues the Tender Qualification Report. Does
+    NOT decide to bid.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Tender Qualification Agent",
+            constitutional_purpose=(
+                "Qualify tenders against the Constitutional Commercial "
+                "Principles and the Value Qualification Rule."
+            ),
+            prohibited_actions=(
+                "Decide to bid",
+                "Bind Techno Service",
+            ),
+            office="Tender and Project Intelligence Office",
+            charter_section="Document 02 §4.8.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, tender_id: str, **kwargs):
+        return self.service.create_tender_qualification(
+            actor_id=actor_id, role_code=role_code, tender_id=tender_id, **kwargs
+        )
+
+
+class QuotationSupportAgent(Agent):
+    """Document 02 §4.8.4 — Quotation Support Agent.
+
+    Prepares the Quotation Dossier and the Tender Submission Dossier.
+    Every submission REQUIRES Human Approval. Does NOT submit.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Quotation Support Agent",
+            constitutional_purpose=(
+                "Support the preparation of quotations and tender "
+                "submissions."
+            ),
+            prohibited_actions=(
+                "Submit",
+                "Commit prices, margins, or terms",
+                "Bind Techno Service",
+            ),
+            office="Tender and Project Intelligence Office",
+            charter_section="Document 02 §4.8.4",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, tender_id: str, **kwargs):
+        return self.service.create_quotation_dossier(
+            actor_id=actor_id, role_code=role_code, tender_id=tender_id, **kwargs
+        )
+
+
+class ProjectMonitorAgent(Agent):
+    """Document 02 §4.8.3 — Project Monitor Agent.
+
+    Drives Stage 20 (Project Support). Tracks performance, milestones,
+    and after-sales opportunities. Does NOT modify commitments.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Project Monitor Agent",
+            constitutional_purpose=(
+                "Monitor awarded projects through execution."
+            ),
+            prohibited_actions=(
+                "Modify commitments",
+                "Bind Techno Service",
+            ),
+            office="Tender and Project Intelligence Office",
+            charter_section="Document 02 §4.8.3",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, project_name: str, **kwargs):
+        return self.service.create_project_status_report(
+            actor_id=actor_id, role_code=role_code, project_name=project_name, **kwargs
+        )
+
+
+# ---------------------------------------------------------------------------
+# Phase 6 — Knowledge and Institutional Memory Office (§4.13)
+# ---------------------------------------------------------------------------
+
+
+class KnowledgeBaseCuratorAgent(Agent):
+    """Document 02 §4.13.1 — Knowledge Base Curator Agent.
+
+    Drives Stage 22 (Knowledge Capture). Curates the Knowledge Base.
+    Enforces data quality and provenance. Does NOT silently delete
+    or overwrite records.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Knowledge Base Curator Agent",
+            constitutional_purpose="Curate the Knowledge Base.",
+            prohibited_actions=(
+                "Silently delete or overwrite records",
+                "Bind Techno Service",
+            ),
+            office="Knowledge and Institutional Memory Office",
+            charter_section="Document 02 §4.13.1",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, title: str, **kwargs):
+        return self.service.create_knowledge_record(
+            actor_id=actor_id, role_code=role_code, title=title, **kwargs
+        )
+
+
+class InstitutionalMemoryManagerAgent(Agent):
+    """Document 02 §4.13.2 — Institutional Memory Manager Agent.
+
+    Drives Stage 23 (Institutional Memory). Governs Institutional
+    Memory; preserves records; coordinates retention. Does NOT
+    silently delete records.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Institutional Memory Manager Agent",
+            constitutional_purpose="Govern Institutional Memory.",
+            prohibited_actions=(
+                "Silently delete records",
+                "Bind Techno Service",
+            ),
+            office="Knowledge and Institutional Memory Office",
+            charter_section="Document 02 §4.13.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, target_type: str, target_id: str, **kwargs):
+        return self.service.create_institutional_memory_index(
+            actor_id=actor_id, role_code=role_code,
+            target_type=target_type, target_id=target_id, **kwargs
+        )
+
+
+class LessonsLearnedAnalystAgent(Agent):
+    """Document 02 §4.13.3 — Lessons Learned Analyst Agent.
+
+    Extracts Lessons Learned from closed Opportunities. Publishes
+    the Lessons Learned Index. Does NOT silently amend records.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Lessons Learned Analyst Agent",
+            constitutional_purpose=(
+                "Convert experience into institutional lessons."
+            ),
+            prohibited_actions=(
+                "Silently amend records",
+                "Bind Techno Service",
+            ),
+            office="Knowledge and Institutional Memory Office",
+            charter_section="Document 02 §4.13.3",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, title: str, **kwargs):
+        return self.service.create_lesson_learned(
+            actor_id=actor_id, role_code=role_code, title=title, **kwargs
+        )
+
+
+# ---------------------------------------------------------------------------
+# Phase 6 — Deferred Commercial Development agents (Phase 5 → Phase 6)
+# ---------------------------------------------------------------------------
+
+
+class CommercialModelDesignerAgent(Agent):
+    """Document 02 §4.6.2 — Commercial Model Designer Agent.
+
+    Design candidate commercial models. Does NOT approve a model.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Commercial Model Designer Agent",
+            constitutional_purpose=(
+                "Design commercial models for an Opportunity."
+            ),
+            prohibited_actions=(
+                "Approve a model",
+                "Bind Techno Service",
+            ),
+            office="Commercial Development Office",
+            charter_section="Document 02 §4.6.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, opportunity_id: str, model_type: str, **kwargs):
+        return self.service.create_commercial_model_option(
+            actor_id=actor_id, role_code=role_code,
+            opportunity_id=opportunity_id, model_type=model_type, **kwargs
+        )
+
+
+class NegotiationSupportAgent(Agent):
+    """Document 02 §4.6.4 — Negotiation Support Agent.
+
+    Supports a human-led negotiation. Does NOT accept, reject, or
+    commit.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Negotiation Support Agent",
+            constitutional_purpose=(
+                "Support human-led negotiation without conducting it."
+            ),
+            prohibited_actions=(
+                "Accept or reject terms",
+                "Commit prices",
+                "Promise exclusivity",
+                "Bind Techno Service",
+            ),
+            office="Commercial Development Office",
+            charter_section="Document 02 §4.6.4",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, opportunity_id: str, **kwargs):
+        return self.service.create_negotiation_analysis(
+            actor_id=actor_id, role_code=role_code, opportunity_id=opportunity_id, **kwargs
+        )
+
+
+class AfterSalesIntelligenceAgent(Agent):
+    """Document 02 §4.6.6 — After-Sales Intelligence Agent.
+
+    Tracks after-sales performance. Does NOT contact customer without
+    Human Approval.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="After-Sales Intelligence Agent",
+            constitutional_purpose=(
+                "Track after-sales performance, recurring spares and "
+                "service opportunities, and renewal or expansion potential."
+            ),
+            prohibited_actions=(
+                "Contact customer without Human Approval",
+                "Bind Techno Service",
+            ),
+            office="Commercial Development Office",
+            charter_section="Document 02 §4.6.6",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, opportunity_id: str, report_text: str, **kwargs):
+        return self.service.create_after_sales_report(
+            actor_id=actor_id, role_code=role_code,
+            opportunity_id=opportunity_id, report_text=report_text, **kwargs
+        )
+
+
+# ---------------------------------------------------------------------------
+# Phase 6 — Approved Vendor List Manager (Phase 5 → Phase 6)
+# ---------------------------------------------------------------------------
+
+
+class ApprovedVendorListManagerAgent(Agent):
+    """Document 02 §4.7.4 — Approved Vendor List Manager Agent.
+
+    Maintains Techno Service's standing on approved-vendor lists.
+    Submissions require Human Approval.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Approved Vendor List Manager Agent",
+            constitutional_purpose=(
+                "Maintain Techno Service's standing on customer and "
+                "authority approved-vendor lists."
+            ),
+            prohibited_actions=(
+                "Submit without Human Approval",
+                "Misrepresent status",
+                "Bind Techno Service",
+            ),
+            office="Registration and Market Entry Office",
+            charter_section="Document 02 §4.7.4",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, opportunity_id: str, authority: str, **kwargs):
+        return self.service.create_avl_status(
+            actor_id=actor_id, role_code=role_code,
+            opportunity_id=opportunity_id, authority=authority, **kwargs
+        )
+
+
+# ---------------------------------------------------------------------------
+# Phase 6 Roster — 11 Principal Agents (4 Tender/Project + 3 Knowledge + 4 deferred)
+# ---------------------------------------------------------------------------
+
+
+def eleven_agent_roster(service: WorkflowService | None = None) -> list[Agent]:
+    """Return the 11 Principal Agents activated in Phase 6.
+
+    Tender and Project Intelligence: 4
+    Knowledge and Institutional Memory: 3
+    Deferred agents (from Phase 5 → Phase 6): 4
+        (Commercial Model Designer §4.6.2,
+         Negotiation Support §4.6.4,
+         After-Sales Intelligence §4.6.6,
+         Approved Vendor List Manager §4.7.4)
+    Total: 11.
+    """
+    svc = service or WorkflowService()
+    return [
+        # Tender and Project (4)
+        TenderMonitorAgent(svc),
+        TenderQualificationAgent(svc),
+        QuotationSupportAgent(svc),
+        ProjectMonitorAgent(svc),
+        # Knowledge (3)
+        KnowledgeBaseCuratorAgent(svc),
+        InstitutionalMemoryManagerAgent(svc),
+        LessonsLearnedAnalystAgent(svc),
+        # Deferred (4)
+        CommercialModelDesignerAgent(svc),
+        NegotiationSupportAgent(svc),
+        AfterSalesIntelligenceAgent(svc),
+        ApprovedVendorListManagerAgent(svc),
+    ]
+
+
+def assert_phase6_agents() -> int:
+    """Assert the 11-agent Phase 6 roster is complete. Returns the count."""
+    roster = eleven_agent_roster()
+    assert len(roster) == 11, f"Phase 6 must have 11 Principal Agents, got {len(roster)}"
+    return 11
+

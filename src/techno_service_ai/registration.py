@@ -323,3 +323,46 @@ class RegistrationEngine:
             options_count=len(spec.options_set),
             selection_violation=False,
         )
+
+    # -----------------------------------------------------------------
+    # Phase 6 — Approved Vendor List Manager Agent (§4.7.4)
+    # -----------------------------------------------------------------
+
+    def validate_avl_status(
+        self, *, opportunity_id: str, authority: str, status: str,
+        human_approval_id: Optional[str] = None,
+    ) -> None:
+        """Approved Vendor List Manager Agent (§4.7.4).
+
+        Per Document 02 §4.7.4: 'Authority: May issue Approved Vendor
+        List Status Report; may not submit or commit without Human
+        Approval.' A submission (status=SUBMITTED) REQUIRES Human
+        Approval.
+        """
+        if not opportunity_id or not opportunity_id.strip():
+            raise ValueError("opportunity_id is required")
+        if not authority or not authority.strip():
+            raise ValueError("authority is required")
+        valid = {"PENDING", "SUBMITTED", "APPROVED", "EXPIRED", "REJECTED"}
+        if status.upper() not in valid:
+            raise ValueError(
+                f"status must be one of: {sorted(valid)}; got {status!r}"
+            )
+        if status.upper() in ("SUBMITTED", "APPROVED") and (
+            not human_approval_id or not human_approval_id.strip()
+        ):
+            raise AVLSubmissionMissingApprovalError()
+
+
+class AVLSubmissionMissingApprovalError(RegistrationEngineError):
+    """An Approved Vendor List submission is attempted without
+    Human Approval. Per Document 02 §4.7.4 Prohibited Actions:
+    'Submit without Human Approval; misrepresent status; bind
+    Techno Service.'"""
+
+    def __init__(self) -> None:
+        super().__init__(
+            f"Approved Vendor List submission REJECTED: no Human Approval "
+            f"reference. Per Document 02 §4.7.4, the Agent 'may not submit "
+            f"without Human Approval; may not bind Techno Service.'"
+        )

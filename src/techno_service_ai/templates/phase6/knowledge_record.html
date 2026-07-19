@@ -1,0 +1,28 @@
+{% extends "phase6/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Knowledge Record — single record view.</strong>
+  Document 02 §4.13.1. The record carries provenance, quality
+  status, and the body. The record is append-only.
+</div>
+
+{% if record %}
+<h2>{{ record.title }}</h2>
+
+<div class="zone">
+  <div class="ztitle">Header</div>
+  <p><strong>Domain:</strong> {{ record.domain }}</p>
+  <p><strong>Quality status:</strong> <span class="badge {{ record.quality_status | lower }}">{{ record.quality_status }}</span></p>
+  <p><strong>Tags:</strong> {{ record.tags or "—" }}</p>
+  <p><strong>Source citation (provenance):</strong> {{ record.source_citation or "—" }}</p>
+  <p><strong>Created:</strong> {{ record.created_at }}</p>
+</div>
+
+<div class="zone">
+  <div class="ztitle">Body</div>
+  <pre>{{ record.body }}</pre>
+</div>
+{% else %}
+<p class="empty">Knowledge Record not found.</p>
+{% endif %}
+{% endblock %}

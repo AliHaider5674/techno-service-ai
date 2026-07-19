@@ -460,3 +460,68 @@ class CommercialEngine:
             missing_approval=missing_approval,
             register_blocked=register_blocked,
         )
+
+    # -----------------------------------------------------------------
+    # Phase 6 — Deferred Commercial agents (Document 02 §4.6.2, 4.6.4, 4.6.6)
+    # -----------------------------------------------------------------
+
+    def validate_commercial_model_option(
+        self, *, model_type: str, model_description: str, selected: bool
+    ) -> None:
+        """Commercial Model Designer Agent (§4.6.2).
+
+        Per Document 02 §4.6.2: 'Authority: May issue Commercial
+        Model Options; may not approve a model.'
+
+        The Agent is PROHIBITED from selecting a model. Selection
+        is a Human Authority decision.
+        """
+        if not model_type or not model_type.strip():
+            raise ValueError("model_type is required")
+        if selected:
+            raise CommercialModelSelectionNotAllowedError()
+
+    def validate_negotiation_analysis(
+        self, *, scenario: str, constraints: str, analysis_date: str
+    ) -> None:
+        """Negotiation Support Agent (§4.6.4).
+
+        Per Document 02 §4.6.4: 'Authority: May issue negotiation
+        analysis; may not accept, reject, or commit.' The Agent
+        does NOT conduct negotiation; it supports a human-led one.
+        """
+        if not scenario or not scenario.strip():
+            raise ValueError("scenario is required")
+        if not constraints or not constraints.strip():
+            raise ValueError("constraints is required")
+        if not analysis_date:
+            raise ValueError("analysis_date is required")
+
+    def validate_after_sales_report(
+        self, *, opportunity_id: str, report_text: str
+    ) -> None:
+        """After-Sales Intelligence Agent (§4.6.6).
+
+        Per Document 02 §4.6.6: 'Authority: May issue After-Sales
+        Intelligence Report; may not contact customer without
+        Human Approval.' The report itself is intelligence; the
+        Agent is PROHIBITED from contacting the customer.
+        """
+        if not opportunity_id or not opportunity_id.strip():
+            raise ValueError("opportunity_id is required")
+        if not report_text or not report_text.strip():
+            raise ValueError("report_text is required")
+
+
+class CommercialModelSelectionNotAllowedError(CommercialEngineError):
+    """The Commercial Model Designer Agent is constitutionally
+    PROHIBITED from selecting a model. Selection is a Human
+    Authority decision (Document 02 §4.6.2)."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            f"Commercial Model Designer Agent is REJECTED: attempted to "
+            f"select a model. Per Document 02 §4.6.2 Prohibited Actions, "
+            f"the Agent 'may not approve a model.' Selection is a Human "
+            f"Authority decision (Constitution Article XII)."
+        )

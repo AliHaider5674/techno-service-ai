@@ -1,10 +1,10 @@
 # Decision and Assumption Register
 
 **Project:** Techno Service AI Intelligence System
-**Phase:** 5 — Manufacturer, Commercial, and Registration Offices (current phase)
+**Phase:** 6 — Tender, Project, Knowledge, and the 24-Stage Walk (current phase)
 **Governing Authority:** Constitution v2.3
 **Document Reference:** TS-AI-DAR-001
-**Status:** Issued for the Phase 5 release
+**Status:** Issued for the Phase 6 release
 
 This register is the single source of truth for every decision and temporary
 technical assumption taken during the implementation. It is required by the
@@ -341,5 +341,105 @@ been introduced. The Constitution has not been modified.
 
 ---
 
-*End of Decision and Assumption Register — Phase 5.*
+# Phase 6 Update — Tender, Project, Knowledge, and the 24-Stage Walk
+
+**Status:** Issued for the Phase 6 release.
+
+## Summary
+
+Phase 6 activates 11 Principal Agents across 4 Offices (4
+Tender/Project + 3 Knowledge + 4 deferred Commercial/Registration
+agents). All 4 deferred agents from GAP-PHASE5-003 have
+Charters in Document 02 and are activated in Phase 6.
+
+The 24-stage Discovery Order walk (S01..S24) is now complete on
+real data — the constitutional lifecycle is closed.
+
+## New Temporary Technical Assumptions
+
+**None.** Phase 6 introduces no new TTA. The 16 Phase 1-3 TTAs
+remain in force through Phase 8 or until permanent decision.
+
+## GAP-PHASE5-001 — DecisionLogEntry reconciliation (CLOSED)
+
+The schema's `DecisionLogEntry` table was extended with 7 nullable
+fields (`decision_summary`, `decided_by_role`,
+`material_canonical_id`, `opportunity_canonical_id`, `rationale`,
+`conditions`, `related_approval_id`) to accept the LogService's
+field names. The `decision_class` column type was changed from
+`Integer` to `String(16)` to accept the `CLASS_1`..`CLASS_4` values
+the LogService writes. The change is additive (no data lost; the
+append-only triggers prevent any UPDATE on existing rows).
+
+The LogService.write_decision_log was updated to map the
+LogService field names to the schema's canonical names. The
+legacy `decision` field is built from `decision_summary` for
+backward compatibility with Phase 2/3 writers.
+
+## GAP-PHASE5-003 — 4 Deferred agents (CLOSED)
+
+All 4 deferred agents from Phase 5 are activated in Phase 6:
+
+  - Commercial Model Designer (§4.6.2)
+  - Negotiation Support (§4.6.4)
+  - After-Sales Intelligence (§4.6.6)
+  - Approved Vendor List Manager (§4.7.4)
+
+The 3-of-N partial activation recorded in HD-PHASE5-001 is now
+closed; the full Charter coverage for the Commercial Development
+and Registration/Market Entry offices is achieved.
+
+## New Records (no new entities)
+
+Phase 6 introduces no new constitutional entities. The existing
+Phase 2 entities are sufficient:
+
+  - Tender (ENT-TEN-001)
+  - TenderQualificationReport (ENT-TEN-002)
+  - QuotationDossier (ENT-TEN-003)
+  - ProjectStatusReport (ENT-TEN-004)
+  - AfterSalesIntelligenceReport (ENT-COM-006)
+  - CommercialModelOption (ENT-COM-002)
+  - NegotiationAnalysis (ENT-COM-004)
+  - ApprovedVendorListStatusReport (ENT-REG-003)
+  - KnowledgeRecord (ENT-KNO-001)
+  - LessonLearned (ENT-KNO-002)
+  - InstitutionalMemoryIndex (ENT-KNO-003)
+  - KnowledgeBaseInventory (ENT-KNO-004)
+  - CommercialOutcomeReport (ENT-PER-002)
+  - PerformanceRecord (ENT-PER-001)
+  - LearningUpdate (ENT-PER-003)
+
+The Phase 2 canonical count remains 91 (corrected from the
+original 90 in Phase 5 sign-off).
+
+## Architectural decisions
+
+1. **Pure-logic engine layer for Phase 6** (mirrors Phase 3/4/5):
+   `tender_project.py`, `knowledge.py`, and extensions to
+   `commercial.py` / `registration.py`. No DB coupling. All error
+   classes are typed exceptions whose messages are the
+   constitutional text.
+
+2. **GAP-PHASE5-001 reconciliation is additive and
+   backward-compatible.** Existing data is preserved; the
+   triggers prevent in-place updates so the schema can be
+   extended without violating Article XX.
+
+3. **S24 (Continuous Learning) engine is deferred to Phase 7.**
+   The walker records the stage as a `LearningUpdate` record;
+   the engine that consumes these updates (the Performance and
+   Learning Office agents per Document 02 §4.17) is out of
+   Phase 6 scope per the Implementation Roadmap.
+
+## What did NOT change
+
+No new Office, Agent (beyond the 11 activated), Decision Class,
+workflow stage, gate, status, screen, or architectural layer has
+been introduced. The Constitution has not been modified.
+
+---
+
+*End of Decision and Assumption Register — Phase 6.*
+
 

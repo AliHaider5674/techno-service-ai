@@ -1,0 +1,29 @@
+{% extends "phase6/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Lessons Learned — Document 02 §4.13.3.</strong>
+  The Lessons Learned Analyst Agent extracts lessons from closed
+  Opportunities. Every lesson is sourced (either a closed
+  Opportunity or a Constitutional Incident).
+</div>
+
+<h2>Lessons Learned ({{ lessons | length }})</h2>
+
+{% if lessons %}
+<table>
+  <thead><tr><th>Title</th><th>Outcome</th><th>Opportunity</th><th>Source</th></tr></thead>
+  <tbody>
+  {% for l in lessons %}
+    <tr>
+      <td>{{ l.title }}</td>
+      <td><span class="badge {{ l.outcome | lower }}">{{ l.outcome }}</span></td>
+      <td>{{ l.target_opportunity_id or "—" }}</td>
+      <td>{{ (l.source_citation[:60] + "…") if l.source_citation and l.source_citation|length > 60 else (l.source_citation or "—") }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No lessons learned yet. The Lessons Learned Analyst Agent (§4.13.3) extracts the first lesson when invoked.</p>
+{% endif %}
+{% endblock %}

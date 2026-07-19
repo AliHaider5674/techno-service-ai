@@ -1361,17 +1361,41 @@ class EscalationRecord(ConstitutionalMixin, Base):
 
 
 class DecisionLogEntry(ConstitutionalMixin, Base):
-    """ENT-LOG-001 — Decision Log Entry (a business-level decision)."""
+    """ENT-LOG-001 — Decision Log Entry (a business-level decision).
+
+    Phase 6 reconciliation (closes GAP-PHASE5-001):
+    - decision_class is now a String (was Integer). The LogService
+      passes the canonical class names ('CLASS_1'..'CLASS_4'); the
+      schema now accepts them directly. The Integer-to-String
+      transition is backward-compatible (no existing data is
+      invalidated because the field is part of a constitutional
+      append-only table — there are no UPDATE statements that would
+      break).
+    - Added 7 LogService fields: decision_summary, decided_by_role,
+      material_canonical_id, opportunity_canonical_id, rationale,
+      conditions, related_approval_id. All nullable so the schema
+      remains backward-compatible.
+    """
 
     __tablename__ = "decision_log_entry"
     __constitutional__ = True  # type: ignore[attr-defined]
 
+    # Legacy / canonical schema fields (Phase 2).
     target_type: Mapped[str] = mapped_column(String(64), nullable=False)
     target_id: Mapped[str] = mapped_column(String(36), nullable=False)
-    decision_class: Mapped[int] = mapped_column(Integer, nullable=False)
+    decision_class: Mapped[str] = mapped_column(String(16), nullable=False)
     decision: Mapped[str] = mapped_column(Text, nullable=False)
     decided_by: Mapped[str] = mapped_column(String(36), nullable=False)
     decided_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    # Phase 6 reconciliation: LogService fields (nullable for
+    # backward compatibility with Phase 2/3 writers).
+    decision_summary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    decided_by_role: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    material_canonical_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
+    opportunity_canonical_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
+    rationale: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    conditions: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    related_approval_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
 
 
 class HandoffLogEntry(ConstitutionalMixin, Base):

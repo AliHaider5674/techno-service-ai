@@ -1,0 +1,34 @@
+{% extends "phase6/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Tender Submission Dossier — Document 02 §4.8.4.</strong>
+  The full submission package. The Tender Gate (GATE-TENDER-002)
+  is invoked at the entry of every tender submission. Submission
+  requires Human Approval; otherwise the dossier remains a draft.
+</div>
+<h2>Tender Submission Package — {{ tender.tender_reference if tender else tender_id }}</h2>
+
+{% if quotations %}
+<table>
+  <thead><tr><th>Document</th><th>Type</th><th>Status</th><th>Source</th></tr></thead>
+  <tbody>
+  {% for q in quotations %}
+    <tr>
+      <td>{{ q.document_type }}</td>
+      <td>{{ q.document_type }}</td>
+      <td>
+        {% if q.submission_date %}
+          <span class="register-ok">SUBMITTED</span>
+        {% else %}
+          <span class="empty">DRAFT</span>
+        {% endif %}
+      </td>
+      <td>{{ q.source_citation or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No submission package records yet.</p>
+{% endif %}
+{% endblock %}

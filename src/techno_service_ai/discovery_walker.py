@@ -31,46 +31,70 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .agents import (
+    AfterSalesIntelligenceAgent,
+    ApprovedVendorListManagerAgent,
     BusinessDevelopmentAgent,
     CommercialEvaluationAgent,
+    CommercialModelDesignerAgent,
     CommercialValueDefinitionAgent,
     IndustrialActivityDetectionAgent,
     IndustrialEnvironmentMonitorAgent,
+    InstitutionalMemoryManagerAgent,
+    KnowledgeBaseCuratorAgent,
     KuwaitSuitabilityReviewerAgent,
+    LessonsLearnedAnalystAgent,
     ManufacturerComparisonAgent,
     ManufacturerCredibilityAnalystAgent,
     ManufacturerProfilerAgent,
     MarketEntryStrategyAgent,
+    NegotiationSupportAgent,
     PrequalificationAgent,
     PricingAndMarginAnalystAgent,
     ProblemAndNeedDefinitionAgent,
     ProductAnalystAgent,
+    ProjectMonitorAgent,
+    PrequalificationAgent,
+    QuotationSupportAgent,
     RegistrationCoordinatorAgent,
     ReplacementAndComparativeAnalysisAgent,
     RootCauseAnalysisAgent,
     TechnologyCategoryAnalystAgent,
+    TenderMonitorAgent,
+    TenderQualificationAgent,
     ValidatedSignalAgent,
 )
 from .db import SessionLocal
 from .phase2_schema import (
+    AfterSalesIntelligenceReport,
+    ApprovedVendorListStatusReport,
     BusinessDevelopmentEngagement,
     CommercialEvaluation,
+    CommercialModelOption,
     ComparativeAnalysis,
     IndustrialActivity,
     IndustrialEnvironmentProfile,
+    InstitutionalMemoryIndex,
+    KnowledgeBaseInventory,
+    KnowledgeRecord,
     KuwaitSuitabilityReview,
+    LessonLearned,
     ManufacturerComparisonReport,
     ManufacturerCredibilityAssessment,
     ManufacturerProfile,
     MarketEntryOptionsReport,
+    NegotiationAnalysis,
     Opportunity,
     PrequalificationStatusReport,
     PricingAnalysis,
     ProblemOrNeed,
     ProductAnalysis,
+    ProjectStatusReport,
+    QuotationDossier,
     RegistrationStatusReport,
     RootCause,
     TechnologyCategoryAnalysis,
+    Tender,
+    TenderQualificationReport,
     ValidatedSignal,
     ValueCase,
 )
@@ -174,6 +198,18 @@ class DiscoveryOrderWalker:
         self.registration_id: Optional[str] = None
         self.prequalification_id: Optional[str] = None
         self.market_entry_id: Optional[str] = None
+        # Phase 6 — Tender, Project, Knowledge
+        self.tender_id: Optional[str] = None
+        self.tender_qualification_id: Optional[str] = None
+        self.quotation_dossier_id: Optional[str] = None
+        self.project_status_id: Optional[str] = None
+        self.after_sales_id: Optional[str] = None
+        self.commercial_model_option_id: Optional[str] = None
+        self.negotiation_analysis_id: Optional[str] = None
+        self.avl_status_id: Optional[str] = None
+        self.knowledge_record_id: Optional[str] = None
+        self.institutional_memory_id: Optional[str] = None
+        self.lesson_learned_id: Optional[str] = None
         # Track the last completed stage.
         self.last_completed_stage: Optional[StageNumber] = None
         # Collected entity records.
@@ -897,10 +933,377 @@ class DiscoveryOrderWalker:
         self.execute_s18_market_entry(options=market_entry_options)
         return dict(self.entities)
 
+    # -----------------------------------------------------------------
+    # Phase 6 — S19 Tender Support
+    # -----------------------------------------------------------------
+
+    def execute_s19_tender(
+        self,
+        *,
+        tender_reference: str = "KOC-2026-001",
+        issuer: str = "Kuwait Oil Company",
+        issue_date: str = "2026-01-15",
+        closing_date: str = "2026-03-15",
+        qualification_outcome: str = "QUALIFIED",
+        document_type: str = "TECHNICAL_COMMERCIAL",
+        human_approval_id: Optional[str] = "approval-tender-001",
+        **kwargs,
+    ) -> Tender:
+        """Stage 19 — Tender Monitor Agent (§4.8.1)."""
+        self._ensure_order(StageNumber.S19_TENDER_SUPPORT)
+        agent = TenderMonitorAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            tender_reference=tender_reference, issuer=issuer,
+            issue_date=issue_date, closing_date=closing_date, **kwargs,
+        )
+        self.tender_id = rec.id
+        self.last_completed_stage = StageNumber.S19_TENDER_SUPPORT
+        self.entities["S19_tender"] = rec
+        return rec
+
+    def execute_s19_qualification(
+        self, *, qualification_outcome: str = "QUALIFIED", **kwargs
+    ) -> TenderQualificationReport:
+        """Stage 19 — Tender Qualification Agent (§4.8.2)."""
+        if not self.tender_id:
+            raise DiscoveryOrderViolation(
+                StageNumber.S18_MARKET_ENTRY,
+                StageNumber.S19_TENDER_SUPPORT,
+            )
+        agent = TenderQualificationAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            tender_id=self.tender_id,
+            qualification_outcome=qualification_outcome, **kwargs,
+        )
+        self.tender_qualification_id = rec.id
+        self.entities["S19_qualification"] = rec
+        return rec
+
+    def execute_s19_quotation(
+        self,
+        *,
+        document_type: str = "TECHNICAL_COMMERCIAL",
+        content: str = "Phase 6 S19 quotation content: technical proposal + commercial pricing.",
+        pricing_model: str = "Cost-plus with market alignment; margin 18%.",
+        technical_content: str = "Inconel-clad HX-101 tube bundle; KOC standard compliance.",
+        submission_date: Optional[str] = "2026-03-10",
+        human_approval_id: Optional[str] = "approval-tender-001",
+        **kwargs,
+    ) -> QuotationDossier:
+        """Stage 19 — Quotation Support Agent (§4.8.4)."""
+        if not self.tender_qualification_id:
+            raise DiscoveryOrderViolation(
+                StageNumber.S19_TENDER_SUPPORT,
+                StageNumber.S19_TENDER_SUPPORT,
+            )
+        agent = QuotationSupportAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            tender_id=self.tender_id,
+            document_type=document_type,
+            content=content,
+            pricing_model=pricing_model,
+            technical_content=technical_content,
+            submission_date=submission_date,
+            human_approval_id=human_approval_id, **kwargs,
+        )
+        self.quotation_dossier_id = rec.id
+        self.entities["S19_quotation"] = rec
+        return rec
+
+    # -----------------------------------------------------------------
+    # Phase 6 — S20 Project Support
+    # -----------------------------------------------------------------
+
+    def execute_s20_project(
+        self,
+        *,
+        project_name: str = "KOC Refinery HX-101 Upgrade",
+        status: str = "AWARDED",
+        **kwargs,
+    ) -> ProjectStatusReport:
+        """Stage 20 — Project Monitor Agent (§4.8.3)."""
+        self._ensure_order(StageNumber.S20_PROJECT_SUPPORT)
+        agent = ProjectMonitorAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            project_name=project_name, status=status, **kwargs,
+        )
+        self.project_status_id = rec.id
+        self.last_completed_stage = StageNumber.S20_PROJECT_SUPPORT
+        self.entities["S20"] = rec
+        return rec
+
+    def execute_s20_after_sales(
+        self, *, report_text: str = "Recurring spare parts opportunity identified.", **kwargs
+    ) -> AfterSalesIntelligenceReport:
+        """After-Sales Intelligence Report (associated with S20)."""
+        if not self.project_status_id:
+            raise DiscoveryOrderViolation(
+                StageNumber.S20_PROJECT_SUPPORT,
+                StageNumber.S20_PROJECT_SUPPORT,
+            )
+        agent = AfterSalesIntelligenceAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            opportunity_id=self.opportunity_id or "unknown",
+            report_text=report_text, **kwargs,
+        )
+        self.after_sales_id = rec.id
+        self.entities["S20_after_sales"] = rec
+        return rec
+
+    # -----------------------------------------------------------------
+    # Phase 6 — S21 Commercial Outcome (Closure Gate)
+    # -----------------------------------------------------------------
+
+    def execute_s21_commercial_outcome(
+        self,
+        *,
+        outcome: str = "WON",
+        revenue: Optional[str] = "1.2M USD",
+        margin: Optional[str] = "18%",
+        lessons_learned: str = "Customer valued the Inconel-clad proposal.",
+        **kwargs,
+    ) -> dict:
+        """Stage 21 — Commercial Outcome (ENT-PER-002). Closure Gate.
+
+        The Commercial Outcome Report is the input to the Closure
+        Gate (Document 06 §4.9). The outcome class is one of
+        WON / LOST / CLOSED.
+        """
+        from .phase2_schema import CommercialOutcomeReport
+        self._ensure_order(StageNumber.S21_COMMERCIAL_OUTCOME)
+        co = CommercialOutcomeReport(
+            id=_uuid_str_helper(),
+            canonical_id=_uuid_str_helper(),
+            version=1,
+            opportunity_id=self.opportunity_id or "unknown",
+            outcome=outcome.upper(),
+            revenue=revenue,
+            margin=margin,
+            lessons_learned=lessons_learned,
+            source_citation=f"Commercial Outcome: {outcome}",
+            created_by=self.actor_id,
+        )
+        with SessionLocal() as s:
+            s.add(co)
+            s.commit()
+            s.refresh(co)
+        self.last_completed_stage = StageNumber.S21_COMMERCIAL_OUTCOME
+        self.entities["S21"] = co
+        return co
+
+    # -----------------------------------------------------------------
+    # Phase 6 — S22 Knowledge Capture
+    # -----------------------------------------------------------------
+
+    def execute_s22_knowledge_capture(
+        self,
+        *,
+        title: str = "Refinery HX Upgrade — Best Practice",
+        body: str = "Inconel-clad HX-101 reduced unplanned shutdowns by 40%.",
+        domain: str = "REFINERY_MAINTENANCE",
+        source_citation: str = "Phase 6 walk — knowledge capture.",
+        **kwargs,
+    ) -> KnowledgeRecord:
+        """Stage 22 — Knowledge Base Curator Agent (§4.13.1)."""
+        self._ensure_order(StageNumber.S22_KNOWLEDGE_CAPTURE)
+        agent = KnowledgeBaseCuratorAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            title=title, body=body, domain=domain,
+            source_citation=source_citation, **kwargs,
+        )
+        self.knowledge_record_id = rec.id
+        self.last_completed_stage = StageNumber.S22_KNOWLEDGE_CAPTURE
+        self.entities["S22"] = rec
+        return rec
+
+    def execute_s22_lesson_learned(
+        self,
+        *,
+        title: str = "Lesson — Refinery HX Upgrade",
+        body: str = "Marginal VQR cost-improvement cases should be rejected; commercial viability below threshold.",
+        outcome: str = "WON",
+        **kwargs,
+    ) -> LessonLearned:
+        """Stage 22 — Lessons Learned Analyst Agent (§4.13.3)."""
+        agent = LessonsLearnedAnalystAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            title=title, body=body, outcome=outcome,
+            target_opportunity_id=self.opportunity_id, **kwargs,
+        )
+        self.lesson_learned_id = rec.id
+        self.entities["S22_lesson"] = rec
+        return rec
+
+    # -----------------------------------------------------------------
+    # Phase 6 — S23 Institutional Memory
+    # -----------------------------------------------------------------
+
+    def execute_s23_institutional_memory(
+        self,
+        *,
+        target_type: str = "OPPORTUNITY",
+        target_id: Optional[str] = None,
+        retention_class: str = "PERMANENT",
+        **kwargs,
+    ) -> InstitutionalMemoryIndex:
+        """Stage 23 — Institutional Memory Manager Agent (§4.13.2)."""
+        self._ensure_order(StageNumber.S23_INSTITUTIONAL_MEMORY)
+        agent = InstitutionalMemoryManagerAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            target_type=target_type,
+            target_id=target_id or self.opportunity_id or "unknown",
+            retention_class=retention_class, **kwargs,
+        )
+        self.institutional_memory_id = rec.id
+        self.last_completed_stage = StageNumber.S23_INSTITUTIONAL_MEMORY
+        self.entities["S23"] = rec
+        return rec
+
+    # -----------------------------------------------------------------
+    # Phase 6 — S24 Continuous Learning
+    # -----------------------------------------------------------------
+
+    def execute_s24_continuous_learning(
+        self,
+        *,
+        target_type: str = "LESSON_LEARNED",
+        target_id: Optional[str] = None,
+        description: str = "Update training corpus with the Refinery HX-101 lesson.",
+        **kwargs,
+    ) -> dict:
+        """Stage 24 — Continuous Learning (ENT-PER-003).
+
+        Thin wrapper — the engine layer's continuous learning is
+        out of Phase 6 scope (deferred to Phase 7). The walker
+        records the stage completion and creates a Learning
+        Update record.
+        """
+        from .phase2_schema import LearningUpdate
+        self._ensure_order(StageNumber.S24_CONTINUOUS_LEARNING)
+        lu = LearningUpdate(
+            id=_uuid_str_helper(),
+            canonical_id=_uuid_str_helper(),
+            version=1,
+            target_type=target_type,
+            target_id=target_id or self.lesson_learned_id or "unknown",
+            description=description,
+            source_citation="Phase 6 S24 walk — continuous learning update.",
+            created_by=self.actor_id,
+        )
+        with SessionLocal() as s:
+            s.add(lu)
+            s.commit()
+            s.refresh(lu)
+        self.last_completed_stage = StageNumber.S24_CONTINUOUS_LEARNING
+        self.entities["S24"] = lu
+        return lu
+
+    # -----------------------------------------------------------------
+    # 24-stage walk: S01..S24 (Phase 6 completes the constitutional lifecycle)
+    # -----------------------------------------------------------------
+
+    def walk_s01_to_s24(
+        self,
+        *,
+        # Discovery Order walk defaults — S01..S18
+        sector: str = "Oil & Gas",
+        geography: str = "Kuwait",
+        activity_description: str = "Refinery maintenance turnaround",
+        classification: str = "CONFIRMED",
+        opportunity_title: str = "Refurbish HX-101",
+        problem_description: str = "Aging heat exchangers",
+        root_cause_description: str = "Tube wall thinning from corrosion",
+        method_used: str = "Root cause analysis",
+        value_description: str = "Avoid unplanned shutdown",
+        category: str = "Heat Exchanger Refurbishment",
+        product_name: str = "Inconel-clad HX-101 tube bundle",
+        incumbent_solution: str = "Carbon steel tube bundle (3-year life)",
+        manufacturer_name: str = "Heatric (Doosan Babcock)",
+        counterpart: str = "Counterparty Inc.",
+        registration_type: str = "VENDOR_REGISTRATION",
+        registration_authority: str = "KNPC",
+        prequalification_authority: str = "KOC",
+        market_entry_options: Optional[list] = None,
+        # Phase 6 walk defaults — S19..S24
+        tender_reference: str = "KOC-2026-001",
+        tender_issuer: str = "Kuwait Oil Company",
+        tender_issue_date: str = "2026-01-15",
+        tender_closing_date: str = "2026-03-15",
+        tender_qualification: str = "QUALIFIED",
+        project_name: str = "KOC Refinery HX-101 Upgrade",
+        commercial_outcome: str = "WON",
+        revenue: Optional[str] = "1.2M USD",
+        margin: Optional[str] = "18%",
+        knowledge_title: str = "Refinery HX Upgrade — Best Practice",
+        knowledge_domain: str = "REFINERY_MAINTENANCE",
+        lesson_title: str = "Lesson — Refinery HX Upgrade",
+        lesson_outcome: str = "WON",
+    ) -> dict[str, object]:
+        """Walk the full S01..S24 Discovery Order on real data.
+
+        This is the constitutional lifecycle end-to-end. The walk
+        honours every stage from S01 (Industrial Environment) to
+        S24 (Continuous Learning). Skipping/abbreviating/reordering
+        any stage is REJECTED by the Discovery Order enforcer.
+        """
+        # S01..S10 — Phase 4
+        self.walk_s01_to_s10(
+            sector=sector, geography=geography,
+            activity_description=activity_description, classification=classification,
+            opportunity_title=opportunity_title, problem_description=problem_description,
+            root_cause_description=root_cause_description, method_used=method_used,
+            value_description=value_description, category=category,
+            product_name=product_name, incumbent_solution=incumbent_solution,
+        )
+        # S11..S18 — Phase 5
+        self.walk_s11_to_s18(
+            manufacturer_name=manufacturer_name,
+            counterpart=counterpart,
+            registration_type=registration_type,
+            registration_authority=registration_authority,
+            prequalification_authority=prequalification_authority,
+            market_entry_options=market_entry_options,
+        )
+        # S19..S24 — Phase 6
+        self.execute_s19_tender(
+            tender_reference=tender_reference, issuer=tender_issuer,
+            issue_date=tender_issue_date, closing_date=tender_closing_date,
+        )
+        self.execute_s19_qualification(qualification_outcome=tender_qualification)
+        self.execute_s19_quotation()
+        self.execute_s20_project(project_name=project_name)
+        self.execute_s20_after_sales()
+        self.execute_s21_commercial_outcome(
+            outcome=commercial_outcome, revenue=revenue, margin=margin,
+        )
+        self.execute_s22_knowledge_capture(
+            title=knowledge_title, domain=knowledge_domain,
+        )
+        self.execute_s22_lesson_learned(
+            title=lesson_title, outcome=lesson_outcome,
+        )
+        self.execute_s23_institutional_memory()
+        self.execute_s24_continuous_learning()
+        return dict(self.entities)
+
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+
+def _uuid_str_helper() -> str:
+    """Generate a new UUID string."""
+    import uuid
+    return str(uuid.uuid4())
 
 
 def assert_discovery_order_invariant(from_stage: StageNumber, to_stage: StageNumber) -> None:

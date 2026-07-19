@@ -72,6 +72,9 @@ def create_app() -> FastAPI:
     # Phase 5 routes (Manufacturer, Commercial, Registration screens + 2 new dashboards).
     from .phase5_routes import add_phase5_routes
     add_phase5_routes(app)
+    # Phase 6 routes (Tender, Project, Knowledge screens — closes the 24-stage lifecycle).
+    from .phase6_routes import add_phase6_routes
+    add_phase6_routes(app)
 
     @app.on_event("startup")
     def _startup() -> None:

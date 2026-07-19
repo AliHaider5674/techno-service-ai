@@ -1,0 +1,47 @@
+{% extends "phase6/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Project Status — Document 02 §4.8.3.</strong>
+  The Project Monitor Agent tracks performance, milestones, and
+  after-sales opportunities. The Project Gate (GATE-PROJECT-002)
+  is invoked at the entry of Stage 20 and at every project
+  commitment change.
+</div>
+
+<h3>Project Status Reports ({{ projects | length }})</h3>
+{% if projects %}
+<table>
+  <thead><tr><th>Project</th><th>Status</th><th>Issues</th><th>Created</th></tr></thead>
+  <tbody>
+  {% for p in projects %}
+    <tr>
+      <td>{{ p.project_name }}</td>
+      <td><span class="badge {{ p.status | lower }}">{{ p.status }}</span></td>
+      <td>{{ p.issues or "—" }}</td>
+      <td>{{ p.created_at }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No project status reports yet.</p>
+{% endif %}
+
+<h3>After-Sales Intelligence Reports ({{ after_sales | length }})</h3>
+{% if after_sales %}
+<table>
+  <thead><tr><th>Opportunity</th><th>Report</th><th>Recurring opportunity</th></tr></thead>
+  <tbody>
+  {% for a in after_sales %}
+    <tr>
+      <td>{{ a.opportunity_id }}</td>
+      <td>{{ (a.report_text[:80] + "…") if a.report_text and a.report_text|length > 80 else (a.report_text or "—") }}</td>
+      <td>{{ a.recurring_opportunity_identification or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No after-sales reports yet. The After-Sales Intelligence Agent (§4.6.6) creates the first report when invoked.</p>
+{% endif %}
+{% endblock %}

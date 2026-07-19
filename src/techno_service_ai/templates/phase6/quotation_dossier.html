@@ -1,0 +1,28 @@
+{% extends "phase6/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Quotation Dossier — Document 02 §4.8.4, GATE-TENDER.</strong>
+  The Quotation Support Agent prepares the dossier. Every submission
+  requires Human Approval. The Agent does NOT submit, does NOT
+  commit prices, and does NOT bind Techno Service.
+</div>
+<h2>Quotation Dossier — Tender {{ tender.tender_reference if tender else tender_id }}</h2>
+
+{% if quotations %}
+  {% for q in quotations %}
+  <div class="zone">
+    <div class="ztitle">{{ q.document_type }}</div>
+    <p><strong>Content:</strong></p>
+    <pre>{{ q.content }}</pre>
+    {% if q.submission_date %}
+    <p><strong>Submitted:</strong> {{ q.submission_date }} <span class="register-ok">with Human Approval</span></p>
+    {% else %}
+    <p><strong>Status:</strong> <span class="empty">draft — not yet submitted</span></p>
+    {% endif %}
+    <p><strong>Source:</strong> {{ q.source_citation or "—" }}</p>
+  </div>
+  {% endfor %}
+{% else %}
+<p class="empty">No quotation dossier records yet.</p>
+{% endif %}
+{% endblock %}

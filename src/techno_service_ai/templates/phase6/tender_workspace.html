@@ -1,0 +1,61 @@
+{% extends "phase6/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Tender Workspace — Document 02 §4.8.</strong>
+  Combines the Tender record, the Tender Qualification Report, and
+  the Quotation Dossier. The Tender Gate (GATE-TENDER-001) is invoked
+  at the entry of Stage 19 and at the entry of every tender
+  submission.
+</div>
+<h2>Tender {{ tender.tender_reference }}</h2>
+
+<div class="zone">
+  <div class="ztitle">Header</div>
+  <p><strong>Issuer:</strong> {{ tender.issuer }}</p>
+  <p><strong>Issue date:</strong> {{ tender.issue_date }}</p>
+  <p><strong>Closing date:</strong> {{ tender.closing_date }}</p>
+  <p><strong>Status:</strong> <span class="badge {{ tender.status | lower }}">{{ tender.status }}</span></p>
+  <p><strong>Description:</strong> {{ tender.description or "—" }}</p>
+</div>
+
+<h3>Qualification Reports ({{ quals | length }})</h3>
+{% if quals %}
+<table>
+  <thead><tr><th>Date</th><th>Outcome</th><th>Rationale</th></tr></thead>
+  <tbody>
+  {% for q in quals %}
+    <tr>
+      <td>{{ q.report_date }}</td>
+      <td><span class="badge {{ q.qualification_outcome | lower }}">{{ q.qualification_outcome }}</span></td>
+      <td>{{ q.rationale or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No qualification reports yet. The Tender Qualification Agent (§4.8.2) creates the first report when invoked.</p>
+{% endif %}
+
+<h3>Quotation Dossiers ({{ quotations | length }})</h3>
+{% if quotations %}
+<table>
+  <thead><tr><th>Type</th><th>Submission</th><th>Content</th></tr></thead>
+  <tbody>
+  {% for q in quotations %}
+    <tr>
+      <td>{{ q.document_type }}</td>
+      <td>{{ q.submission_date or "draft" }}</td>
+      <td>{{ (q.content[:80] + "…") if q.content and q.content|length > 80 else (q.content or "—") }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No quotation dossiers yet.</p>
+{% endif %}
+
+<p>
+  <a href="/tenders/{{ tender.id }}/quotation-dossier">Quotation Dossier</a> ·
+  <a href="/tenders/{{ tender.id }}/submission-dossier">Tender Submission Dossier</a>
+</p>
+{% endblock %}

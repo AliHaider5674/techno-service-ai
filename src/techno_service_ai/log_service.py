@@ -50,20 +50,53 @@ class LogService:
         decided_at: str = "",
         session: Optional[Session] = None,
     ) -> DecisionLogEntry:
-        """Append a Decision Log Entry."""
+        """Append a Decision Log Entry.
+
+        Phase 6 reconciliation (closes GAP-PHASE5-001): maps the
+        LogService's field names to the schema's canonical
+        DecisionLogEntry fields.
+
+          - decision_type  → target_type
+          - decision_summary → decision_summary (new in Phase 6)
+          - decision_class  → decision_class (now String in Phase 6)
+          - decision        → decision (built from decision_summary)
+          - decided_by_role → decided_by_role (new in Phase 6)
+          - material_canonical_id → material_canonical_id (new in P6)
+          - opportunity_canonical_id → opportunity_canonical_id (new in P6)
+          - rationale, conditions, related_approval_id → new in P6
+        """
+        # Build the legacy `decision` field from the summary so
+        # historical queries continue to work.
+        decision_text = decision_summary or ""
+        # Phase 6 reconciliation: convert decided_at (ISO string) to
+        # datetime so the schema accepts it. The schema's
+        # DateTime(timezone=True) requires a datetime, not a string.
+        from datetime import datetime
+        if isinstance(decided_at, str):
+            if decided_at:
+                # Strip trailing Z and parse; treat as UTC.
+                cleaned = decided_at.replace("Z", "+00:00")
+                decided_at_dt = datetime.fromisoformat(cleaned)
+            else:
+                decided_at_dt = datetime.now(timezone.utc)
+        else:
+            decided_at_dt = decided_at or datetime.now(timezone.utc)
         rec = DecisionLogEntry(
             id=_uuid_str(),
-            decision_type=decision_type,
-            decision_summary=decision_summary,
+            canonical_id=_uuid_str(),  # Phase 6: required NOT NULL
+            target_type=decision_type,
+            target_id=material_canonical_id or "",
             decision_class=decision_class,
+            decision=decision_text,
             decided_by=decided_by,
+            decided_at=decided_at_dt,
+            decision_summary=decision_summary,
             decided_by_role=decided_by_role,
             material_canonical_id=material_canonical_id,
             opportunity_canonical_id=opportunity_canonical_id,
-            rationale=rationale,
-            conditions=conditions,
+            rationale=rationale or None,
+            conditions=conditions or None,
             related_approval_id=related_approval_id,
-            decided_at=decided_at or _now_iso(),
         )
         self._commit(rec, session)
         return rec

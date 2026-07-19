@@ -1,0 +1,30 @@
+{% extends "phase6/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 02 §4.8.1 — Tender Monitor Agent.</strong>
+  Monitors tenders, requests for information, requests for quotation,
+  expressions of interest, and framework agreements. The Agent
+  does NOT submit bids — every submission requires Human Approval
+  (Constitution Article XII, Class 3 / Class 4).
+</div>
+<h2>Tenders ({{ tenders | length }})</h2>
+{% if tenders %}
+<table>
+  <thead><tr><th>Reference</th><th>Issuer</th><th>Issue</th><th>Closing</th><th>Status</th><th>Opportunity</th></tr></thead>
+  <tbody>
+  {% for t in tenders %}
+    <tr>
+      <td><a href="/tenders/{{ t.id }}">{{ t.tender_reference }}</a></td>
+      <td>{{ t.issuer }}</td>
+      <td>{{ t.issue_date }}</td>
+      <td>{{ t.closing_date }}</td>
+      <td><span class="badge {{ t.status | lower }}">{{ t.status }}</span></td>
+      <td>{{ t.opportunity_id or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No tenders yet. The Tender Monitor Agent (§4.8.1) creates the first tender record when invoked.</p>
+{% endif %}
+{% endblock %}

@@ -35,6 +35,12 @@ from .commercial import (
     PricingAnalysisSpec,
 )
 from .db import SessionLocal
+from .knowledge import (
+    InstitutionalMemoryIndexSpec,
+    KnowledgeEngine,
+    KnowledgeRecordSpec,
+    LessonLearnedSpec,
+)
 from .log_service import LogService
 from .manufacturer import (
     CredibilityAssessmentSpec,
@@ -46,30 +52,42 @@ from .manufacturer import (
     ScoreLevel,
 )
 from .phase2_schema import (
+    AfterSalesIntelligenceReport,
+    ApprovedVendorListStatusReport,
     BusinessDevelopmentEngagement,
     CommercialEvaluation,
+    CommercialModelOption,
     ComparativeAnalysis,
     ConflictDoNotPursueEntity,
     ConstitutionalMixin,
     EnvironmentalUpdate,
     IndustrialActivity,
     IndustrialEnvironmentProfile,
+    InstitutionalMemoryIndex,
+    KnowledgeBaseInventory,
+    KnowledgeRecord,
     KuwaitSuitabilityReview,
+    LessonLearned,
     ManufacturerComparisonReport,
     ManufacturerCredibilityAssessment,
     ManufacturerProfile,
     MarketEntryOptionsReport,
+    NegotiationAnalysis,
     Opportunity,
     PrequalificationStatusReport,
     PreliminaryReview,
     PricingAnalysis,
     ProblemOrNeed,
     ProductAnalysis,
+    ProjectStatusReport,
+    QuotationDossier,
     RepresentedPrincipal,
     RegistrationStatusReport,
     RestrictedProhibitedEntity,
     RootCause,
     TechnologyCategoryAnalysis,
+    Tender,
+    TenderQualificationReport,
     ValidatedSignal,
     ValueCase,
 )
@@ -88,6 +106,14 @@ from .registration import (
     RegistrationStatus,
 )
 from .schema import User
+from .tender_project import (
+    AfterSalesReportSpec,
+    ProjectStatusReportSpec,
+    QuotationDossierSpec,
+    TenderProjectEngine,
+    TenderQualificationSpec,
+    TenderSpec,
+)
 from .vqr import ImprovementEvidence, VQRClassification, VQREngine, VQRResult
 
 
@@ -123,6 +149,8 @@ class WorkflowService:
         self.commercial_engine = CommercialEngine()
         self.registration_engine = RegistrationEngine()
         self.register_engine = RegisterComplianceEngine()
+        self.tender_project_engine = TenderProjectEngine()
+        self.knowledge_engine = KnowledgeEngine()
 
     # -----------------------------------------------------------------
     # Industrial Intelligence (S01-S03)
@@ -1202,6 +1230,491 @@ class WorkflowService:
             },
         )
         return m
+
+    # -----------------------------------------------------------------
+    # Phase 6 — Tender and Project Intelligence (S19, S20) — §4.8
+    # -----------------------------------------------------------------
+
+    def create_tender(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        tender_reference: str,
+        issuer: str,
+        issue_date: str,
+        closing_date: str,
+        description: str = "",
+        opportunity_id: Optional[str] = None,
+        source_citation: str = "",
+    ) -> Tender:
+        """Stage 19 entry — Tender Monitor Agent (§4.8.1)."""
+        spec = TenderSpec(
+            tender_reference=tender_reference,
+            issuer=issuer,
+            issue_date=issue_date,
+            closing_date=closing_date,
+            description=description,
+            opportunity_id=opportunity_id,
+        )
+        self.tender_project_engine.validate_tender(spec)
+        t = Tender(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            opportunity_id=opportunity_id,
+            tender_reference=tender_reference,
+            issuer=issuer,
+            issue_date=datetime.fromisoformat(issue_date.replace("Z", "+00:00"))
+            if "T" in issue_date or "Z" in issue_date
+            else datetime.fromisoformat(issue_date + "T00:00:00+00:00"),
+            closing_date=datetime.fromisoformat(closing_date.replace("Z", "+00:00"))
+            if "T" in closing_date or "Z" in closing_date
+            else datetime.fromisoformat(closing_date + "T00:00:00+00:00"),
+            status="OPEN",
+            description=description or None,
+            source_citation=source_citation or f"Tender: {tender_reference}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            t, actor_id, role_code, "TENDER_MONITORED",
+            {"stage": "S19", "tender_reference": tender_reference},
+        )
+        return t
+
+    def create_tender_qualification(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        tender_id: str,
+        qualification_outcome: str,
+        rationale: str = "",
+        fit_assessment: str = "",
+        risk_assessment: str = "",
+        commercial_assessment: str = "",
+        source_citation: str = "",
+    ) -> TenderQualificationReport:
+        """Stage 19 — Tender Qualification Agent (§4.8.2)."""
+        spec = TenderQualificationSpec(
+            tender_id=tender_id,
+            qualification_outcome=qualification_outcome,
+            rationale=rationale,
+            fit_assessment=fit_assessment,
+            risk_assessment=risk_assessment,
+            commercial_assessment=commercial_assessment,
+        )
+        outcome = self.tender_project_engine.evaluate_qualification(spec)
+        q = TenderQualificationReport(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            tender_id=tender_id,
+            qualification_outcome=outcome.value,
+            rationale=(
+                f"{rationale or ''}\n"
+                f"[fit] {fit_assessment}\n"
+                f"[risk] {risk_assessment}\n"
+                f"[commercial] {commercial_assessment}"
+            ).strip(),
+            report_date=_now(),
+            source_citation=source_citation or f"Tender qualification: {outcome.value}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            q, actor_id, role_code, "TENDER_QUALIFIED",
+            {"stage": "S19", "tender_id": tender_id, "outcome": outcome.value},
+        )
+        return q
+
+    def create_quotation_dossier(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        tender_id: str,
+        document_type: str,
+        content: str,
+        pricing_model: str = "",
+        technical_content: str = "",
+        submission_date: Optional[str] = None,
+        human_approval_id: Optional[str] = None,
+        source_citation: str = "",
+    ) -> QuotationDossier:
+        """Stage 19 — Quotation Support Agent (§4.8.4)."""
+        spec = QuotationDossierSpec(
+            tender_id=tender_id,
+            document_type=document_type,
+            content=content,
+            pricing_model=pricing_model,
+            technical_content=technical_content,
+            submission_date=submission_date,
+            human_approval_id=human_approval_id,
+        )
+        self.tender_project_engine.validate_quotation_dossier(spec)
+        d = QuotationDossier(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            tender_id=tender_id,
+            document_type=document_type,
+            content=content,
+            submission_date=(
+                datetime.fromisoformat(submission_date.replace("Z", "+00:00"))
+                if submission_date and ("T" in submission_date or "Z" in submission_date)
+                else datetime.fromisoformat(submission_date + "T00:00:00+00:00")
+                if submission_date
+                else None
+            ),
+            source_citation=source_citation or f"Quotation Dossier: {document_type}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            d, actor_id, role_code, "QUOTATION_DOSSIER",
+            {
+                "stage": "S19",
+                "tender_id": tender_id,
+                "document_type": document_type,
+                "submission_date": submission_date,
+                "human_approval_id": human_approval_id,
+            },
+        )
+        return d
+
+    def create_project_status_report(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        project_name: str,
+        status: str = "AWARDED",
+        issues: str = "",
+        opportunity_id: Optional[str] = None,
+        source_citation: str = "",
+    ) -> ProjectStatusReport:
+        """Stage 20 — Project Monitor Agent (§4.8.3)."""
+        spec = ProjectStatusReportSpec(
+            project_name=project_name,
+            status=status,
+            issues=issues,
+            opportunity_id=opportunity_id,
+        )
+        self.tender_project_engine.validate_project_status(spec)
+        p = ProjectStatusReport(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            opportunity_id=opportunity_id,
+            project_name=project_name,
+            status=status.upper(),
+            issues=issues or None,
+            source_citation=source_citation or f"Project Status: {project_name}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            p, actor_id, role_code, "PROJECT_STATUS",
+            {"stage": "S20", "project_name": project_name, "status": status.upper()},
+        )
+        return p
+
+    def create_after_sales_report(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        opportunity_id: str,
+        report_text: str,
+        recurring_opportunity: str = "",
+        source_citation: str = "",
+    ) -> AfterSalesIntelligenceReport:
+        """After-Sales Intelligence Agent (§4.6.6)."""
+        spec = AfterSalesReportSpec(
+            opportunity_id=opportunity_id,
+            report_text=report_text,
+            recurring_opportunity=recurring_opportunity,
+        )
+        self.tender_project_engine.validate_after_sales(spec)
+        a = AfterSalesIntelligenceReport(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            opportunity_id=opportunity_id,
+            report_text=report_text,
+            recurring_opportunity_identification=recurring_opportunity or None,
+            source_citation=source_citation or "After-Sales Intelligence Report",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            a, actor_id, role_code, "AFTER_SALES_REPORT",
+            {"stage": "S20-AFTER-SALES", "opportunity_id": opportunity_id},
+        )
+        return a
+
+    # -----------------------------------------------------------------
+    # Phase 6 — Knowledge and Institutional Memory (S22, S23, S24) — §4.13
+    # -----------------------------------------------------------------
+
+    def create_knowledge_record(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        title: str,
+        body: str,
+        domain: str,
+        tags: str = "",
+        source_citation: str = "",
+        quality_status: str = "DRAFT",
+    ) -> KnowledgeRecord:
+        """Stage 22 — Knowledge Base Curator Agent (§4.13.1)."""
+        spec = KnowledgeRecordSpec(
+            title=title,
+            body=body,
+            domain=domain,
+            tags=tags,
+            source_citation=source_citation,
+            quality_status=quality_status,
+        )
+        result = self.knowledge_engine.validate_knowledge_record(spec)
+        k = KnowledgeRecord(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            title=result.title,
+            body=result.body,
+            domain=result.domain,
+            tags=result.tags or None,
+            quality_status=result.quality_status.value,
+            source_citation=result.source_citation,
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            k, actor_id, role_code, "KNOWLEDGE_RECORD",
+            {
+                "stage": "S22",
+                "title": title,
+                "domain": domain,
+                "quality_status": result.quality_status.value,
+            },
+        )
+        return k
+
+    def create_institutional_memory_index(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        target_type: str,
+        target_id: str,
+        retention_class: str = "PERMANENT",
+        retention_until: Optional[str] = None,
+        human_approval_id: Optional[str] = None,
+        source_citation: str = "",
+    ) -> InstitutionalMemoryIndex:
+        """Stage 23 — Institutional Memory Manager Agent (§4.13.2)."""
+        spec = InstitutionalMemoryIndexSpec(
+            target_type=target_type,
+            target_id=target_id,
+            retention_class=retention_class,
+            retention_until=retention_until,
+            human_approval_id=human_approval_id,
+        )
+        result = self.knowledge_engine.validate_institutional_memory(spec)
+        i = InstitutionalMemoryIndex(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            target_type=result.target_type,
+            target_id=result.target_id,
+            retention_class=result.retention_class.value,
+            retention_until=(
+                datetime.fromisoformat(retention_until.replace("Z", "+00:00"))
+                if retention_until and ("T" in retention_until or "Z" in retention_until)
+                else datetime.fromisoformat(retention_until + "T00:00:00+00:00")
+                if retention_until
+                else None
+            ),
+            source_citation=source_citation or f"Institutional Memory: {target_type}/{target_id}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            i, actor_id, role_code, "INSTITUTIONAL_MEMORY",
+            {
+                "stage": "S23",
+                "target_type": target_type,
+                "target_id": target_id,
+                "retention_class": result.retention_class.value,
+            },
+        )
+        return i
+
+    def create_lesson_learned(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        title: str,
+        body: str,
+        outcome: str,
+        target_opportunity_id: Optional[str] = None,
+        source_citation: str = "",
+    ) -> LessonLearned:
+        """Stage 22 — Lessons Learned Analyst Agent (§4.13.3)."""
+        spec = LessonLearnedSpec(
+            title=title,
+            body=body,
+            outcome=outcome,
+            target_opportunity_id=target_opportunity_id,
+            source_citation=source_citation,
+        )
+        result = self.knowledge_engine.validate_lesson_learned(spec)
+        l = LessonLearned(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            title=result.title,
+            body=result.body,
+            outcome=result.outcome.value,
+            target_opportunity_id=result.target_opportunity_id,
+            source_citation=result.source_citation or "Lesson Learned",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            l, actor_id, role_code, "LESSON_LEARNED",
+            {
+                "stage": "S22",
+                "title": title,
+                "outcome": result.outcome.value,
+                "target_opportunity_id": target_opportunity_id,
+            },
+        )
+        return l
+
+    # -----------------------------------------------------------------
+    # Phase 6 — Deferred Commercial Development agents (S12, S16) — §4.6.2, 4.6.4, 4.6.6
+    # -----------------------------------------------------------------
+
+    def create_commercial_model_option(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        opportunity_id: str,
+        model_type: str,
+        model_description: str = "",
+        selected: bool = False,
+        source_citation: str = "",
+    ) -> CommercialModelOption:
+        """§4.6.2 — Commercial Model Designer Agent. The Agent does
+        NOT approve a model. `selected` is a Human Authority decision."""
+        self.commercial_engine.validate_commercial_model_option(
+            model_type=model_type,
+            model_description=model_description,
+            selected=selected,
+        )
+        m = CommercialModelOption(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            opportunity_id=opportunity_id,
+            model_type=model_type,
+            model_description=model_description or None,
+            selected=False,  # always False at the Agent level
+            source_citation=source_citation or f"Commercial Model: {model_type}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            m, actor_id, role_code, "COMMERCIAL_MODEL_OPTION",
+            {"stage": "S12", "opportunity_id": opportunity_id, "model_type": model_type},
+        )
+        return m
+
+    def create_negotiation_analysis(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        opportunity_id: str,
+        scenario: str,
+        constraints: str,
+        analysis_date: Optional[str] = None,
+        source_citation: str = "",
+    ) -> NegotiationAnalysis:
+        """§4.6.4 — Negotiation Support Agent. The Agent supports a
+        human-led negotiation; it does NOT accept, reject, or commit."""
+        self.commercial_engine.validate_negotiation_analysis(
+            scenario=scenario,
+            constraints=constraints,
+            analysis_date=analysis_date or _now().isoformat(),
+        )
+        n = NegotiationAnalysis(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            opportunity_id=opportunity_id,
+            scenario=scenario,
+            constraints=constraints,
+            analysis_date=_now(),
+            source_citation=source_citation or "Negotiation Analysis",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            n, actor_id, role_code, "NEGOTIATION_ANALYSIS",
+            {"stage": "S16", "opportunity_id": opportunity_id},
+        )
+        return n
+
+    # -----------------------------------------------------------------
+    # Phase 6 — Approved Vendor List Manager (S17) — §4.7.4
+    # -----------------------------------------------------------------
+
+    def create_avl_status(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        opportunity_id: str,
+        authority: str,
+        status: str,
+        renewal_date: Optional[str] = None,
+        human_approval_id: Optional[str] = None,
+        source_citation: str = "",
+    ) -> ApprovedVendorListStatusReport:
+        """§4.7.4 — Approved Vendor List Manager Agent. A submission
+        (status=SUBMITTED) requires Human Approval."""
+        self.registration_engine.validate_avl_status(
+            opportunity_id=opportunity_id,
+            authority=authority,
+            status=status,
+            human_approval_id=human_approval_id,
+        )
+        a = ApprovedVendorListStatusReport(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            opportunity_id=opportunity_id,
+            authority=authority,
+            status=status.upper(),
+            renewal_date=(
+                datetime.fromisoformat(renewal_date.replace("Z", "+00:00"))
+                if renewal_date and ("T" in renewal_date or "Z" in renewal_date)
+                else datetime.fromisoformat(renewal_date + "T00:00:00+00:00")
+                if renewal_date
+                else None
+            ),
+            source_citation=source_citation or f"AVL Status: {authority}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            a, actor_id, role_code, "AVL_STATUS",
+            {
+                "stage": "S17",
+                "opportunity_id": opportunity_id,
+                "authority": authority,
+                "status": status.upper(),
+            },
+        )
+        return a
 
     # -----------------------------------------------------------------
     # Internal: write + audit

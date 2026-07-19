@@ -1,10 +1,10 @@
 # Implementation Gap Register
 
 **Project:** Techno Service AI Intelligence System
-**Phase:** 5 — Manufacturer, Commercial, and Registration Offices (current phase)
+**Phase:** 6 — Tender, Project, Knowledge, and the 24-Stage Walk (current phase)
 **Document Reference:** TS-AI-IGP-001
 **Governing Authority:** Constitution v2.3
-**Status:** Issued for the Phase 5 release
+**Status:** Issued for the Phase 6 release
 
 This register is the single source of truth for everything the approved
 documents do not say, that affects the current phase. Per Constitution
@@ -263,6 +263,44 @@ routed to a Decision Register entry.
 | GAP-PHASE3-003 | Decision Log / Handoff Log / Escalation Log wiring | Phase 4 implements LogService for the 3 Log entities. |
 | GAP-PHASE4-001 | Notification / Handoff service layers for Stages 11+ | Phase 5 carries this forward; the engines are in place; service-layer wiring is partial. |
 | GAP-PHASE4-002 | 24-stage walk currently ends at S10 | Phase 5 extends the walker to S11..S18. S19..S24 deferred to Phase 6. |
+| GAP-PHASE5-001 | DecisionLogEntry field-name mismatch | Phase 6 reconciles: 7 nullable fields added to schema; decision_class changed to String; LogService maps to canonical names. |
+| GAP-PHASE5-002 | Walker S13/S14/S15 placeholders | Phase 6 exercises the placeholders in the full S01..S24 walk. |
+| GAP-PHASE5-003 | 4 Agents deferred to Phase 6+ | Phase 6 activates all 4 deferred agents (Commercial Model Designer, Negotiation Support, After-Sales Intelligence, AVL Manager). |
+
+---
+
+## Phase 6 Gaps
+
+### GAP-PHASE6-001 — S24 Continuous Learning engine deferred to Phase 7
+
+- **Description:** The walker records S24 (Continuous Learning) as
+  a `LearningUpdate` record. The full engine that consumes these
+  updates — the Performance and Learning Office agents per
+  Document 02 §4.17 (Performance Metrics Analyst,
+  Lessons Learned Coordinator, Commercial Outcomes Analyst,
+  Continuous Learning Agent) — is not in Phase 6 scope.
+- **Impact:** `Low` for the 24-stage walk (the walk produces the
+  `LearningUpdate` record and moves the canonical state forward).
+  `Medium` for the audit trail of system-level learning events.
+- **Recommended resolution:** Phase 7 activates the Performance
+  and Learning Office agents per the Implementation Roadmap.
+- **Human Approval Required:** `No` (operational, not constitutional).
+- **Status:** `Open`.
+
+### GAP-PHASE6-002 — Performance and Learning Office (§4.17) agents deferred to Phase 7
+
+- **Description:** Document 02 §4.17 lists 4 Performance and
+  Learning Principal Agents. None are activated in Phase 6.
+  The data layer (CommercialOutcomeReport, PerformanceRecord,
+  LearningUpdate) is in place; the engine layer is not.
+- **Impact:** `Cosmetic` for the AC (the 24-stage walk completes;
+  the data records are written). `Major` for the Performance
+  Metrics dashboard / Commercial Outcomes dashboard / Continuous
+  Learning pipeline.
+- **Recommended resolution:** Phase 7 activates the 4 §4.17
+  agents.
+- **Human Approval Required:** `No`.
+- **Status:** `Open` (deferred to Phase 7).
 
 ---
 

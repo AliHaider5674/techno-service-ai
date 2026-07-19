@@ -1,7 +1,7 @@
 # Constitutional Traceability
 
 **Project:** Techno Service AI Intelligence System
-**Phase:** 5 — Manufacturer, Commercial, and Registration Offices (current phase)
+**Phase:** 6 — Tender, Project, Knowledge, and the 24-Stage Walk (current phase)
 
 This matrix is the bidirectional trace between the implementation
 artefacts (Phase 1 + Phase 2) and the constitutional clauses / Lower
@@ -170,4 +170,22 @@ column is the constitutional source that authorises it.
 
 ---
 
-*End of Constitutional Traceability — Phase 5.*
+## D. Phase 6 — Tender, Project, Knowledge, and the 24-Stage Walk
+
+| Clause / AC | Test file(s) proving compliance |
+|---|---|
+| Article VI — 24-stage walk S01..S24 on real data (AC-P6-008) | `test_phase6.py:test_full_24_stage_walk_s01_to_s24_succeeds`, `test_full_24_stage_walk_no_skip_no_abbreviation_no_reorder` |
+| Document 02 §4.8.1 — Tender Monitor (no submission) | `test_phase6.py:test_tender_monitor_validates_required_fields`, `test_discovery_order_walk_s19_to_s24_creates_real_records` |
+| Document 02 §4.8.4 — Quotation submission requires Human Approval (AC-P6-005) | `test_phase6.py:test_quotation_submission_without_approval_rejected` |
+| Document 02 §4.8.3 — Project commitment change requires Human Approval (AC-P6-006) | `test_phase6.py:test_project_commitment_change_without_approval_rejected` |
+| Document 02 §4.13.1 — Knowledge Record provenance required | `test_phase6.py:test_knowledge_record_requires_provenance`, `test_knowledge_record_with_provenance_accepted` |
+| Document 02 §4.13.2 — Institutional Memory silent deletion PROHIBITED | `test_phase6.py:test_institutional_memory_silent_deletion_rejected` |
+| Document 02 §4.13.3 — Lesson Learned requires source | `test_phase6.py:test_lesson_learned_requires_source` |
+| Document 06 §4.9 — Closure Gate at Final Disposition (AC-P6-007) | `test_phase6.py:test_closure_gate_final_disposition_recorded` |
+| 11 Principal Agents activated (4 Tender/Project + 3 Knowledge + 4 deferred) | `test_phase6.py:test_phase6_agent_roster_11_agents`, `test_phase6_three_offices_represented`, `test_phase6_agents_match_canonical_names` |
+| GAP-PHASE5-001 closure (DecisionLogEntry field reconciliation) | `test_phase6.py:test_decision_log_entry_reconciliation_works` |
+| 9 Phase 6 routes registered + render | `tests/test_phase6_routes.py` (3 tests) |
+
+---
+
+*End of Constitutional Traceability — Phase 6.*

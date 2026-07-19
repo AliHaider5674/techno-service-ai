@@ -1,0 +1,48 @@
+{% extends "phase6/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Institutional Memory Index — Document 02 §4.13.2.</strong>
+  Governs the preservation of every material record across time,
+  personnel, and technology change. Silent deletion is constitutionally
+  PROHIBITED. Material deletion requires Human Approval.
+</div>
+
+<h3>Memory Index ({{ entries | length }})</h3>
+{% if entries %}
+<table>
+  <thead><tr><th>Target type</th><th>Target ID</th><th>Retention</th><th>Until</th></tr></thead>
+  <tbody>
+  {% for e in entries %}
+    <tr>
+      <td>{{ e.target_type }}</td>
+      <td>{{ e.target_id }}</td>
+      <td><span class="badge {{ e.retention_class | lower }}">{{ e.retention_class }}</span></td>
+      <td>{{ e.retention_until or "PERMANENT" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No institutional memory entries yet. The Institutional Memory Manager Agent (§4.13.2) creates the first entry when invoked.</p>
+{% endif %}
+
+<h3>Commercial Outcomes ({{ outcomes | length }})</h3>
+{% if outcomes %}
+<table>
+  <thead><tr><th>Opportunity</th><th>Outcome</th><th>Revenue</th><th>Margin</th><th>Lessons</th></tr></thead>
+  <tbody>
+  {% for o in outcomes %}
+    <tr>
+      <td>{{ o.opportunity_id }}</td>
+      <td><span class="badge {{ o.outcome | lower }}">{{ o.outcome }}</span></td>
+      <td>{{ o.revenue or "—" }}</td>
+      <td>{{ o.margin or "—" }}</td>
+      <td>{{ (o.lessons_learned[:60] + "…") if o.lessons_learned and o.lessons_learned|length > 60 else (o.lessons_learned or "—") }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No commercial outcome reports yet.</p>
+{% endif %}
+{% endblock %}
