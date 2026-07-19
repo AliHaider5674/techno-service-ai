@@ -1,11 +1,11 @@
 {% extends "phase3/base.html" %}
 {% block body %}
 <div class="constitutional">
-  <strong>Document 06 §5.1 / Authority Matrix §3 — Approval Inbox.</strong>
+  <strong>Document 06 §5.1 / Authority Matrix §3 — {{ "approval.title" | t(lang_code()) }}.</strong>
   Every Approval Request the persona is authorised to action, with
   Decision Class, Required Approver Role, decision deadline, and quick action.
 </div>
-<h2>Buckets</h2>
+<h2>{{ "approval.title" | t(lang_code()) }}</h2>
 <ul>
   <li>Pending</li>
   <li>In Review</li>

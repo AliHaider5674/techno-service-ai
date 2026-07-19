@@ -280,11 +280,17 @@ def create_app() -> FastAPI:
     @app.get("/", response_class=HTMLResponse)
     def home(
         request: Request,
+        lang: Optional[str] = Query(default=None),
         principal: Optional[Principal] = Depends(_optional_principal),
     ) -> Response:
         if principal is None:
             return RedirectResponse(url="/sign-in", status_code=status.HTTP_303_SEE_OTHER)
-        return RedirectResponse(url="/home", status_code=status.HTTP_303_SEE_OTHER)
+        # Preserve `?lang=` on the redirect to /home (so the home
+        # page renders in the requested language immediately).
+        target = "/home"
+        if lang:
+            target = _resolve_post_signin_redirect(request, next_param=None, lang_param=lang, default="/home")
+        return RedirectResponse(url=target, status_code=status.HTTP_303_SEE_OTHER)
 
     @app.get("/sign-in", response_class=HTMLResponse)
     def sign_in_get(

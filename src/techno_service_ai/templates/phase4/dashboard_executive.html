@@ -1,17 +1,17 @@
 {% extends "phase4/base.html" %}
 {% block body %}
 <div class="constitutional">
-  <strong>DASH-EXEC-001 — Executive Dashboard (the default Home for the
+  <strong>DASH-EXEC-001 — {{ "dash.exec.title" | t(lang_code()) }} (the default Home for the
   Executive persona).</strong>
   The most important dashboard: strategic KPIs, decision-grade
   information, approval actions, board-ready summary, AI Strategic
   Recommendations, top risks, recent decisions.
 </div>
-<h2>Executive — Key Metrics</h2>
+<h2>{{ "dash.exec.title" | t(lang_code()) }} — Key Metrics</h2>
 <div>
-  <div class="kpi"><div class="n">{{ n_opps }}</div><div class="label">Active Opportunities</div></div>
-  <div class="kpi"><div class="n">{{ n_signals }}</div><div class="label">Validated Signals</div></div>
-  <div class="kpi"><div class="n">{{ n_comparatives }}</div><div class="label">Comparative Analyses</div></div>
+  <div class="kpi"><div class="n">{{ n_opps }}</div><div class="label">{{ "dash.exec.kpi.opps" | t(lang_code()) }}</div></div>
+  <div class="kpi"><div class="n">{{ n_signals }}</div><div class="label">{{ "dash.exec.kpi.signals" | t(lang_code()) }}</div></div>
+  <div class="kpi"><div class="n">{{ n_comparatives }}</div><div class="label">{{ "dash.exec.kpi.comparatives" | t(lang_code()) }}</div></div>
 </div>
 <h2>Open Approvals</h2>
 <p>Per Decision Class and Required Approver Role — see

@@ -1130,5 +1130,49 @@
   "p3.notifications.inbox.test_coverage": {
     "en": "Test coverage",
     "ar": "تغطية الاختبارات"
+  },
+  "dash.exec.title": {
+    "en": "Executive Dashboard",
+    "ar": "اللوحة التنفيذية"
+  },
+  "dash.exec.kpi.opps": {
+    "en": "Active Opportunities",
+    "ar": "الفرص النشطة"
+  },
+  "dash.exec.kpi.signals": {
+    "en": "Validated Signals",
+    "ar": "الإشارات المتحقق منها"
+  },
+  "dash.exec.kpi.comparatives": {
+    "en": "Comparative Analyses",
+    "ar": "التحليلات المقارنة"
+  },
+  "opps.title": {
+    "en": "Opportunities",
+    "ar": "الفرص"
+  },
+  "opps.new": {
+    "en": "+ New Opportunity",
+    "ar": "+ فرصة جديدة"
+  },
+  "opps.empty": {
+    "en": "No opportunities yet. The Opportunity Intelligence Office (Document 02 §4.3) creates the first opportunity from a Validated Signal.",
+    "ar": "لا توجد فرص بعد. يقوم مكتب استخبارات الفرص (الوثيقة 02 §4.3) بإنشاء الفرصة الأولى من إشارة تم التحقق منها."
+  },
+  "audit.title": {
+    "en": "Audit Log",
+    "ar": "سجل التدقيق"
+  },
+  "approval.title": {
+    "en": "Approval Inbox",
+    "ar": "صندوق الوارد للموافقات"
+  },
+  "audit_log.empty": {
+    "en": "No audit records yet.",
+    "ar": "لا توجد سجلات تدقيق بعد."
+  },
+  "approval.empty": {
+    "en": "No pending approvals.",
+    "ar": "لا توجد موافقات معلقة."
   }
 }

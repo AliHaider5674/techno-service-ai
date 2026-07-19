@@ -5,8 +5,8 @@
   The Opportunity is the constitutional root entity that anchors the
   workflow. It carries the 3 independent Status dimensions.
 </div>
-<h2>Opportunities ({{ opps | length }})</h2>
-<p><a href="/opportunities/new">+ New Opportunity</a></p>
+<h2>{{ "opps.title" | t(lang_code()) }} ({{ opps | length }})</h2>
+<p><a href="/opportunities/new">{{ "opps.new" | t(lang_code()) }}</a></p>
 {% if opps %}
 <table>
   <thead><tr><th>Title</th><th>Intelligence</th><th>Approval</th><th>Commercial</th><th>Created</th></tr></thead>
@@ -23,7 +23,6 @@
   </tbody>
 </table>
 {% else %}
-<p class="empty">No opportunities yet. The Opportunity Intelligence Office
-  (Document 02 §4.3) creates the first opportunity from a Validated Signal.</p>
+<p class="empty">{{ "opps.empty" | t(lang_code()) }}</p>
 {% endif %}
 {% endblock %}
