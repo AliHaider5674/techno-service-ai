@@ -809,6 +809,128 @@ v2.4 adoption.
 
 ---
 
-*End of Decision and Assumption Register — Phase 8 (Post-Sign-Off DAR-E-002).*
+## Phase 9 Continuous Proactive Discovery Sprint (2026-07-19)
+
+**Scope:** Real, continuous, team-like Proactive Discovery.
+Within Constitution v2.4 Charter. PR-PD-001..003 in force.
+Office 18, 4 agents, 5 filters, 3 Registers, 10-step workflow
+all PRESERVED. No new Permanent Rules, Offices, or Agents.
+
+### New Temporary Technical Assumptions
+
+#### ASS-PHASE9-001 — In-process threading scheduler for Continuous Discovery
+
+The Continuous Proactive Discovery scheduler uses Python's
+standard library `threading` module (in-process, single-thread
+loop) instead of APScheduler. Rationale:
+
+- APScheduler is not currently installed; per the Implementer
+  README §6, no auto-install without explicit approval.
+- The Constitutional Owner explicitly chose "in-process
+  Python threading" over a 3rd-party scheduler for the demo.
+- Production migration to APScheduler (or a proper
+  distributed scheduler) is recorded as an HD-PHASE8
+  operational gate, NOT a constitutional requirement.
+
+Behaviour:
+- The scheduler runs a daemon thread that sleeps for the
+  configured interval, then runs one ContinuousDiscoveryEngine
+  pass.
+- PAUSE stops new runs but the thread keeps alive; RESUME
+  re-enables new runs; STOP ends the thread.
+- Interval is configurable per Constitutional Owner (1-168
+  hours, default 6).
+- Manual trigger always works regardless of schedule status.
+- A singleton SchedulerState row in `impl_scheduler_state`
+  holds the configuration.
+
+#### ASS-PHASE9-002 — DataSource interface with simulated default
+
+The default data source for Continuous Discovery is
+`SimulatedDataSource`, which produces realistic-looking
+industrial maintenance / oil & gas / water treatment / HVAC /
+electrical / instrumentation candidates. The simulated source
+is ALWAYS marked `DEMO_DATA` and is clearly labelled in the UI
+as "DEMO DATA — simulated for the demo."
+
+The `DataSource` interface is in place for future real sources
+(USPTO, OpenCorporates, trade publications) to be added when
+API keys become available. The interface enforces:
+
+- `data_source` identifier (e.g. "SIMULATED", "USPTO")
+- `data_source_marker` (DEMO_DATA or REAL)
+- `fetch_candidates(max_n)` method
+
+Constitutional constraint: the system MUST NEVER present
+simulated data as if it were real. Every candidate record
+carries `data_source` + `data_source_marker`. If the marker is
+missing or invalid, the candidate is REJECTED at the register
+layer.
+
+### New Records (NOT canonical entities)
+
+The following 4 implementation entities are added to the data
+model. They are explicitly EXEMPT from constitutional-trigger
+protection (`__constitutional__` is NOT set), so they may be
+updated / deleted by the scheduler itself. Per the Sprint
+Brief: "The new scheduler entities must be marked as
+implementation entities in the data model, not canonical
+entities — they're orchestration, not constitutional content."
+
+- **IMPL-001** `SchedulerState` — singleton scheduler state.
+- **IMPL-002** `ContinuousSearchRun` — every run record.
+- **IMPL-003** `ContinuousDiscoveryCandidate` — every
+  evaluated candidate.
+- **IMPL-004** `ContinuousDiscoveryNotification` — every
+  bilingual notification.
+
+### Counts at a glance
+
+| Metric | v2.4 baseline | After P9 continuous | Delta |
+|---|---|---|---|
+| Offices | 18 / 18 | 18 / 18 | unchanged |
+| Charter Agents | 73 / 73 | 73 / 73 | unchanged |
+| Constitutional entities | 98 | 98 | unchanged |
+| Implementation entities | 0 | 4 | +4 (IMPL-001..004) |
+| Screens | 7 (SCR-PD-001..007) | 10 (+SCR-PD-008..010) | +3 |
+| TTA inventory | 17 | 19 | +2 (ASS-PHASE9-001, 002) |
+| Tests | 289 / 289 | 333 / 333 | +44 |
+
+### Constitutional completeness
+
+- Constitution v2.3 — UNCHANGED.
+- Constitution v2.4 — IN FORCE (additive, 3 PRs, 1 Office,
+  4 Agents, 1 Stage, 5 Filters, 6 Entities, 7 Screens, 3
+  Integrations, 1 Workflow, 1 Phase — all preserved).
+- No new Permanent Rules, Offices, or Agents added.
+- Office 18 alive, 4 agents activated, 5 filters applied,
+  3 Registers checked, 10-step workflow intact.
+- Continuous Proactive Discovery operational: scheduler
+  + console + manual trigger + pause/resume + bilingual
+  notifications.
+
+### Open Human Decisions (operational, not constitutional)
+
+- HD-PHASE8-002..006 — operational gates (PostgreSQL, prod
+  audit init, TDE, UAT, SLO verification).
+- HD-PHASE9-001 — production migration to APScheduler (or
+  equivalent proper scheduler) when the system moves from
+  dev to production. Same HD-PHASE8 family.
+- HD-PHASE9-002 — enable real data sources (USPTO,
+  OpenCorporates) when API keys become available.
+
+### PR-013 — clarification
+
+The Sprint Brief referenced "PR-013" but the canonical v2.4
+amendment added 3 Permanent Rules named **PR-PD-001/002/003**
+(Proactive Discovery Permitted under Charter). The Sprint
+Brief was interpreted as a reference to those rules (the
+"3 PRs" of v2.4 that authorise Proactive Product Discovery).
+This was confirmed in the Constitutional Owner's directive
+of 2026-07-19.
+
+---
+
+*End of Decision and Assumption Register — Phase 9 Continuous Proactive Discovery Sprint (2026-07-19).*
 
 

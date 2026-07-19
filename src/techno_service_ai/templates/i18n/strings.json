@@ -1174,5 +1174,305 @@
   "approval.empty": {
     "en": "No pending approvals.",
     "ar": "لا توجد موافقات معلقة."
+  },
+  "pdc.title": {
+    "en": "Continuous Proactive Discovery Console",
+    "ar": "وحدة تحكم الاكتشاف الاستباقي المستمر"
+  },
+  "pdc.subtitle": {
+    "en": "Real-time orchestration of Office 18's 4 agents, 5 filters, and 3 Constitutional Registers. Within Constitution v2.4 Charter. ASS-PHASE9-001 in-process threading scheduler.",
+    "ar": "التنسيق الفوري لمكتب 18 (4 وكلاء، 5 فلاتر، 3 سجلات دستورية). في إطار ميثاق الدستور v2.4. جدول in-process threading وفق ASS-PHASE9-001."
+  },
+  "pdc.section.scheduler": {
+    "en": "Scheduler",
+    "ar": "الجدول"
+  },
+  "pdc.section.run_history": {
+    "en": "Run history (last 10)",
+    "ar": "سجل التشغيلات (آخر 10)"
+  },
+  "pdc.section.candidates": {
+    "en": "Recent candidates",
+    "ar": "المرشحون الأخيرون"
+  },
+  "pdc.section.notifications": {
+    "en": "Notifications sent",
+    "ar": "الإشعارات المرسلة"
+  },
+  "pdc.scheduler.status": {
+    "en": "Status",
+    "ar": "الحالة"
+  },
+  "pdc.scheduler.running": {
+    "en": "RUNNING",
+    "ar": "قيد التشغيل"
+  },
+  "pdc.scheduler.paused": {
+    "en": "PAUSED",
+    "ar": "متوقف"
+  },
+  "pdc.scheduler.last_run": {
+    "en": "Last run",
+    "ar": "آخر تشغيل"
+  },
+  "pdc.scheduler.next_run": {
+    "en": "Next run",
+    "ar": "التشغيل التالي"
+  },
+  "pdc.scheduler.interval": {
+    "en": "Interval (hours)",
+    "ar": "الفاصل الزمني (ساعات)"
+  },
+  "pdc.scheduler.data_source": {
+    "en": "Data source",
+    "ar": "مصدر البيانات"
+  },
+  "pdc.scheduler.run_now": {
+    "en": "Run search now",
+    "ar": "تشغيل البحث الآن"
+  },
+  "pdc.scheduler.pause": {
+    "en": "Pause schedule",
+    "ar": "إيقاف الجدول مؤقتاً"
+  },
+  "pdc.scheduler.resume": {
+    "en": "Resume schedule",
+    "ar": "استئناف الجدول"
+  },
+  "pdc.scheduler.start": {
+    "en": "Start schedule",
+    "ar": "بدء الجدول"
+  },
+  "pdc.scheduler.stop": {
+    "en": "Stop schedule",
+    "ar": "إيقاف الجدول"
+  },
+  "pdc.scheduler.not_running": {
+    "en": "Scheduler not running. Use the controls above to start or manually trigger a search.",
+    "ar": "الجدول غير مشغَّل. استخدم أدوات التحكم أعلاه لبدء أو تشغيل يدوي."
+  },
+  "pdc.scheduler.manual_trigger_note": {
+    "en": "Manual trigger always works regardless of schedule status.",
+    "ar": "التشغيل اليدوي يعمل دائماً بصرف النظر عن حالة الجدول."
+  },
+  "pdc.scheduler.settings": {
+    "en": "Settings",
+    "ar": "الإعدادات"
+  },
+  "pdc.scheduler.never": {
+    "en": "never",
+    "ar": "أبداً"
+  },
+  "pdc.history.run_id": {
+    "en": "Run ID",
+    "ar": "معرّف التشغيل"
+  },
+  "pdc.history.run_type": {
+    "en": "Type",
+    "ar": "النوع"
+  },
+  "pdc.history.started": {
+    "en": "Started",
+    "ar": "بدأ"
+  },
+  "pdc.history.status": {
+    "en": "Status",
+    "ar": "الحالة"
+  },
+  "pdc.history.surfaced": {
+    "en": "Surfaced",
+    "ar": "المستخرج"
+  },
+  "pdc.history.qualified": {
+    "en": "Qualified",
+    "ar": "المؤهَّل"
+  },
+  "pdc.history.rejected": {
+    "en": "Rejected",
+    "ar": "المرفوض"
+  },
+  "pdc.history.notif": {
+    "en": "Notif.",
+    "ar": "الإشعارات"
+  },
+  "pdc.history.empty": {
+    "en": "No runs yet. Trigger a search or start the schedule.",
+    "ar": "لا توجد تشغيلات بعد. شغّل بحثاً يدوياً أو ابدأ الجدول."
+  },
+  "pdc.candidate.candidate_id": {
+    "en": "Candidate ID",
+    "ar": "معرّف المرشح"
+  },
+  "pdc.candidate.product": {
+    "en": "Product",
+    "ar": "المنتج"
+  },
+  "pdc.candidate.manufacturer": {
+    "en": "Manufacturer",
+    "ar": "المُصنِّع"
+  },
+  "pdc.candidate.sector": {
+    "en": "Sector",
+    "ar": "القطاع"
+  },
+  "pdc.candidate.overall": {
+    "en": "Overall",
+    "ar": "الإجمالي"
+  },
+  "pdc.candidate.data_source": {
+    "en": "Source",
+    "ar": "المصدر"
+  },
+  "pdc.candidate.marker": {
+    "en": "Marker",
+    "ar": "العلامة"
+  },
+  "pdc.candidate.discovered": {
+    "en": "Discovered",
+    "ar": "تاريخ الاكتشاف"
+  },
+  "pdc.candidate.f1": {
+    "en": "F1 Climate",
+    "ar": "F1 المناخ"
+  },
+  "pdc.candidate.f2": {
+    "en": "F2 Retrofit",
+    "ar": "F2 التعديل"
+  },
+  "pdc.candidate.f3": {
+    "en": "F3 No Agent KW",
+    "ar": "F3 لا وكيل في الكويت"
+  },
+  "pdc.candidate.f4": {
+    "en": "F4 Op Cost",
+    "ar": "F4 تكلفة التشغيل"
+  },
+  "pdc.candidate.f5": {
+    "en": "F5 Size",
+    "ar": "F5 الحجم"
+  },
+  "pdc.candidate.register": {
+    "en": "Registers",
+    "ar": "السجلات"
+  },
+  "pdc.candidate.empty": {
+    "en": "No candidates yet. Trigger a search.",
+    "ar": "لا يوجد مرشحون بعد. شغّل بحثاً."
+  },
+  "pdc.candidate.demo_marker": {
+    "en": "DEMO DATA — simulated for the demo.",
+    "ar": "بيانات تجريبية — محاكاة لأغراض العرض."
+  },
+  "pdc.candidate.demo_marker_short": {
+    "en": "DEMO DATA",
+    "ar": "بيانات تجريبية"
+  },
+  "pdc.notifications.empty": {
+    "en": "No notifications yet. Notifications are sent when a candidate passes all 5 filters and clears the 3 Registers.",
+    "ar": "لا توجد إشعارات بعد. تُرسَل الإشعارات عند اجتياز مرشح لجميع الفلاتر الخمسة وتخطي السجلات الثلاثة."
+  },
+  "pdc.notifications.priority": {
+    "en": "Priority",
+    "ar": "الأولوية"
+  },
+  "pdc.notifications.view_candidate": {
+    "en": "View candidate",
+    "ar": "عرض المرشح"
+  },
+  "pdc.notifications.subject_en": {
+    "en": "Subject (EN)",
+    "ar": "الموضوع (إنجليزي)"
+  },
+  "pdc.notifications.subject_ar": {
+    "en": "Subject (AR)",
+    "ar": "الموضوع (عربي)"
+  },
+  "pdc.flash.triggered": {
+    "en": "Manual search triggered. Run ID: {run_id}. {n} candidates surfaced, {q} qualified, {r} rejected.",
+    "ar": "تم تشغيل البحث اليدوي. معرّف التشغيل: {run_id}. {n} مرشح مستخرج، {q} مؤهَّل، {r} مرفوض."
+  },
+  "pdc.flash.paused": {
+    "en": "Schedule paused.",
+    "ar": "تم إيقاف الجدول مؤقتاً."
+  },
+  "pdc.flash.resumed": {
+    "en": "Schedule resumed. Next run in {interval} hour(s).",
+    "ar": "تم استئناف الجدول. التشغيل التالي بعد {interval} ساعة."
+  },
+  "pdc.flash.started": {
+    "en": "Scheduler started. Interval: {interval} hour(s).",
+    "ar": "تم بدء الجدول. الفاصل الزمني: {interval} ساعة."
+  },
+  "pdc.flash.stopped": {
+    "en": "Scheduler stopped.",
+    "ar": "تم إيقاف الجدول."
+  },
+  "pdc.flash.settings_saved": {
+    "en": "Settings saved.",
+    "ar": "تم حفظ الإعدادات."
+  },
+  "pdc.flash.error": {
+    "en": "Error: {error}",
+    "ar": "خطأ: {error}"
+  },
+  "pdc.constitutional_notice": {
+    "en": "Within Constitution v2.4 Charter. PR-PD-001..003 in force. Office 18, 4 agents, 5 filters, 3 Registers. ASS-PHASE9-001 in-process threading scheduler. No new Permanent Rules, Offices, or Agents.",
+    "ar": "في إطار ميثاق الدستور v2.4. PR-PD-001..003 نافذة. مكتب 18، 4 وكلاء، 5 فلاتر، 3 سجلات. جدول in-process threading وفق ASS-PHASE9-001. لا قواعد دائمة أو مكاتب أو وكلاء جدد."
+  },
+  "pdc.settings.title": {
+    "en": "Continuous Discovery Settings",
+    "ar": "إعدادات الاكتشاف المستمر"
+  },
+  "pdc.settings.subtitle": {
+    "en": "Configure the scheduler interval, data source, and notification preferences.",
+    "ar": "اضبط فاصل الجدول، مصدر البيانات، وتفضيلات الإشعارات."
+  },
+  "pdc.settings.interval_label": {
+    "en": "Interval (hours, 1-168)",
+    "ar": "الفاصل الزمني (ساعات، 1-168)"
+  },
+  "pdc.settings.interval_help": {
+    "en": "How often the scheduler runs. Default 6 hours.",
+    "ar": "مدى تكرار تشغيل الجدول. الافتراضي 6 ساعات."
+  },
+  "pdc.settings.data_source_label": {
+    "en": "Data source",
+    "ar": "مصدر البيانات"
+  },
+  "pdc.settings.data_source_help": {
+    "en": "SIMULATED (default) produces DEMO DATA. Real sources are added when API keys are available.",
+    "ar": "SIMULATED (الافتراضي) ينتج بيانات تجريبية. تُضاف المصادر الحقيقية عند توفر مفاتيح API."
+  },
+  "pdc.settings.demo_warning": {
+    "en": "Default = SIMULATED. Every result is marked DEMO DATA. The system never presents simulated data as real.",
+    "ar": "الافتراضي = SIMULATED. كل نتيجة موسومة كبيانات تجريبية. لا يعرض النظام البيانات المحاكاة كحقيقية أبداً."
+  },
+  "pdc.settings.save": {
+    "en": "Save settings",
+    "ar": "حفظ الإعدادات"
+  },
+  "pdc.settings.back": {
+    "en": "Back to console",
+    "ar": "العودة إلى وحدة التحكم"
+  },
+  "pdc.history.title": {
+    "en": "Continuous Discovery Run History",
+    "ar": "سجل تشغيلات الاكتشاف المستمر"
+  },
+  "pdc.history.subtitle": {
+    "en": "All scheduled and manual runs. Most recent first.",
+    "ar": "جميع التشغيلات المجدولة واليدوية. الأحدث أولاً."
+  },
+  "pdc.history.run_detail": {
+    "en": "Run detail",
+    "ar": "تفاصيل التشغيل"
+  },
+  "pdc.history.error": {
+    "en": "Error",
+    "ar": "خطأ"
+  },
+  "pdc.history.triggered_by": {
+    "en": "Triggered by",
+    "ar": "من قام بالتشغيل"
   }
 }

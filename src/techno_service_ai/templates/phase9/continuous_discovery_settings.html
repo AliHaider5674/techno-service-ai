@@ -1,0 +1,31 @@
+{% extends "phase9/base.html" %}
+{% block title %}{{ "pdc.settings.title" | t(lang_code()) }} · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="constitutional">
+  <strong>{{ "pdc.settings.title" | t(lang_code()) }}.</strong>
+  {{ "pdc.settings.subtitle" | t(lang_code()) }}
+</div>
+
+<form method="post" action="/phase9/continuous-discovery/settings" style="max-width:600px;margin:1rem 0;">
+  <div class="qa-form-row">
+    <label for="interval_hours">{{ "pdc.settings.interval_label" | t(lang_code()) }}</label>
+    <input type="number" id="interval_hours" name="interval_hours" min="1" max="168"
+           value="{{ state.interval_hours if state else 6 }}" required />
+    <small>{{ "pdc.settings.interval_help" | t(lang_code()) }}</small>
+  </div>
+  <div class="qa-form-row">
+    <label for="data_source">{{ "pdc.settings.data_source_label" | t(lang_code()) }}</label>
+    <select id="data_source" name="data_source" required>
+      {% for src in available_sources %}
+      <option value="{{ src }}" {% if state and state.data_source == src %}selected{% endif %}>{{ src }}</option>
+      {% endfor %}
+    </select>
+    <small>{{ "pdc.settings.data_source_help" | t(lang_code()) }}</small>
+  </div>
+  <div class="constitutional" style="background:#fff3cd;border-color:#ffe69c;">
+    <small>⚠ {{ "pdc.settings.demo_warning" | t(lang_code()) }}</small>
+  </div>
+  <button type="submit" style="padding:0.5rem 1rem;background:#1f3a8a;color:#fff;border:none;border-radius:4px;cursor:pointer;">{{ "pdc.settings.save" | t(lang_code()) }}</button>
+  <a href="/phase9/continuous-discovery/console" style="margin-left:0.5rem;color:#1f3a8a;">{{ "pdc.settings.back" | t(lang_code()) }}</a>
+</form>
+{% endblock %}

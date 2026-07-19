@@ -168,6 +168,10 @@ def create_app() -> FastAPI:
     # Phase 9 routes (Office 18 — Product Discovery Proactive, Constitution v2.4).
     from .phase9_routes import add_phase9_routes
     add_phase9_routes(app)
+    # Phase 9 continuous — Real Continuous Proactive Discovery (within
+    # v2.4 Charter, ASS-PHASE9-001 in-process threading scheduler).
+    from .phase9_continuous_routes import add_phase9_continuous_routes
+    add_phase9_continuous_routes(app)
 
     @app.on_event("startup")
     def _startup() -> None:

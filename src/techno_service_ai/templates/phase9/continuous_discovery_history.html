@@ -1,0 +1,52 @@
+{% extends "phase9/base.html" %}
+{% block title %}{{ "pdc.history.title" | t(lang_code()) }} · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="constitutional">
+  <strong>{{ "pdc.history.title" | t(lang_code()) }}.</strong>
+  {{ "pdc.history.subtitle" | t(lang_code()) }}
+</div>
+
+{% if history %}
+<table>
+  <thead>
+    <tr>
+      <th>{{ "pdc.history.run_id" | t(lang_code()) }}</th>
+      <th>{{ "pdc.history.run_type" | t(lang_code()) }}</th>
+      <th>{{ "pdc.history.started" | t(lang_code()) }}</th>
+      <th>{{ "pdc.history.status" | t(lang_code()) }}</th>
+      <th>{{ "pdc.candidate.data_source" | t(lang_code()) }}</th>
+      <th>{{ "pdc.history.surfaced" | t(lang_code()) }}</th>
+      <th>{{ "pdc.history.qualified" | t(lang_code()) }}</th>
+      <th>{{ "pdc.history.rejected" | t(lang_code()) }}</th>
+      <th>{{ "pdc.history.notif" | t(lang_code()) }}</th>
+      <th>{{ "pdc.history.triggered_by" | t(lang_code()) }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for r in history %}
+    <tr>
+      <td><code>{{ r.run_id[:8] }}</code></td>
+      <td>{{ r.run_type }}</td>
+      <td>{{ r.started_at }}</td>
+      <td><span class="badge {{ r.status | lower }}">{{ r.status }}</span></td>
+      <td><code>{{ r.data_source }}</code></td>
+      <td>{{ r.n_candidates_surfaced }}</td>
+      <td>{{ r.n_qualified }}</td>
+      <td>{{ r.n_rejected }}</td>
+      <td>{{ r.n_notifications_sent }}</td>
+      <td>{{ r.triggered_by }}</td>
+    </tr>
+    {% if r.error_message %}
+    <tr>
+      <td colspan="10" style="color:#c00;font-family:monospace;font-size:0.85rem;">
+        {{ "pdc.history.error" | t(lang_code()) }}: {{ r.error_message }}
+      </td>
+    </tr>
+    {% endif %}
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">{{ "pdc.history.empty" | t(lang_code()) }}</p>
+{% endif %}
+{% endblock %}

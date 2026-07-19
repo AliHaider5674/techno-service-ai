@@ -1268,6 +1268,143 @@ class ProactiveDiscoveryReport(ConstitutionalMixin, Base):
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
 
+# ---------------------------------------------------------------------------
+# Continuous Proactive Discovery — IMPLEMENTATION entities (NOT constitutional).
+#
+# These tables are ORCHESTRATION surfaces, not constitutional content.
+# They implement the scheduler, run history, candidate store, and notification
+# queue for the Continuous Proactive Discovery feature. They are explicitly
+# EXEMPT from the constitutional-trigger protection (`__constitutional__` is
+# NOT set), so they may be updated / deleted by the scheduler itself.
+#
+# Per the Sprint Brief: "The new scheduler entities must be marked as
+# implementation entities in the data model, not canonical entities — they're
+# orchestration, not constitutional content."
+#
+# These are added under ASS-PHASE9-001 (in-process threading scheduler)
+# and remain within the v2.4 charter (Office 18 already in force).
+# ---------------------------------------------------------------------------
+
+
+class SchedulerState(Base):
+    """IMPL-001 — Scheduler state (singleton row).
+
+    Stores the scheduler's current status: running / paused, the
+    configured interval (hours), the data source identifier, and the
+    last / next run timestamps. There is at most one row in this
+    table; the engine ensures a singleton at start-up.
+    """
+
+    __tablename__ = "impl_scheduler_state"
+    # NOT __constitutional__ — orchestration data, may be updated.
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    status: Mapped[str] = mapped_column(String(16), nullable=False, default="PAUSED")  # RUNNING / PAUSED
+    interval_hours: Mapped[int] = mapped_column(Integer, nullable=False, default=6)
+    data_source: Mapped[str] = mapped_column(String(64), nullable=False, default="SIMULATED")
+    last_run_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    next_run_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_by: Mapped[str] = mapped_column(String(36), nullable=False, default="system")
+
+
+class ContinuousSearchRun(Base):
+    """IMPL-002 — Continuous Search Run record.
+
+    Every scheduled or manual run of Continuous Proactive Discovery
+    creates a row here. Carries the data source used, the number of
+    candidates surfaced, qualified, and rejected, and any error
+    message.
+    """
+
+    __tablename__ = "impl_continuous_search_run"
+    # NOT __constitutional__ — orchestration data, may be updated.
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    run_id: Mapped[str] = mapped_column(String(36), nullable=False, unique=True)
+    run_type: Mapped[str] = mapped_column(String(16), nullable=False)  # SCHEDULED / MANUAL
+    data_source: Mapped[str] = mapped_column(String(64), nullable=False)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    finished_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)  # RUNNING / COMPLETED / FAILED
+    n_agents_activated: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    n_candidates_surfaced: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    n_qualified: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    n_rejected: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    n_notifications_sent: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    triggered_by: Mapped[str] = mapped_column(String(36), nullable=False, default="system")
+
+
+class ContinuousDiscoveryCandidate(Base):
+    """IMPL-003 — A candidate surfaced by Continuous Proactive Discovery.
+
+    Distinct from the constitutional ProactiveProductDiscovery
+    (ENT-PD-001) which records operator-curated discoveries. This
+    table records machine-surfaced candidates awaiting review.
+    Every row carries the data_source identifier for transparency.
+    """
+
+    __tablename__ = "impl_continuous_discovery_candidate"
+    # NOT __constitutional__ — orchestration data, may be updated.
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    candidate_id: Mapped[str] = mapped_column(String(36), nullable=False, unique=True)
+    product_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    product_category: Mapped[str] = mapped_column(String(64), nullable=False)
+    sector: Mapped[str] = mapped_column(String(64), nullable=False)
+    manufacturer_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    manufacturer_country: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    data_source: Mapped[str] = mapped_column(String(64), nullable=False)  # SIMULATED / USPTO / OPEN_CORPORATES / etc.
+    data_source_marker: Mapped[str] = mapped_column(String(32), nullable=False)  # DEMO_DATA / REAL
+    source_citation_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    signal_strength: Mapped[str] = mapped_column(String(16), nullable=False)  # HIGH / MEDIUM / LOW
+    # 5 filter results (one column per filter, plus a rationale field).
+    f1_pass: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    f1_rationale: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    f2_pass: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    f2_rationale: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    f3_pass: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    f3_rationale: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    f4_pass: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    f4_rationale: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    f5_pass: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    f5_rationale: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    # Register gate.
+    register_check: Mapped[str] = mapped_column(String(16), nullable=False)  # PASS / FAIL
+    register_finding: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    # Final status.
+    overall: Mapped[str] = mapped_column(String(16), nullable=False)  # QUALIFIED / REJECTED
+    discovered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    run_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    reviewed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    promoted_to_discovery_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
+
+
+class ContinuousDiscoveryNotification(Base):
+    """IMPL-004 — Notification record for Continuous Discovery events.
+
+    Each notification sent to the Notification Center for a
+    qualifying candidate creates a row here. Carries the bilingual
+    subject/body and the candidate_id for traceability.
+    """
+
+    __tablename__ = "impl_continuous_discovery_notification"
+    # NOT __constitutional__ — orchestration data, may be updated.
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    notification_id: Mapped[str] = mapped_column(String(36), nullable=False, unique=True)
+    candidate_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    run_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    subject_en: Mapped[str] = mapped_column(String(255), nullable=False)
+    subject_ar: Mapped[str] = mapped_column(String(255), nullable=False)
+    body_en: Mapped[Text] = mapped_column(Text, nullable=False)
+    body_ar: Mapped[Text] = mapped_column(Text, nullable=False)
+    priority: Mapped[str] = mapped_column(String(16), nullable=False, default="CLASS_3")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    delivered: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+
+
 class ApprovalPackage(ConstitutionalMixin, Base):
     """ENT-APR-002 — Approval Package (the material that goes to the approver)."""
 

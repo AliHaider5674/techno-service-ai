@@ -1,0 +1,162 @@
+{% extends "phase9/base.html" %}
+{% block title %}{{ "pdc.title" | t(lang_code()) }} · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="constitutional">
+  <strong>{{ "pdc.title" | t(lang_code()) }}.</strong>
+  {{ "pdc.subtitle" | t(lang_code()) }}
+</div>
+<div class="constitutional">
+  <small>{{ "pdc.constitutional_notice" | t(lang_code()) }}</small>
+</div>
+
+{% if flash %}
+<div class="constitutional"><strong>✓ {{ flash }}</strong></div>
+{% endif %}
+{% if error %}
+<div class="constitutional" style="border-color:#c00;background:#fee;"><strong>✗ {{ error }}</strong></div>
+{% endif %}
+
+<!-- Scheduler section -->
+<h2>{{ "pdc.section.scheduler" | t(lang_code()) }}</h2>
+<div class="kpi">
+  <div class="n">{{ ("pdc.scheduler.status" | t(lang_code())) }}: {% if sched.running and not sched.paused %}{{ "pdc.scheduler.running" | t(lang_code()) }}{% else %}{{ "pdc.scheduler.paused" | t(lang_code()) }}{% endif %}</div>
+  <div class="label">
+    {% if state %}
+      {{ "pdc.scheduler.data_source" | t(lang_code()) }}: <strong>{{ state.data_source }}</strong> ({{ "pdc.candidate.demo_marker_short" | t(lang_code()) }})
+      · {{ "pdc.scheduler.interval" | t(lang_code()) }}: <strong>{{ state.interval_hours }}h</strong>
+      · {{ "pdc.scheduler.last_run" | t(lang_code()) }}: <strong>{{ state.last_run_at or ("pdc.scheduler.never" | t(lang_code())) }}</strong>
+      {% if state.next_run_at %}
+      · {{ "pdc.scheduler.next_run" | t(lang_code()) }}: <strong>{{ state.next_run_at }}</strong>
+      {% endif %}
+    {% else %}
+      {{ "pdc.scheduler.not_running" | t(lang_code()) }}
+    {% endif %}
+  </div>
+</div>
+
+<form method="post" action="/phase9/continuous-discovery/trigger" style="display:inline-block;margin:0.3rem;">
+  <button type="submit" style="padding:0.5rem 1rem;background:#1f3a8a;color:#fff;border:none;border-radius:4px;cursor:pointer;">{{ "pdc.scheduler.run_now" | t(lang_code()) }}</button>
+</form>
+<form method="post" action="/phase9/continuous-discovery/start" style="display:inline-block;margin:0.3rem;">
+  <button type="submit" style="padding:0.5rem 1rem;background:#0a7c2f;color:#fff;border:none;border-radius:4px;cursor:pointer;">{{ "pdc.scheduler.start" | t(lang_code()) }}</button>
+</form>
+<form method="post" action="/phase9/continuous-discovery/stop" style="display:inline-block;margin:0.3rem;">
+  <button type="submit" style="padding:0.5rem 1rem;background:#444;color:#fff;border:none;border-radius:4px;cursor:pointer;">{{ "pdc.scheduler.stop" | t(lang_code()) }}</button>
+</form>
+<form method="post" action="/phase9/continuous-discovery/pause" style="display:inline-block;margin:0.3rem;">
+  <button type="submit" style="padding:0.5rem 1rem;background:#888;color:#fff;border:none;border-radius:4px;cursor:pointer;">{{ "pdc.scheduler.pause" | t(lang_code()) }}</button>
+</form>
+<form method="post" action="/phase9/continuous-discovery/resume" style="display:inline-block;margin:0.3rem;">
+  <button type="submit" style="padding:0.5rem 1rem;background:#444;color:#fff;border:none;border-radius:4px;cursor:pointer;">{{ "pdc.scheduler.resume" | t(lang_code()) }}</button>
+</form>
+<a href="/phase9/continuous-discovery/settings" style="display:inline-block;margin:0.3rem;padding:0.5rem 1rem;background:#fff;border:1px solid #888;color:#222;border-radius:4px;text-decoration:none;">{{ "pdc.scheduler.settings" | t(lang_code()) }}</a>
+<a href="/phase9/continuous-discovery/history" style="display:inline-block;margin:0.3rem;padding:0.5rem 1rem;background:#fff;border:1px solid #888;color:#222;border-radius:4px;text-decoration:none;">{{ "pdc.section.run_history" | t(lang_code()) }}</a>
+
+<p><small>{{ "pdc.scheduler.manual_trigger_note" | t(lang_code()) }}</small></p>
+
+<!-- Run history -->
+<h2>{{ "pdc.section.run_history" | t(lang_code()) }}</h2>
+{% if history %}
+<table>
+  <thead>
+    <tr>
+      <th>{{ "pdc.history.run_id" | t(lang_code()) }}</th>
+      <th>{{ "pdc.history.run_type" | t(lang_code()) }}</th>
+      <th>{{ "pdc.history.started" | t(lang_code()) }}</th>
+      <th>{{ "pdc.history.status" | t(lang_code()) }}</th>
+      <th>{{ "pdc.history.surfaced" | t(lang_code()) }}</th>
+      <th>{{ "pdc.history.qualified" | t(lang_code()) }}</th>
+      <th>{{ "pdc.history.rejected" | t(lang_code()) }}</th>
+      <th>{{ "pdc.history.notif" | t(lang_code()) }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for r in history %}
+    <tr>
+      <td><code>{{ r.run_id[:8] }}</code></td>
+      <td>{{ r.run_type }}</td>
+      <td>{{ r.started_at }}</td>
+      <td><span class="badge {{ r.status | lower }}">{{ r.status }}</span></td>
+      <td>{{ r.n_candidates_surfaced }}</td>
+      <td>{{ r.n_qualified }}</td>
+      <td>{{ r.n_rejected }}</td>
+      <td>{{ r.n_notifications_sent }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">{{ "pdc.history.empty" | t(lang_code()) }}</p>
+{% endif %}
+
+<!-- Candidates -->
+<h2>{{ "pdc.section.candidates" | t(lang_code()) }}</h2>
+{% if candidates %}
+<table>
+  <thead>
+    <tr>
+      <th>{{ "pdc.candidate.candidate_id" | t(lang_code()) }}</th>
+      <th>{{ "pdc.candidate.product" | t(lang_code()) }}</th>
+      <th>{{ "pdc.candidate.manufacturer" | t(lang_code()) }}</th>
+      <th>{{ "pdc.candidate.sector" | t(lang_code()) }}</th>
+      <th>{{ "pdc.candidate.f1" | t(lang_code()) }}</th>
+      <th>{{ "pdc.candidate.f2" | t(lang_code()) }}</th>
+      <th>{{ "pdc.candidate.f3" | t(lang_code()) }}</th>
+      <th>{{ "pdc.candidate.f4" | t(lang_code()) }}</th>
+      <th>{{ "pdc.candidate.f5" | t(lang_code()) }}</th>
+      <th>{{ "pdc.candidate.register" | t(lang_code()) }}</th>
+      <th>{{ "pdc.candidate.overall" | t(lang_code()) }}</th>
+      <th>{{ "pdc.candidate.data_source" | t(lang_code()) }}</th>
+      <th>{{ "pdc.candidate.marker" | t(lang_code()) }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for c in candidates %}
+    <tr>
+      <td><code>{{ c.candidate_id[:8] }}</code></td>
+      <td>{{ c.product_name[:32] }}</td>
+      <td>{{ c.manufacturer_name[:24] }}</td>
+      <td>{{ c.sector }}</td>
+      <td>{% if c.f1_pass %}✓{% else %}✗{% endif %}</td>
+      <td>{% if c.f2_pass %}✓{% else %}✗{% endif %}</td>
+      <td>{% if c.f3_pass %}✓{% else %}✗{% endif %}</td>
+      <td>{% if c.f4_pass %}✓{% else %}✗{% endif %}</td>
+      <td>{% if c.f5_pass %}✓{% else %}✗{% endif %}</td>
+      <td><span class="badge {{ c.register_check | lower }}">{{ c.register_check }}</span></td>
+      <td><span class="badge {{ c.overall | lower }}">{{ c.overall }}</span></td>
+      <td><code>{{ c.data_source }}</code></td>
+      <td><span class="badge {% if c.data_source_marker == 'DEMO_DATA' %}at_risk{% else %}compliant{% endif %}">{{ c.data_source_marker }}</span></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p><small>{{ "pdc.candidate.demo_marker" | t(lang_code()) }}</small></p>
+{% else %}
+<p class="empty">{{ "pdc.candidate.empty" | t(lang_code()) }}</p>
+{% endif %}
+
+<!-- Notifications -->
+<h2>{{ "pdc.section.notifications" | t(lang_code()) }}</h2>
+{% if notifications %}
+<table>
+  <thead>
+    <tr>
+      <th>{{ "pdc.notifications.subject_en" | t(lang_code()) }}</th>
+      <th>{{ "pdc.notifications.subject_ar" | t(lang_code()) }}</th>
+      <th>{{ "pdc.notifications.priority" | t(lang_code()) }}</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for n in notifications %}
+    <tr>
+      <td>{{ n.subject_en[:80] }}</td>
+      <td dir="rtl">{{ n.subject_ar[:80] }}</td>
+      <td><span class="badge class_3">{{ n.priority }}</span></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">{{ "pdc.notifications.empty" | t(lang_code()) }}</p>
+{% endif %}
+{% endblock %}

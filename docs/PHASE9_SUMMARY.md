@@ -163,6 +163,96 @@ REJECTED at the engine layer.
 
 ---
 
+## Phase 9 Continuous Proactive Discovery — Real, Team-Like Orchestration
+
+**Sprint date:** 2026-07-19
+**Scope:** Within Constitution v2.4 Charter. PR-PD-001..003
+in force. No new Permanent Rules, Offices, or Agents.
+
+### What was added
+
+1. **In-process threading scheduler** (`src/techno_service_ai/scheduler.py`):
+   ASS-PHASE9-001 — Python `threading` daemon thread that loops
+   over the configured interval, runs one ContinuousDiscoveryEngine
+   pass, sleeps, repeats. Supports PAUSE, RESUME, STOP, START,
+   manual trigger.
+
+2. **Continuous Discovery Engine**
+   (`src/techno_service_ai/continuous_discovery.py`): pure-logic
+   orchestration that:
+   - Activates the 4 v2.4 agents (Global Product Monitor, New
+     Product Detector, Emerging Company Scout, Patent Watch).
+   - Applies the 5 qualification filters (F1..F5).
+   - Checks the 3 Constitutional Registers (RESTRICTED,
+     CONFLICT, NON_REPRESENTED).
+   - Builds a bilingual (EN + AR) notification for each
+     qualifying candidate.
+
+3. **Simulated data source**
+   (`src/techno_service_ai/simulated_sources.py`): default
+   data source, marked DEMO_DATA. Produces realistic-looking
+   candidates in industrial maintenance, oil & gas, water
+   treatment, HVAC, electrical, instrumentation. The
+   `DataSource` interface is ready for real sources (USPTO,
+   OpenCorporates) when API keys are available.
+
+4. **4 implementation entities** (NOT constitutional):
+   - IMPL-001 `SchedulerState`
+   - IMPL-002 `ContinuousSearchRun`
+   - IMPL-003 `ContinuousDiscoveryCandidate`
+   - IMPL-004 `ContinuousDiscoveryNotification`
+
+5. **3 new screens** (SCR-PD-008..010):
+   - `/phase9/continuous-discovery/console` — main console
+     with scheduler state, run history, candidates, notifications.
+   - `/phase9/continuous-discovery/settings` — interval + data
+     source config.
+   - `/phase9/continuous-discovery/history` — full run history.
+
+6. **Bilingual EN + AR** via the i18n framework (75 new keys).
+
+7. **Notification integration**: every qualifying candidate
+   creates a `ContinuousDiscoveryNotification` row with
+   bilingual subject + body, ready for the Notification Center
+   to dispatch.
+
+8. **44 new tests** (333/333 total) covering: scheduler
+   lifecycle, manual trigger, 5-filter evaluation, 3-register
+   check (REJECT for missing marker, REJECT for RESTRICTED /
+   CONFLICT / REPRESENTED), simulated data source, bilingual
+   notification, console rendering (EN + AR), and route
+   integration.
+
+### Constitutional constraint enforced
+
+The system MUST NEVER present simulated data as if it were
+real. Every candidate record carries `data_source` +
+`data_source_marker`. If the marker is missing or invalid,
+the candidate is REJECTED at the register layer.
+
+### Counts at a glance
+
+| Metric | v2.4 baseline | After P9 continuous | Delta |
+|---|---|---|---|
+| Offices | 18 / 18 | 18 / 18 | unchanged |
+| Charter Agents | 73 / 73 | 73 / 73 | unchanged |
+| Constitutional entities | 98 | 98 | unchanged |
+| Implementation entities | 0 | 4 | +4 (IMPL-001..004) |
+| Screens | 7 (SCR-PD-001..007) | 10 (+SCR-PD-008..010) | +3 |
+| TTA inventory | 17 | 19 | +2 (ASS-PHASE9-001, 002) |
+| Tests | 289 / 289 | 333 / 333 | +44 |
+
+### PR-013 clarification
+
+The Sprint Brief referenced "PR-013" but the canonical v2.4
+amendment added 3 Permanent Rules named **PR-PD-001/002/003**.
+The Sprint Brief was interpreted as a reference to those
+rules (the "3 PRs" of v2.4 that authorise Proactive Product
+Discovery). Confirmed in the Constitutional Owner's directive
+of 2026-07-19.
+
+---
+
 ## Constitutional notes
 
 - **Constitution v2.3 unchanged.** 32 articles preserved.
