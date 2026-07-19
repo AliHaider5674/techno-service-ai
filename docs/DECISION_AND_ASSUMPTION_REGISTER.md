@@ -724,8 +724,8 @@ Constitution has not been modified.
 
 # Phase 8 (Post-Sign-Off) — DAR-E-002: Proactive Product Discovery as Constitutional Extension
 
-**Status:** **PENDING Class 4 sign-off on Constitution v2.4.**
-**No implementation work proceeds until the amendment is adopted.**
+**Status:** ✅ **APPROVED (2026-07-19) — Class 4 adoption of Constitution v2.4.**
+**Phase 9 implementation in progress under the v2.4 authority.**
 
 ## DAR-E-002 (Major — Constitutional Owner Direction)
 
@@ -733,6 +733,7 @@ Constitution has not been modified.
 - **Title:** Proactive Product Discovery as constitutional extension
 - **Severity:** **Major — Constitution Amendment Required**
 - **Originating Document:** Constitutional Owner direction (new goal)
+- **Approval Status:** ✅ **APPROVED (2026-07-19)** — Class 4 adoption of Constitution v2.4
 
 **Description.** The Constitutional Owner has directed that the
 System shall additionally support **Proactive Product
@@ -753,12 +754,17 @@ filters for:
 **End goal:** **exclusive agency acquisition in Kuwait** for
 the industrial maintenance and oil & gas sectors.
 
-This is a **constitutional extension** (Option 1 of
-GAP-CONST-001), not a replacement of the existing Techno
-Service AI Intelligence System. The existing Constitution
-v2.3 **stays in force** until v2.4 is adopted.
+**Class 4 Authorisation (recorded 2026-07-19):**
 
-**Constitutional Surface to be Added (v2.4):**
+- **Approver:** Authorised Executive (Constitutional Owner).
+- **Constitutional Concurrence:** Constitutional Compliance
+  Coordination.
+- **Amendment file:** `techno_service_constitution_v2.4_amendment.md`
+  (336 lines, 27 KB).
+- **Effective Date:** 2026-07-19.
+- **Next Review Date:** 2026-10-19 (3 months).
+
+**Constitutional Surface to be Added (v2.4) — APPROVED:**
 
 - 1 new Office (Office 18, Product Discovery Proactive).
 - 4 new Principal Agents (Global Product Monitor; New
@@ -768,49 +774,38 @@ v2.3 **stays in force** until v2.4 is adopted.
 - 5 new qualification filters (No Agent in Kuwait;
   Operating Cost; Training Burden; Company Size;
   Kuwait Suitability for Climate).
-- 1 new workflow (Exclusive Agency Acquisition Workflow).
-- 4-6 new canonical entities.
-- 5-7 new UI/UX screens.
-- 2-3 new external service integrations.
+- 1 new workflow (Exclusive Agency Acquisition Workflow,
+  10 steps; Class 3 approval at step 6; Class 4 approval
+  at step 8).
+- 6 new canonical entities (ENT-PD-001..006).
+- 7 new UI/UX screens (SCR-PD-001..007).
+- 3 new external service integrations (Web Search; Patent
+  Search; Trade Publications).
+- 1 new Phase (Phase 9, Proactive Product Discovery).
+- 3 new Permanent Rules (PR-PD-001..003).
 
-**Constitutional Surface PRESERVED (v2.3 → v2.4):**
+**Constitutional Surface PRESERVED (v2.3 → v2.4) — UNCHANGED:**
 
 - 17 Offices alive (Document 02 §4.1..4.17) — unchanged.
 - 69 Principal Agents activated — unchanged.
 - 24 stages of the Discovery Order — unchanged (Stage 8.5
   is ADDED, not substituted).
-- 92 canonical entities — unchanged (new entities are
-  ADDED, not substituted).
+- 92 canonical entities — unchanged (6 new entities are
+  ADDED to the schema; existing 92 are PRESERVED).
 - 25/25 Readiness Criteria — unchanged.
-- 259/259 tests green — unchanged.
+- 259/259 tests green (v1.0 build) — unchanged.
 - 17 TTAs in force — unchanged.
 - Document Hierarchy and Change Control (Article XXIX) —
   unchanged.
-- Constitution v2.3 — **unchanged** until v2.4 is adopted.
+- Constitution v2.3 — **UNCHANGED** (32 articles, all
+  preserved).
 
-**Approval Status:** **PENDING Class 4 sign-off on
-Constitution v2.4.** Per Authority Matrix §3.4, any
-amendment to the Constitution requires Class 4
-(Authorised Executive / Constitutional Owner) approval.
+**Phase 9 Authorization:** **PROCEED** (per Class 4
+sign-off in this message).
 
-**Closure Path:**
-
-1. Constitutional Owner signs off on Constitution v2.4
-   (Major Amendment).
-2. v2.4 is adopted; the 5 Lower Documents (02, 06, 07, 08)
-   are updated under the v2.4 authority.
-3. Phase 9 (Proactive Product Discovery) implementation
-   is authorised per the v2.4 surface.
-4. GAP-CONST-001 is closed with the v2.4 adoption evidence.
-
-**What is NOT being done now (per Owner direction):**
-
-- No amendment to Constitution v2.3.
-- No amendment to the 5 Lower Documents (02, 06, 07, 08).
-- No Phase 9 implementation.
-- The v1.0 build (8 commits on `main`, 259/259 tests,
-  17/17 Offices, 69/69 Agents, 92 entities, 25/25 RC) is
-  **frozen** as the constitutional baseline.
+**Closure of GAP-CONST-001:** Recorded in
+`docs/IMPLEMENTATION_GAP_REGISTER.md` with reference to the
+v2.4 adoption.
 
 ---
 

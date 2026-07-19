@@ -26,101 +26,75 @@ routed to a Decision Register entry.
 
 - **Date:** 2026-07-19
 - **Originating Document:** Constitutional Owner direction (new goal)
-- **Status:** **OPEN — SUBMITTED for Class 4 sign-off on Constitution v2.4**
-- **Severity:** **Major — Constitution Amendment Required**
+- **Status:** **RESOLVED (2026-07-19)** — Class 4 adoption of Constitution Amendment v2.4
+- **Severity:** **Major — Constitution Amendment Required → Adopted as v2.4**
 
-**Description.** Constitution v2.3 lacks the Proactive Product
+**Description.** Constitution v2.3 lacked the Proactive Product
 Discovery Charter required for the Constitutional Owner's new
-goal: "search comprehensively for new industrial maintenance
-and oil/gas products; qualify against Kuwait climate, retrofit-
-friendliness, no-Kuwait-agent filter, low operating cost, no
-specialized training; focus on medium/emerging companies; goal
-= exclusive agency acquisition in Kuwait."
+goal. The current Constitution v2.3 (Document 02 §4.1..4.17)
+is **reactive**: it discovers products AFTER an Opportunity
+is identified. The new goal is **proactive**: search ALL
+sectors for new products with explicit qualification filters
+and an end goal of exclusive agency acquisition.
 
-The current Constitution v2.3 (Document 02 §4.1..4.17) is
-**reactive**: it discovers products AFTER an Opportunity is
-identified. The new goal is **proactive**: search ALL sectors
-for new products with explicit qualification filters and an
-end goal of exclusive agency acquisition.
+**Closure Path Adopted:** **Option 1** — Major Amendment to
+Constitution v2.4. Adds new constitutional surface WITHOUT
+removing any existing Office, Agent, Stage, Filter, or
+Workflow. Preserves all 259/259 tests, 17/17 Offices, 69/69
+Principal Agents, 25/25 Readiness Criteria from the v1.0
+build.
 
-**Affected Requirements (constitutional surface):**
+**Class 4 Adoption (2026-07-19):**
 
-- Constitution Articles V (Purpose), VI (Discovery Order),
-  IX (Industrial Intelligence), X (Commercial & AI), XIV
-  (AI Organization), XXII (Commercial Principles).
-- Document 02 (AI Organization & Agent Charter Manual) —
-  **Office 18 (Product Discovery Proactive) is not defined.**
-- Document 06 (Workflow & AI Orchestration) — **Stage 8.5
-  (Proactive Discovery) is not defined.**
-- Document 07 (UI/UX Specification) — **Proactive Discovery
-  screens are not defined.**
-- Document 08 (Implementation Roadmap) — **Phase 9 is not
-  defined.**
+- **Amendment file:** `techno_service_constitution_v2.4_amendment.md`
+  (336 lines, 27 KB).
+- **Effective date:** 2026-07-19.
+- **Approver:** Authorised Executive (Constitutional Owner).
+- **Constitutional Concurrence:** Constitutional Compliance
+  Coordination.
+- **Next Review Date:** 2026-10-19 (3 months).
 
-**Affected New Capability Surface (estimated, for scope):**
+**Closure Evidence:**
 
-- 1 new Office (Office 18, Product Discovery Proactive).
-- 4 new Principal Agents (Global Product Monitor; New
-  Product Detector; Emerging Company Scout; Patent Watch).
-- 1 new Discovery Order stage (Stage 8.5, Proactive
+- v1.0 build (8 commits, 259/259 tests, 17/17 Offices, 69/69
+  Agents, 92 entities) — **FROZEN** as constitutional baseline.
+- Constitution v2.3 — **UNCHANGED** (32 articles, all preserved).
+- Constitution v2.4 — **ADOPTED** (additive: 3 Permanent
+  Rules, 1 Office, 4 Agents, 1 Stage, 5 Filters, 6 Entities,
+  7 Screens, 3 Integrations, 1 Workflow, 1 Phase).
+- DAR-E-002 marked APPROVED in
+  `docs/DECISION_AND_ASSUMPTION_REGISTER.md`.
+- Phase 9 implementation in progress (per the v2.4
+  authority).
+
+**Additive Constitutional Surface (v2.4):**
+
+- 1 new Office: Office 18 (Product Discovery Proactive).
+- 4 new Principal Agents: 18.1 Global Product Monitor;
+  18.2 New Product Detector; 18.3 Emerging Company Scout;
+  18.4 Patent Watch.
+- 1 new Discovery Order stage: Stage 8.5 (Proactive
   Discovery — runs BEFORE the existing 24 stages).
-- 5 new qualification filters (No Agent in Kuwait;
-  Operating Cost; Training Burden; Company Size;
-  Kuwait Suitability for Climate).
-- 1 new workflow (Exclusive Agency Acquisition Workflow).
-- 4-6 new canonical entities (ProactiveProductDiscovery,
-  QualificationFilter, WatchList, PatentAlert,
-  ExclusiveAgencyOpportunity).
-- 5-7 new UI/UX screens.
-- 2-3 new external service integrations (Web Search;
-  Document Parsing; Patent Search).
+- 5 new qualification filters: F1 Kuwait Climate
+  Suitability; F2 Retrofit-Friendliness; F3 No Agent in
+  Kuwait; F4 Low Operating Cost; F5 Company Size
+  (medium/emerging).
+- 1 new workflow: Exclusive Agency Acquisition Workflow
+  (10 steps; Class 3 approval at step 6; Class 4 approval
+  at step 8).
+- 6 new canonical entities: ENT-PD-001 ProactiveDiscovery
+  (charter-adjacent for v2.4 numbering); ENT-PD-002
+  QualificationFilterResult; ENT-PD-003 WatchList;
+  ENT-PD-004 PatentAlert; ENT-PD-005 ExclusiveAgencyOpportunity;
+  ENT-PD-006 ProactiveDiscoveryReport.
+- 7 new UI/UX screens: SCR-PD-001..007.
+- 3 new external integrations: Web Search; Patent Search;
+  Trade Publications.
+- 1 new Phase: Phase 9 (Proactive Product Discovery).
 
-**Options Considered:**
-
-1. **Major Amendment to Constitution v2.4** — add Office 18,
-   Stage 8.5, 4 Agents, 5 Filters, Exclusive Agency
-   Acquisition Workflow. PRESERVES all existing 17 Offices,
-   69 Principal Agents, 24 stages, 92 canonical entities.
-   **(RECOMMENDED)**
-2. **Build as a separate application with Constitution v3.0**
-   — 6-9 month project; rebuilds the constitutional surface
-   from scratch. (REJECTED — does not serve the goal of an
-   integrated System.)
-3. **Restrict the existing Constitution to fit the new goal**
-   — would require removing the Commercial Office, Tender
-   Office, and Business Development Office. (REJECTED —
-   removes constitutional capability.)
-
-**Recommended Resolution:** **Option 1** — Major Amendment
-v2.3 → v2.4. Adds new constitutional surface WITHOUT removing
-any existing Office, Agent, Stage, Filter, or Workflow.
-Preserves all 259/259 tests, 17/17 Offices, 69/69 Principal
-Agents, 25/25 Readiness Criteria from the v1.0 build.
-
-**Required Approver:** **Class 4 — Authorised Executive
-(Constitutional Owner)** per Authority Matrix §3.4 for any
-amendment to the Constitution.
-
-**Approval Status:** **SUBMITTED — awaiting Class 4 sign-off
-on Constitution v2.4.**
-
-**Closure Evidence:** (to be filled after Constitution v2.4
-adoption and Phase 9 implementation.)
-
-**What is NOT being done now (per Owner direction):**
-
-- The Constitution v2.3 is **NOT** being modified.
-- The Charter Manual (Document 02) is **NOT** being modified.
-- The Workflow (Document 06) is **NOT** being modified.
-- The UI/UX Specification (Document 07) is **NOT** being
-  modified.
-- The Implementation Roadmap (Document 08) is **NOT** being
-  modified.
-- No new Phase 9 code, schema, engine, agent, route, or
-  template is being written.
-- The v1.0 build on `main` (8 commits, 259/259 tests,
-  17/17 Offices, 69/69 Agents, 92 entities) is **frozen**
-  pending the Class 4 decision.
+**Status:** **RESOLVED** — closed by Class 4 adoption of
+Constitution v2.4 on 2026-07-19. Phase 9 implementation
+proceeding under the v2.4 authority.
 
 ---
 
