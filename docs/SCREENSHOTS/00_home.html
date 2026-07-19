@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Home · Techno Service AI</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <meta name="theme-color" content="#1f3a8a" />
+  
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="brand">
+        TECHNO SERVICE
+        <small>AI Intelligence System — Phase 1</small>
+      </div>
+      
+        <div class="user-chip" title="Default Administrator">
+          Default Administrator
+          · (no persona)
+        </div>
+        <a class="signout" href="/sign-out">Sign out</a>
+      
+    </header>
+
+    
+    <nav class="app-nav" aria-label="Main navigation">
+      <a href="/home" class="active">Home</a>
+      <a href="/persona/select" class="">Persona</a>
+      <a href="/account/security" class="">Account &amp; Security</a>
+      
+        <a href="/admin/users" class="">Users</a>
+        <a href="/admin/roles" class="">Roles</a>
+        <a href="/admin/access-policies" class="">Access Policies</a>
+        <a href="/admin/audit-log" class="">Audit Log</a>
+      
+    </nav>
+    
+
+    <main class="app-main">
+      
+<div class="card">
+  <h2>Welcome, Default Administrator</h2>
+  
+    <div class="alert info">No persona is active. <a href="/persona/select">Select a persona</a> to proceed.</div>
+  
+  <p class="muted">Active roles: ADMIN</p>
+</div>
+
+<div class="card">
+  <h3>Phase 1 — Identity, Access &amp; Audit Foundation</h3>
+  <p>This is the Phase 1 release. The following surfaces are operational:</p>
+  <ul>
+    <li><a href="/persona/select">Persona selection</a></li>
+    <li><a href="/account/security">Account &amp; security settings</a></li>
+    
+      <li><a href="/admin/users">User management</a></li>
+      <li><a href="/admin/roles">Role management</a></li>
+      <li><a href="/admin/access-policies">Access policies</a></li>
+    
+    
+      <li><a href="/admin/audit-log">Audit log</a></li>
+    
+  </ul>
+  <p class="muted">Subsequent phases (Data Foundation, Workflow / Verification / Approval, Discovery Order, Manufacturer / Commercial, etc.) are scoped in the Implementation Roadmap (Document 08).</p>
+</div>
+
+    </main>
+
+    <footer class="app-footer">
+      Constitution v2.3 · Phase 1 Identity, Access &amp; Audit Foundation · Build 1.0.0-phase1
+    </footer>
+  </div>
+</body>
+</html>

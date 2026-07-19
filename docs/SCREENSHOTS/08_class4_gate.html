@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Exclusive Agency Acquisition Workflow · Techno Service AI</title>
+  <link rel="stylesheet" href="/static/app.css" />
+  <style>
+    .pd-card { background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:.5rem 0; }
+    .pd-card h3 { margin:0 0 .5rem 0;font-size:1.05rem; }
+    .pd-meta { color:#6b7280;font-size:.85rem; }
+    .pd-badge { display:inline-block;padding:.15rem .5rem;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:.75rem;font-weight:600; }
+    .pd-badge.pass { background:#d1fae5;color:#065f46; }
+    .pd-badge.fail { background:#fee2e2;color:#991b1b; }
+    .pd-badge.qualified { background:#d1fae5;color:#065f46; }
+    .pd-badge.rejected { background:#fee2e2;color:#991b1b; }
+    .pd-error { background:#fee2e2;border:1px solid #fecaca;padding:.75rem;border-radius:6px;margin:.5rem 0;color:#991b1b; }
+    .pd-form-row { display:flex;flex-direction:column;margin:.5rem 0; }
+    .pd-form-row label { font-weight:600;margin-bottom:.25rem; }
+    .pd-form-row input, .pd-form-row textarea, .pd-form-row select { padding:.5rem;border:1px solid #d1d5db;border-radius:4px;font:inherit; }
+    .pd-form-row textarea { min-height:5rem; }
+    .pd-table { width:100%;border-collapse:collapse;margin:.5rem 0; }
+    .pd-table th, .pd-table td { padding:.5rem;border:1px solid #e5e7eb;text-align:left; }
+    .pd-table th { background:#f9fafb; }
+    .pd-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1rem 0; }
+  </style>
+</head>
+<body>
+  <header style="background:#111827;color:#fff;padding:1rem;">
+    <a href="/home" style="color:#fff;text-decoration:none;font-weight:700;">Techno Service AI</a>
+    · <a href="/proactive/" style="color:#9ca3af;">Product Discovery Proactive (Office 18)</a>
+    
+    <span style="float:right;color:#9ca3af;font-size:.9rem;">
+      Default Administrator
+    </span>
+    
+  </header>
+  <main style="max-width:1100px;margin:0 auto;padding:1rem;">
+    
+<h1>Exclusive Agency Acquisition Workflow — 10 Steps</h1>
+<p class="pd-meta">SCR-PD-006. Class 3 approval REQUIRED at step 6. Class 4 approval REQUIRED at step 8.</p>
+
+<div class="pd-error">Exclusive Agency Acquisition Workflow step 8 for opportunity &#39;demo-discovery-001&#39; REJECTED: Class 4 Human Approval is REQUIRED before signing (Constitution v2.4, Document 06 §10; Constitution Article XII).</div>
+
+<ol style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:1rem 1rem 1rem 2.5rem;">
+  <li><strong>Step 1</strong> — Discovery signal (Global Product Monitor)</li>
+  <li><strong>Step 2</strong> — Qualification (5 filters; all 5 must PASS)</li>
+  <li><strong>Step 3</strong> — Manufacturer profiling (Emerging Company Scout)</li>
+  <li><strong>Step 4</strong> — Patent check (Patent Watch)</li>
+  <li><strong>Step 5</strong> — Cost analysis (Operating Cost + Training Burden)</li>
+  <li><strong>Step 6</strong> — <span class="pd-badge">Class 3 approval</span> to proceed with outreach</li>
+  <li><strong>Step 7</strong> — Contact + NDA</li>
+  <li><strong>Step 8</strong> — <span class="pd-badge">Class 4 approval</span> to sign exclusive agency</li>
+  <li><strong>Step 9</strong> — Contract execution</li>
+  <li><strong>Step 10</strong> — Onboarding</li>
+</ol>
+
+<form method="post" action="/proactive/agency-workflow" style="margin-top:1rem;">
+  <div class="pd-form-row">
+    <label for="discovery_id">Discovery ID</label>
+    <input id="discovery_id" name="discovery_id" required />
+  </div>
+  <div class="pd-form-row">
+    <label for="manufacturer_name">Manufacturer Name</label>
+    <input id="manufacturer_name" name="manufacturer_name" required />
+  </div>
+  <div class="pd-form-row">
+    <label for="product_summary">Product Summary</label>
+    <textarea id="product_summary" name="product_summary"></textarea>
+  </div>
+  <div class="pd-form-row">
+    <label for="current_step">Current Step (1..10)</label>
+    <input type="number" id="current_step" name="current_step" value="1" min="1" max="10" required />
+  </div>
+  <div class="pd-form-row">
+    <label for="target_step">Target Step (1..10)</label>
+    <input type="number" id="target_step" name="target_step" value="2" min="1" max="10" required />
+  </div>
+  <div class="pd-form-row">
+    <label for="class_3_approval_id">Class 3 Approval ID (REQUIRED for step 6+)</label>
+    <input id="class_3_approval_id" name="class_3_approval_id" />
+  </div>
+  <div class="pd-form-row">
+    <label for="class_4_approval_id">Class 4 Approval ID (REQUIRED for step 8+)</label>
+    <input id="class_4_approval_id" name="class_4_approval_id" />
+  </div>
+  <button type="submit" style="padding:.5rem 1rem;background:#111827;color:#fff;border:none;border-radius:4px;">Advance Workflow</button>
+</form>
+
+  </main>
+</body>
+</html>
