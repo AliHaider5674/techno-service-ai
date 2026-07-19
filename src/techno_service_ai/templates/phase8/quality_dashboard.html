@@ -1,33 +1,33 @@
 {% extends "phase8/base.html" %}
-{% block title %}Quality Office Dashboard{% endblock %}
+{% block title %}{{ "p8.quality.title" | t(lang_code()) }}{% endblock %}
 {% block content %}
-<h1>Quality Assurance Office</h1>
-<p class="qa-meta">Document 02 §4.10 — 3 Principal Agents (Quality Reviewer, Output Auditor, Standards Compliance).</p>
+<h1>{{ "p8.quality.title" | t(lang_code()) }}</h1>
+<p class="qa-meta">{{ "phase8.quality.subtitle" | t(lang_code()) }}</p>
 
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1rem 0;">
   <a class="qa-card" href="/quality/review/new" style="text-decoration:none;color:inherit;">
-    <h3>New Quality Review</h3>
-    <p class="qa-meta">§4.10.1 — Apply quality criteria; identify rework.</p>
+    <h3>{{ "p8.quality.new_review" | t(lang_code()) }}</h3>
+    <p class="qa-meta">{{ "p8.quality.qa_subtitle_401" | t(lang_code()) }}</p>
   </a>
   <a class="qa-card" href="/quality/audit/new" style="text-decoration:none;color:inherit;">
-    <h3>New Output Audit</h3>
-    <p class="qa-meta">§4.10.2 — Audit completed outputs; detect patterns.</p>
+    <h3>{{ "p8.quality.new_audit" | t(lang_code()) }}</h3>
+    <p class="qa-meta">{{ "p8.quality.qa_subtitle_402" | t(lang_code()) }}</p>
   </a>
   <a class="qa-card" href="/quality/standards/new" style="text-decoration:none;color:inherit;">
-    <h3>New Standards Compliance</h3>
-    <p class="qa-meta">§4.10.3 — Map outputs to standards; identify gaps.</p>
+    <h3>{{ "p8.quality.new_standards" | t(lang_code()) }}</h3>
+    <p class="qa-meta">{{ "p8.quality.qa_subtitle_403" | t(lang_code()) }}</p>
   </a>
 </div>
 
 <a class="qa-card" href="/quality/release-readiness" style="display:block;text-decoration:none;color:inherit;">
-  <h3>Release Readiness — 25 Constitutional Criteria</h3>
-  <p class="qa-meta">RC-001..RC-025 — the constitutional gate to production.</p>
+  <h3>{{ "p8.quality.release_readiness" | t(lang_code()) }}</h3>
+  <p class="qa-meta">{{ "p8.quality.qa_subtitle_readiness" | t(lang_code()) }}</p>
 </a>
 
-<h2 style="margin-top:1.5rem;">Recent Quality Reviews</h2>
+<h2 style="margin-top:1.5rem;">{{ "p8.quality.recent_reviews" | t(lang_code()) }}</h2>
 {% if quality_reviews %}
 <table class="qa-table">
-  <thead><tr><th>ID</th><th>Target</th><th>Outcome</th><th>Reviewer</th><th>Date</th></tr></thead>
+  <thead><tr><th>{{ "p8.quality.id_label" | t(lang_code()) }}</th><th>{{ "p8.quality.target_label" | t(lang_code()) }}</th><th>{{ "p8.quality.outcome_label" | t(lang_code()) }}</th><th>{{ "p8.quality.reviewer_label" | t(lang_code()) }}</th><th>{{ "p8.quality.audit.date_label" | t(lang_code()) }}</th></tr></thead>
   <tbody>
   {% for r in quality_reviews %}
     <tr>
@@ -41,34 +41,34 @@
   </tbody>
 </table>
 {% else %}
-<p class="qa-meta">No quality reviews yet.</p>
+<p class="qa-meta">{{ "p8.quality.no_reviews" | t(lang_code()) }}</p>
 {% endif %}
 
-<h2 style="margin-top:1.5rem;">Recent Output Audit Reports</h2>
+<h2 style="margin-top:1.5rem;">{{ "p8.quality.recent_audits" | t(lang_code()) }}</h2>
 {% if audit_reports %}
 <table class="qa-table">
-  <thead><tr><th>Sample</th><th>Target</th><th>Method</th><th>Breach</th><th>Drift</th><th>Date</th></tr></thead>
+  <thead><tr><th>Sample</th><th>{{ "p8.quality.target_label" | t(lang_code()) }}</th><th>{{ "p8.quality.audit.method_label" | t(lang_code()) }}</th><th>{{ "p8.quality.audit.breach_label" | t(lang_code()) }}</th><th>{{ "p8.quality.audit.drift_label" | t(lang_code()) }}</th><th>{{ "p8.quality.audit.date_label" | t(lang_code()) }}</th></tr></thead>
   <tbody>
   {% for a in audit_reports %}
     <tr>
       <td>{{ a.sample_id[:8] }}</td>
       <td>{{ a.target_type }}/{{ a.target_id[:8] }}</td>
       <td>{{ a.selection_method }}</td>
-      <td>{{ "YES" if a.constitutional_breach else "no" }}</td>
-      <td>{{ "YES" if a.material_drift else "no" }}</td>
+      <td>{{ ("p8.quality.audit.yes" | t(lang_code())) if a.constitutional_breach else ("p8.quality.audit.no" | t(lang_code())) }}</td>
+      <td>{{ ("p8.quality.audit.yes" | t(lang_code())) if a.material_drift else ("p8.quality.audit.no" | t(lang_code())) }}</td>
       <td>{{ a.audit_date }}</td>
     </tr>
   {% endfor %}
   </tbody>
 </table>
 {% else %}
-<p class="qa-meta">No audit reports yet.</p>
+<p class="qa-meta">{{ "p8.quality.no_audits" | t(lang_code()) }}</p>
 {% endif %}
 
-<h2 style="margin-top:1.5rem;">Recent Standards Compliance Reports</h2>
+<h2 style="margin-top:1.5rem;">{{ "p8.quality.recent_standards" | t(lang_code()) }}</h2>
 {% if standards_reports %}
 <table class="qa-table">
-  <thead><tr><th>Target</th><th>Standard</th><th>Status</th><th>Date</th></tr></thead>
+  <thead><tr><th>{{ "p8.quality.target_label" | t(lang_code()) }}</th><th>{{ "p8.quality.standard_label" | t(lang_code()) }}</th><th>{{ "p8.quality.status_label" | t(lang_code()) }}</th><th>{{ "p8.quality.audit.date_label" | t(lang_code()) }}</th></tr></thead>
   <tbody>
   {% for s in standards_reports %}
     <tr>
@@ -81,6 +81,6 @@
   </tbody>
 </table>
 {% else %}
-<p class="qa-meta">No standards compliance reports yet.</p>
+<p class="qa-meta">{{ "p8.quality.no_standards" | t(lang_code()) }}</p>
 {% endif %}
 {% endblock %}

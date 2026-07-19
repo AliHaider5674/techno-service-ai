@@ -1,7 +1,7 @@
 {% extends "phase7/base.html" %}
 {% block body %}
 <div class="constitutional">
-  <strong>Operational Reports Center — Document 02 §4.15.3.</strong>
+  <strong>{{ "phase7.reports.operational.title" | t(lang_code()) }} Center — Document 02 §4.15.3.</strong>
   Operational dashboards and report templates.
 </div>
 <div class="kpi"><div class="n">{{ reports | length }}</div><div class="label">Operational reports</div></div>

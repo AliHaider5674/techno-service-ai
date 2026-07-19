@@ -1,7 +1,7 @@
 {% extends "phase7/base.html" %}
 {% block body %}
 <div class="constitutional">
-  <strong>Commercial Reports Center — Document 02 §4.15.3 + §4.17.2.</strong>
+  <strong>{{ "phase7.reports.commercial.title" | t(lang_code()) }} Center — Document 02 §4.15.3 + §4.17.2.</strong>
   Commercial reports and realized outcomes.
 </div>
 <div class="kpi"><div class="n">{{ reports | length }}</div><div class="label">Commercial reports</div></div>

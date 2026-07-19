@@ -1,7 +1,7 @@
 {% extends "phase6/base.html" %}
 {% block body %}
 <div class="constitutional">
-  <strong>Knowledge Records — Document 02 §4.13.1.</strong>
+  <strong>{{ "p6.knowledge.title" | t(lang_code()) }} — Document 02 §4.13.1.</strong>
   The Knowledge Base Curator Agent maintains the Knowledge Base.
   Every record carries provenance (source citation). Quality status
   transitions are governed (DRAFT → REVIEWED → PUBLISHED → DEPRECATED).
@@ -11,7 +11,7 @@
 <h3>Knowledge Records ({{ records | length }})</h3>
 {% if records %}
 <table>
-  <thead><tr><th>Title</th><th>Domain</th><th>Quality</th><th>Source</th><th>Created</th></tr></thead>
+  <thead><tr><th>{{ "phase6.knowledge.list.title" | t(lang_code()) }}</th><th>Domain</th><th>Quality</th><th>{{ "phase6.knowledge.list.source" | t(lang_code()) }}</th><th>{{ "phase6.knowledge.list.created" | t(lang_code()) }}</th></tr></thead>
   <tbody>
   {% for r in records %}
     <tr>
@@ -25,7 +25,7 @@
   </tbody>
 </table>
 {% else %}
-<p class="empty">No knowledge records yet. The Knowledge Base Curator Agent (§4.13.1) creates the first record when invoked.</p>
+<p class="empty">{{ "phase6.knowledge.list.empty" | t(lang_code()) }} The Knowledge Base Curator Agent (§4.13.1) creates the first record when invoked.</p>
 {% endif %}
 
 <h3>Knowledge Base Inventory ({{ inventory | length }})</h3>
@@ -43,6 +43,6 @@
   </tbody>
 </table>
 {% else %}
-<p class="empty">No inventory entries yet.</p>
+<p class="empty">{{ "p6.knowledge.empty_inventory" | t(lang_code()) }}</p>
 {% endif %}
 {% endblock %}

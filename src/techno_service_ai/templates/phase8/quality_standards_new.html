@@ -1,18 +1,18 @@
 {% extends "phase8/base.html" %}
-{% block title %}New Standards Compliance Report{% endblock %}
+{% block title %}{{ "p8.quality.new_standards" | t(lang_code()) }}{% endblock %}
 {% block content %}
-<h1>New Standards Compliance Report</h1>
+<h1>{{ "p8.quality.new_standards" | t(lang_code()) }}</h1>
 <p class="qa-meta">Document 02 §4.10.3 — map outputs to standards; identify gaps. Material deviation triggers Human Approval.</p>
 
 {% if error %}<div class="qa-error">{{ error }}</div>{% endif %}
 
 <form method="post" action="/quality/standards/new">
   <div class="qa-form-row">
-    <label for="target_type">Target Type</label>
+    <label for="target_type">{{ "phase8.quality.standards.target_type" | t(lang_code()) }}</label>
     <input id="target_type" name="target_type" required placeholder="e.g. REPORT" />
   </div>
   <div class="qa-form-row">
-    <label for="target_id">Target ID</label>
+    <label for="target_id">{{ "phase8.quality.standards.target_id" | t(lang_code()) }}</label>
     <input id="target_id" name="target_id" required />
   </div>
   <div class="qa-form-row">
@@ -20,17 +20,17 @@
     <input id="standard" name="standard" required placeholder="e.g. ISO-9001:2015 / Constitution Article XX" />
   </div>
   <div class="qa-form-row">
-    <label for="target_evidence">Target Evidence</label>
-    <textarea id="target_evidence" name="target_evidence" placeholder="Notes on compliance. Use 'non-compliant' or 'violation' to flag a material deviation."></textarea>
+    <label for="target_evidence">{{ "phase8.quality.standards.target_evidence" | t(lang_code()) }}</label>
+    <textarea id="target_evidence" name="target_evidence" placeholder="{{ "phase8.quality.standards.notes" | t(lang_code()) }} on compliance. Use 'non-compliant' or 'violation' to flag a material deviation."></textarea>
   </div>
   <div class="qa-form-row">
-    <label for="review_date">Review Date (ISO)</label>
+    <label for="review_date">{{ "phase8.quality.standards.review_date" | t(lang_code()) }}</label>
     <input id="review_date" name="review_date" required placeholder="2026-07-19" />
   </div>
   <div class="qa-form-row">
     <label for="notes">Notes</label>
     <textarea id="notes" name="notes"></textarea>
   </div>
-  <button type="submit" style="padding:.5rem 1rem;background:#111827;color:#fff;border:none;border-radius:4px;">Create Standards Compliance Report</button>
+  <button type="submit" style="padding:.5rem 1rem;background:#111827;color:#fff;border:none;border-radius:4px;">{{ "phase8.quality.standards.submit" | t(lang_code()) }}</button>
 </form>
 {% endblock %}

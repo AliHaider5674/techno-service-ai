@@ -1,13 +1,13 @@
 {% extends "phase6/base.html" %}
 {% block body %}
 <div class="constitutional">
-  <strong>Lessons Learned — Document 02 §4.13.3.</strong>
+  <strong>{{ "p6.lessons.title" | t(lang_code()) }} — Document 02 §4.13.3.</strong>
   The Lessons Learned Analyst Agent extracts lessons from closed
   Opportunities. Every lesson is sourced (either a closed
   Opportunity or a Constitutional Incident).
 </div>
 
-<h2>Lessons Learned ({{ lessons | length }})</h2>
+<h2>{{ "p6.lessons.title" | t(lang_code()) }} ({{ lessons | length }})</h2>
 
 {% if lessons %}
 <table>
@@ -24,6 +24,6 @@
   </tbody>
 </table>
 {% else %}
-<p class="empty">No lessons learned yet. The Lessons Learned Analyst Agent (§4.13.3) extracts the first lesson when invoked.</p>
+<p class="empty">{{ "p6.lessons.empty" | t(lang_code()) }}</p>
 {% endif %}
 {% endblock %}

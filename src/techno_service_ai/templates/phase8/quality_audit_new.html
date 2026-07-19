@@ -1,26 +1,26 @@
 {% extends "phase8/base.html" %}
-{% block title %}New Output Audit{% endblock %}
+{% block title %}{{ "p8.quality.new_audit" | t(lang_code()) }}{% endblock %}
 {% block content %}
-<h1>New Output Audit</h1>
+<h1>{{ "p8.quality.new_audit" | t(lang_code()) }}</h1>
 <p class="qa-meta">Document 02 §4.10.2 — audit completed outputs; detect patterns, drift, or constitutional breach.</p>
 
 {% if error %}<div class="qa-error">{{ error }}</div>{% endif %}
 
 <form method="post" action="/quality/audit/new">
   <div class="qa-form-row">
-    <label for="sample_id">Sample ID</label>
+    <label for="sample_id">{{ "phase8.quality.audit.sample_id" | t(lang_code()) }}</label>
     <input id="sample_id" name="sample_id" required />
   </div>
   <div class="qa-form-row">
-    <label for="target_type">Target Type</label>
+    <label for="target_type">{{ "phase8.quality.audit.target_type" | t(lang_code()) }}</label>
     <input id="target_type" name="target_type" required placeholder="e.g. REPORT" />
   </div>
   <div class="qa-form-row">
-    <label for="target_id">Target ID</label>
+    <label for="target_id">{{ "phase8.quality.audit.target_id" | t(lang_code()) }}</label>
     <input id="target_id" name="target_id" required />
   </div>
   <div class="qa-form-row">
-    <label for="selection_method">Selection Method</label>
+    <label for="selection_method">{{ "phase8.quality.audit.selection_method" | t(lang_code()) }}</label>
     <select id="selection_method" name="selection_method">
       <option value="RANDOM">RANDOM</option>
       <option value="RISK_BASED">RISK_BASED</option>
@@ -30,13 +30,13 @@
     </select>
   </div>
   <div class="qa-form-row">
-    <label for="audit_date">Audit Date (ISO)</label>
+    <label for="audit_date">{{ "phase8.quality.audit.audit_date" | t(lang_code()) }}</label>
     <input id="audit_date" name="audit_date" required placeholder="2026-07-19" />
   </div>
   <div class="qa-form-row">
-    <label for="notes">Notes</label>
-    <textarea id="notes" name="notes" placeholder="Findings, observations, or audit criteria outcomes. Mentioning 'constitutional breach' or 'constitutional violation' will trigger escalation."></textarea>
+    <label for="notes">{{ "phase8.quality.audit.notes" | t(lang_code()) }}</label>
+    <textarea id="notes" name="notes" placeholder="{{ "phase8.quality.audit.help" | t(lang_code()) }} 'constitutional breach' or 'constitutional violation' will trigger escalation."></textarea>
   </div>
-  <button type="submit" style="padding:.5rem 1rem;background:#111827;color:#fff;border:none;border-radius:4px;">Create Output Audit</button>
+  <button type="submit" style="padding:.5rem 1rem;background:#111827;color:#fff;border:none;border-radius:4px;">{{ "phase8.quality.audit.submit" | t(lang_code()) }}</button>
 </form>
 {% endblock %}

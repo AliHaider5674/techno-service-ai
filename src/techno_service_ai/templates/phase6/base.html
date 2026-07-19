@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ lang_code() }}" dir="{{ dir_attr() }}">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{ title or "Phase 6" }} — {{ app_name }}</title>
+  <title>{{ title or ("p6.phase6" | t(lang_code())) }} — {{ app_name }}</title>
   <link rel="stylesheet" href="/static/styles.css" />
   <style>
     .phase6 { max-width: 1200px; margin: 0 auto; padding: 1rem; }

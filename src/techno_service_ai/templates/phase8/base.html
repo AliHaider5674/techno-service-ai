@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ lang_code() }}" dir="{{ dir_attr() }}">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{% block title %}Quality Assurance{% endblock %} · Techno Service AI</title>
+  <title>{% block title %}{{ "qa.title" | t(lang_code()) }}{% endblock %} · Techno Service AI</title>
   <link rel="stylesheet" href="/static/app.css" />
   <style>
     .qa-card { background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:0.5rem 0; }

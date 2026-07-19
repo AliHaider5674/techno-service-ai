@@ -1,15 +1,15 @@
 {% extends "phase7/base.html" %}
 {% block body %}
 <div class="constitutional">
-  <strong>AI Activity Dashboard — Document 02 §4.10 (Quality) + §4.16.</strong>
+  <strong>{{ "phase7.ai_activity.title" | t(lang_code()) }} — {{ "phase7.ai_activity.subtitle" | t(lang_code()) }}</strong>
   Recent AI recommendations and their audit trail.
 </div>
-<div class="kpi"><div class="n">{{ ai_logs | length }}</div><div class="label">AI log entries</div></div>
+<div class="kpi"><div class="n">{{ ai_logs | length }}</div><div class="label">{{ "phase7.common.recent" | t(lang_code()) }}</div></div>
 
-<h3>Recent AI Activity</h3>
+<h3>{{ "phase7.common.recent" | t(lang_code()) }} {{ "phase7.ai_activity.title" | t(lang_code()) }}</h3>
 {% if ai_logs %}
 <table>
-  <thead><tr><th>Date</th><th>Target</th><th>Description</th><th>Constitutional Impact</th></tr></thead>
+  <thead><tr><th>{{ "phase7.common.date" | t(lang_code()) }}</th><th>{{ "phase7.common.target" | t(lang_code()) }}</th><th>{{ "phase7.common.workflow" | t(lang_code()) }}</th><th>{{ "phase7.common.status" | t(lang_code()) }}</th></tr></thead>
   <tbody>
   {% for a in ai_logs %}
     <tr>
@@ -22,6 +22,6 @@
   </tbody>
 </table>
 {% else %}
-<p class="empty">No AI activity yet.</p>
+<p class="empty">{{ "phase7.common.no_data" | t(lang_code()) }}</p>
 {% endif %}
 {% endblock %}

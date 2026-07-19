@@ -1,11 +1,11 @@
 {% extends "phase7/base.html" %}
 {% block body %}
 <div class="constitutional">
-  <strong>Performance Report — Document 02 §4.17.1.</strong>
+  <strong>{{ "p7.performance.title" | t(lang_code()) }} — Document 02 §4.17.1.</strong>
   KPIs and trends. The Performance Measurement Agent records the
   metrics; the Commercial Outcomes Analyst records realized outcomes.
 </div>
-<div class="kpi"><div class="n">{{ metrics | length }}</div><div class="label">Performance metrics</div></div>
+<div class="kpi"><div class="n">{{ metrics | length }}</div><div class="label">{{ "p7.performance.kpi" | t(lang_code()) }}</div></div>
 
 {% if metrics %}
 <table>
@@ -21,6 +21,6 @@
   </tbody>
 </table>
 {% else %}
-<p class="empty">No performance metrics yet.</p>
+<p class="empty">{{ "p7.performance.empty" | t(lang_code()) }}</p>
 {% endif %}
 {% endblock %}

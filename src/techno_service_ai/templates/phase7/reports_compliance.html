@@ -1,7 +1,7 @@
 {% extends "phase7/base.html" %}
 {% block body %}
 <div class="constitutional">
-  <strong>Compliance Reports Center — Document 02 §4.15.1 + §4.11.</strong>
+  <strong>{{ "phase7.reports.compliance.title" | t(lang_code()) }} Center — Document 02 §4.15.1 + §4.11.</strong>
   Compliance reviews and constitutional compliance reports.
 </div>
 <div class="kpi"><div class="n">{{ reports | length }}</div><div class="label">Compliance reports</div></div>

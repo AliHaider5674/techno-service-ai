@@ -1,13 +1,13 @@
 {% extends "phase7/base.html" %}
 {% block body %}
 <div class="constitutional">
-  <strong>Continuous Learning Workflow — Document 02 §4.17.3, S24.</strong>
+  <strong>{{ "p7.continuous_learning.title" | t(lang_code()) }} — Document 02 §4.17.3, S24.</strong>
   Every Learning Update proposal is reviewed for constitutional
   impact. The engine does NOT have authority to amend the
   Constitution (Constitution Article XXVIII). CONSTITUTIONAL_AMENDMENT
   proposals REQUIRE Human Approval.
 </div>
-<div class="kpi"><div class="n">{{ learning_updates | length }}</div><div class="label">Learning updates</div></div>
+<div class="kpi"><div class="n">{{ learning_updates | length }}</div><div class="label">{{ "p7.continuous_learning.kpi" | t(lang_code()) }}</div></div>
 
 {% if learning_updates %}
 <table>
@@ -23,6 +23,6 @@
   </tbody>
 </table>
 {% else %}
-<p class="empty">No Learning Update records yet. The S24 engine is now implemented (closes GAP-PHASE6-001).</p>
+<p class="empty">{{ "p7.continuous_learning.empty" | t(lang_code()) }}</p>
 {% endif %}
 {% endblock %}

@@ -217,6 +217,62 @@ def create_app() -> FastAPI:
     def _clear_session_cookie(response: Response) -> None:
         response.delete_cookie(SETTINGS.cookie_name, path="/")
 
+    def _resolve_post_signin_redirect(
+        request: Request,
+        next_param: Optional[str],
+        lang_param: Optional[str],
+        default: str = "/home",
+    ) -> str:
+        """Resolve the post-sign-in redirect URL.
+
+        Honours the `next` query/form param (if it's a safe relative
+        path) and preserves the language preference. The language is
+        resolved in this order:
+          1. `lang_param` (query or form value, if present and valid)
+          2. The `tsai_lang` cookie
+          3. The middleware's request.state.lang
+          4. Default (English)
+
+        The chosen language is appended as `?lang=xx` to the redirect
+        URL so the next page renders in the same language without
+        requiring the cookie to be set first.
+
+        Args:
+            request: the current FastAPI request.
+            next_param: the `next` query or form parameter.
+            lang_param: the `lang` query or form parameter.
+            default: the default redirect target if `next` is not
+                provided or fails the safety check.
+
+        Returns:
+            A safe relative URL string suitable for RedirectResponse.
+        """
+        # 1. Validate `next` (must start with `/`; blocks open-redirects).
+        target = default
+        if next_param and next_param.startswith("/") and not next_param.startswith("//"):
+            target = next_param
+
+        # 2. Resolve the language preference.
+        # Prefer the explicit param, then the cookie, then the
+        # middleware-stashed lang, then default ("en").
+        lang = lang_param
+        if not lang:
+            cookie_lang = request.cookies.get("tsai_lang")
+            if cookie_lang:
+                lang = cookie_lang
+        if not lang:
+            lang = getattr(request.state, "lang", _i18n.DEFAULT_LANG)
+        lang = _i18n.normalize_lang(lang)
+
+        # 3. Only add `?lang=` if the user actively chose non-default.
+        if lang and lang != _i18n.DEFAULT_LANG:
+            # Avoid duplicating an existing ?lang= on the target.
+            if "lang=" not in target:
+                sep = "&" if "?" in target else "?"
+                target = f"{target}{sep}lang={lang}"
+
+        return target
+
     # ====================================================================
     # Public / semi-public routes
     # ====================================================================
@@ -233,10 +289,16 @@ def create_app() -> FastAPI:
     @app.get("/sign-in", response_class=HTMLResponse)
     def sign_in_get(
         request: Request,
+        next: Optional[str] = Query(default=None),
+        lang: Optional[str] = Query(default=None),
         principal: Optional[Principal] = Depends(_optional_principal),
     ) -> Response:
         if principal is not None:
-            return RedirectResponse(url="/home", status_code=status.HTTP_303_SEE_OTHER)
+            # Signed-in user landing on /sign-in: redirect to the
+            # appropriate page, honouring `next` (validated) and the
+            # language cookie / `?lang=` param.
+            target = _resolve_post_signin_redirect(request, next, lang)
+            return RedirectResponse(url=target, status_code=status.HTTP_303_SEE_OTHER)
         return _render(request, "sign_in.html", error=None, username="")
 
     @app.post("/sign-in")
@@ -244,6 +306,8 @@ def create_app() -> FastAPI:
         request: Request,
         username: str = Form(...),
         password: str = Form(...),
+        next: Optional[str] = Form(default=None),
+        lang: Optional[str] = Form(default=None),
         db: Session = Depends(get_db),
     ) -> Response:
         ip = client_ip(request)
@@ -265,10 +329,11 @@ def create_app() -> FastAPI:
             return _render(
                 request, "sign_in.html", error=str(e), username=username, status_code=401
             )
-        resp = RedirectResponse(
-            url="/persona/select" if n_personas > 1 else "/home",
-            status_code=status.HTTP_303_SEE_OTHER,
+        # Honour `next` (validated) and the language preference.
+        target = _resolve_post_signin_redirect(
+            request, next, lang, default="/persona/select" if n_personas > 1 else "/home"
         )
+        resp = RedirectResponse(url=target, status_code=status.HTTP_303_SEE_OTHER)
         _set_session_cookie(resp, jwt_token)
         return resp
 

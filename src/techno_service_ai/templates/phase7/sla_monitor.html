@@ -1,7 +1,7 @@
 {% extends "phase7/base.html" %}
 {% block body %}
 <div class="constitutional">
-  <strong>SLA Monitor — Document 02 §4.16 (SLA Monitor).</strong>
+  <strong>{{ "p7.sla.title" | t(lang_code()) }} — Document 02 §4.16 (SLA Monitor).</strong>
   SLA performance across the system.
 </div>
 {% if metrics %}
@@ -11,13 +11,13 @@
   {% for m in metrics %}
     <tr>
       <td>{{ m.target_type }}</td>
-      <td><span class="badge active">tracked</span></td>
+      <td><span class="badge active">{{ "p7.sla.tracked" | t(lang_code()) }}</span></td>
       <td>{{ m.created_at }}</td>
     </tr>
   {% endfor %}
   </tbody>
 </table>
 {% else %}
-<p class="empty">No SLA metrics yet.</p>
+<p class="empty">{{ "p7.sla.empty" | t(lang_code()) }}</p>
 {% endif %}
 {% endblock %}

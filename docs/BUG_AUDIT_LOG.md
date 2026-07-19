@@ -1,9 +1,9 @@
 # Bug Audit Log
 
 **Date:** 2026-07-19
-**Sprint:** Arabic i18n (lite) + Bug Audit
-**Scope:** P0 (constitutional violations, broken flows) and P1 (incorrect behaviour).
-**Out of scope:** P2 (polish, cosmetic, refactoring).
+**Sprint:** Arabic i18n (lite) + Bug Audit + P2 Polish
+**Scope:** P0 (constitutional violations, broken flows), P1 (incorrect behaviour), P2 (polish, cosmetic, refactoring).
+**Out of scope:** New features, new agents, new entities.
 
 ---
 
@@ -13,9 +13,9 @@
 |---|---|---|---|
 | **P0** (constitutional violation, broken flow) | 2 | 2 | 0 |
 | **P1** (incorrect behaviour) | 1 | 1 | 0 |
-| **P2** (polish, cosmetic) | 2 | 0 | 2 (listed for later) |
+| **P2** (polish, cosmetic) | 2 | 2 | 0 |
 
-**P0 + P1 = 0 remaining. Done Criteria 6 ✅.**
+**P0 + P1 + P2 = 0 remaining. Done Criteria met ✅.**
 
 ---
 
@@ -112,29 +112,79 @@
 - **Priority:** P2 (cosmetic — not a constitutional violation;
   the redirect is the correct behaviour for an authenticated
   user landing on `/sign-in`).
-- **Status:** OPEN (not fixed in this sprint).
+- **Status:** **FIXED** (P2 Polish sprint, 2026-07-19).
 - **Description:** When an authenticated user visits `/sign-in`
-  with a language cookie set, they are redirected to `/home`.
-  The Arabic text on `/sign-in` is therefore not testable
-  without first clearing the session cookie.
-- **Why deferred:** This is a UX nit, not a bug. Users who are
-  signed in don't need to see the sign-in form in any language.
-  The 8 constitutional-critical screens are still all rendered
-  in AR when tested with a fresh session.
+  with `?lang=` or `?next=` query parameters, the redirect now
+  respects both. `/sign-in?lang=ar` → `/home?lang=ar`.
+  `/sign-in?next=/phase9/proactive-discovery&lang=ar` →
+  `/phase9/proactive-discovery?lang=ar`. Open-redirect attacks
+  via `?next=` are blocked: only paths starting with `/` (and
+  not `//`) are honoured. Protocol-relative URLs
+  (`//evil.com/path`) are also blocked.
+- **Fix:** Added `_resolve_post_signin_redirect(request, next,
+  lang, default)` in `app.py` that:
+  1. Validates `next` must start with `/` and not `//`.
+  2. Honours `lang` from cookie + `?lang=` + form field (priority
+     order: form > query > cookie > default).
+  3. Preserves `lang` on the redirect by appending `?lang=xx`.
+  4. Falls back to default (`/home`) if `next` is invalid.
+- **Files changed:** `src/techno_service_ai/app.py` (sign-in
+  GET + POST handlers).
+- **Verification:** `verify_p2_001.py` runs 6 cases, all PASS:
+  - GET `/sign-in?lang=ar` → 303 → `/home?lang=ar` ✅
+  - GET `/sign-in?next=/proactive/` → 303 → `/proactive/` ✅
+  - GET `/sign-in?next=/proactive/&lang=ar` → 303 →
+    `/proactive/?lang=ar` ✅
+  - GET `/sign-in?next=evil` → 303 → `/home` (blocked) ✅
+  - POST `/sign-in` with `next=/proactive/scan&lang=ar` → 303
+    → `/proactive/scan?lang=ar` ✅
+  - GET `/sign-in?next=//evil.com/path` → 303 → `/home`
+    (protocol-relative blocked) ✅
 
-## P2-002 — Phase 7 templates (`base.html`, `phase7/base.html`) have hardcoded English
+## P2-002 — Phase 7/8/6 dashboard templates had hardcoded English
 
 - **Date:** 2026-07-19
-- **Priority:** P2 (out of sprint scope; 8 critical screens do
-  not include Phase 7 dashboards).
-- **Status:** OPEN (listed for a future i18n sprint).
-- **Description:** The Phase 7 dashboard templates
-  (`base.html`, `phase7/base.html`) still have hardcoded
-  English. The Phase 9 templates were externalised in this
-  sprint. A future sprint can extend i18n to Phase 7.
-- **Why deferred:** The 8 critical screens specified in the
-  Done Criteria are all externalised. Phase 7 dashboards are
-  the next priority but are out of this sprint's scope.
+- **Priority:** P2 (out of original sprint scope; spec expanded
+  by Constitutional Owner).
+- **Status:** **FIXED** (P2 Polish sprint, 2026-07-19).
+- **Description:** 14 of 20 Phase 7/8/6 dashboard routes had
+  hardcoded English text in their bodies, even though their
+  `base.html` files had the `lang_code()`/`dir_attr()` fix. The
+  remaining 6 routes already worked because they used
+  `t("phase7.reports.*.title")` style substitutions.
+- **Fix:**
+  1. **Base templates**: Updated `phase6/base.html`,
+     `phase8/base.html`, and `phase3/base.html` to use
+     `<html lang="{{ lang_code() }}" dir="{{ dir_attr() }}">`
+     (matching the existing `phase7/base.html` and
+     `phase9/base.html` pattern).
+  2. **Strings**: Added 59 new Arabic/English string keys to
+     `templates/i18n/strings.json` for the Phase 7/8/6
+     dashboards (titles, KPIs, table headers, empty states,
+     labels). Total keys: 222 → 281.
+  3. **Templates**: Added `{{ "<key>" | t(lang_code()) }}` filter
+     calls to the visible text in: 5 Phase 7 dashboards
+     (`performance_report`, `bottleneck_report`,
+     `office_workload`, `sla_monitor`, `continuous_learning`),
+     5 Phase 8 Quality templates (`quality_dashboard`,
+     `quality_review_new`, `quality_audit_new`,
+     `quality_standards_new`, `release_readiness`),
+     3 Phase 6 templates (`knowledge_records`, `lessons_learned`,
+     `institutional_memory`), and 1 Phase 3 template
+     (`not_inbox`).
+- **Files changed:** `src/techno_service_ai/templates/phase3/base.html`,
+  `phase6/base.html`, `phase7/performance_report.html`,
+  `phase7/bottleneck_report.html`, `phase7/office_workload.html`,
+  `phase7/sla_monitor.html`, `phase7/continuous_learning.html`,
+  `phase6/knowledge_records.html`, `phase6/lessons_learned.html`,
+  `phase6/institutional_memory.html`,
+  `phase8/quality_dashboard.html`, `phase8/quality_review_new.html`,
+  `phase8/quality_audit_new.html`, `phase8/quality_standards_new.html`,
+  `phase8/release_readiness.html`, `phase3/not_inbox.html`,
+  `templates/i18n/strings.json` (+59 keys).
+- **Verification:** `verify_p2_002.py` runs 20 routes, all 20/20
+  green. Every route returns 200 with `dir="rtl"`, `lang="ar"`,
+  and the expected Arabic title in the body.
 
 ---
 

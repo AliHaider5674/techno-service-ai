@@ -1,7 +1,7 @@
 {% extends "phase7/base.html" %}
 {% block body %}
 <div class="constitutional">
-  <strong>Bottleneck Report — Document 02 §4.16 (Bottleneck Detector).</strong>
+  <strong>{{ "p7.bottleneck.title" | t(lang_code()) }} — Document 02 §4.16 (Bottleneck Detector).</strong>
   Workflow bottlenecks detected by the Bottleneck Detector Agent.
 </div>
 {% if incidents %}
@@ -18,6 +18,6 @@
   </tbody>
 </table>
 {% else %}
-<p class="empty">No bottlenecks detected.</p>
+<p class="empty">{{ "p7.bottleneck.empty" | t(lang_code()) }}</p>
 {% endif %}
 {% endblock %}

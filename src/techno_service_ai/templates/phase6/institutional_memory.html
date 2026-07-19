@@ -1,7 +1,7 @@
 {% extends "phase6/base.html" %}
 {% block body %}
 <div class="constitutional">
-  <strong>Institutional Memory Index — Document 02 §4.13.2.</strong>
+  <strong>{{ "p6.institutional.title" | t(lang_code()) }} — Document 02 §4.13.2.</strong>
   Governs the preservation of every material record across time,
   personnel, and technology change. Silent deletion is constitutionally
   PROHIBITED. Material deletion requires Human Approval.
@@ -43,6 +43,6 @@
   </tbody>
 </table>
 {% else %}
-<p class="empty">No commercial outcome reports yet.</p>
+<p class="empty">{{ "p6.institutional.empty_outcomes" | t(lang_code()) }}</p>
 {% endif %}
 {% endblock %}

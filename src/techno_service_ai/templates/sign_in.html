@@ -9,7 +9,7 @@
     {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
     {% if request.query_params.get('recovered') %}<div class="alert success">{{ "signin.title" | t(lang_code()) }}: Password reset. Please sign in with your new password.</div>{% endif %}
 
-    <form method="post" action="/sign-in" autocomplete="on">
+    <form method="post" action="/sign-in{% if request.query_params.get('next') or request.query_params.get('lang') %}{% if request.query_params.get('next') %}?next={{ request.query_params.get('next') }}{% endif %}{% if request.query_params.get('lang') %}{% if request.query_params.get('next') %}&{% else %}?{% endif %}lang={{ request.query_params.get('lang') }}{% endif %}{% endif %}" autocomplete="on">
       <div class="form-row">
         <label for="username">{{ "signin.username" | t(lang_code()) }}</label>
         <input id="username" name="username" type="text" autocomplete="username" required value="{{ username }}" />

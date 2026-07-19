@@ -1,7 +1,7 @@
 {% extends "phase8/base.html" %}
-{% block title %}New Quality Review{% endblock %}
+{% block title %}{{ "p8.quality.new_review" | t(lang_code()) }}{% endblock %}
 {% block content %}
-<h1>New Quality Review</h1>
+<h1>{{ "p8.quality.new_review" | t(lang_code()) }}</h1>
 <p class="qa-meta">Document 02 §4.10.1 — applies quality criteria; identifies rework before outputs reach decision-makers.</p>
 
 {% if error %}<div class="qa-error">{{ error }}</div>{% endif %}
@@ -12,33 +12,33 @@
     <input id="target_type" name="target_type" required placeholder="e.g. REPORT, TENDER, OPPORTUNITY" />
   </div>
   <div class="qa-form-row">
-    <label for="target_id">Target ID</label>
+    <label for="target_id">{{ "phase8.quality.qr.target_id" | t(lang_code()) }}</label>
     <input id="target_id" name="target_id" required />
   </div>
   <div class="qa-form-row">
-    <label for="verification_record_id">Verification Record ID</label>
+    <label for="verification_record_id">{{ "phase8.quality.qr.verification_id" | t(lang_code()) }}</label>
     <input id="verification_record_id" name="verification_record_id" required />
   </div>
   <div class="qa-form-row">
-    <label for="review_date">Review Date (ISO)</label>
+    <label for="review_date">{{ "phase8.quality.qr.review_date" | t(lang_code()) }}</label>
     <input id="review_date" name="review_date" required placeholder="2026-07-19" />
   </div>
   <div class="qa-form-row">
-    <label for="criterion_names">Criteria (one name per line)</label>
+    <label for="criterion_names">{{ "phase8.quality.qr.criteria_names" | t(lang_code()) }}</label>
     <textarea id="criterion_names" name="criterion_names" required placeholder="accuracy&#10;completeness&#10;constitutional_compliance"></textarea>
   </div>
   <div class="qa-form-row">
-    <label for="criterion_weights">Weights (one per line; sum to 1.0)</label>
+    <label for="criterion_weights">{{ "phase8.quality.qr.criteria_weights" | t(lang_code()) }}</label>
     <textarea id="criterion_weights" name="criterion_weights" required placeholder="0.4&#10;0.3&#10;0.3"></textarea>
   </div>
   <div class="qa-form-row">
-    <label for="criterion_statuses">Statuses (one per line; MET / NOT_MET / PARTIALLY_MET / NOT_APPLICABLE)</label>
+    <label for="criterion_statuses">{{ "phase8.quality.qr.criteria_statuses" | t(lang_code()) }}</label>
     <textarea id="criterion_statuses" name="criterion_statuses" required placeholder="MET&#10;MET&#10;MET"></textarea>
   </div>
   <div class="qa-form-row">
-    <label for="notes">Notes</label>
+    <label for="notes">{{ "phase8.quality.qr.notes" | t(lang_code()) }}</label>
     <textarea id="notes" name="notes"></textarea>
   </div>
-  <button type="submit" style="padding:.5rem 1rem;background:#111827;color:#fff;border:none;border-radius:4px;">Create Quality Review</button>
+  <button type="submit" style="padding:.5rem 1rem;background:#111827;color:#fff;border:none;border-radius:4px;">{{ "phase8.quality.qr.submit" | t(lang_code()) }}</button>
 </form>
 {% endblock %}
