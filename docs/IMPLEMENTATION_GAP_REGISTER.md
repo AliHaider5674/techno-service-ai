@@ -14,6 +14,118 @@ routed to a Decision Register entry.
 
 ---
 
+## Constitutional Gaps (GAP-CONST-NNN)
+
+> These gaps require an amendment to the Constitution itself
+> (Major Amendment, Constitution v2.3 → v2.4 or higher). They
+> are recorded here per the Implementer README §5 and routed
+> to a Class 4 Constitutional Owner sign-off. **No
+> implementation work proceeds until the amendment is adopted.**
+
+### GAP-CONST-001 — Proactive Product Discovery Charter (Major Amendment Required)
+
+- **Date:** 2026-07-19
+- **Originating Document:** Constitutional Owner direction (new goal)
+- **Status:** **OPEN — SUBMITTED for Class 4 sign-off on Constitution v2.4**
+- **Severity:** **Major — Constitution Amendment Required**
+
+**Description.** Constitution v2.3 lacks the Proactive Product
+Discovery Charter required for the Constitutional Owner's new
+goal: "search comprehensively for new industrial maintenance
+and oil/gas products; qualify against Kuwait climate, retrofit-
+friendliness, no-Kuwait-agent filter, low operating cost, no
+specialized training; focus on medium/emerging companies; goal
+= exclusive agency acquisition in Kuwait."
+
+The current Constitution v2.3 (Document 02 §4.1..4.17) is
+**reactive**: it discovers products AFTER an Opportunity is
+identified. The new goal is **proactive**: search ALL sectors
+for new products with explicit qualification filters and an
+end goal of exclusive agency acquisition.
+
+**Affected Requirements (constitutional surface):**
+
+- Constitution Articles V (Purpose), VI (Discovery Order),
+  IX (Industrial Intelligence), X (Commercial & AI), XIV
+  (AI Organization), XXII (Commercial Principles).
+- Document 02 (AI Organization & Agent Charter Manual) —
+  **Office 18 (Product Discovery Proactive) is not defined.**
+- Document 06 (Workflow & AI Orchestration) — **Stage 8.5
+  (Proactive Discovery) is not defined.**
+- Document 07 (UI/UX Specification) — **Proactive Discovery
+  screens are not defined.**
+- Document 08 (Implementation Roadmap) — **Phase 9 is not
+  defined.**
+
+**Affected New Capability Surface (estimated, for scope):**
+
+- 1 new Office (Office 18, Product Discovery Proactive).
+- 4 new Principal Agents (Global Product Monitor; New
+  Product Detector; Emerging Company Scout; Patent Watch).
+- 1 new Discovery Order stage (Stage 8.5, Proactive
+  Discovery — runs BEFORE the existing 24 stages).
+- 5 new qualification filters (No Agent in Kuwait;
+  Operating Cost; Training Burden; Company Size;
+  Kuwait Suitability for Climate).
+- 1 new workflow (Exclusive Agency Acquisition Workflow).
+- 4-6 new canonical entities (ProactiveProductDiscovery,
+  QualificationFilter, WatchList, PatentAlert,
+  ExclusiveAgencyOpportunity).
+- 5-7 new UI/UX screens.
+- 2-3 new external service integrations (Web Search;
+  Document Parsing; Patent Search).
+
+**Options Considered:**
+
+1. **Major Amendment to Constitution v2.4** — add Office 18,
+   Stage 8.5, 4 Agents, 5 Filters, Exclusive Agency
+   Acquisition Workflow. PRESERVES all existing 17 Offices,
+   69 Principal Agents, 24 stages, 92 canonical entities.
+   **(RECOMMENDED)**
+2. **Build as a separate application with Constitution v3.0**
+   — 6-9 month project; rebuilds the constitutional surface
+   from scratch. (REJECTED — does not serve the goal of an
+   integrated System.)
+3. **Restrict the existing Constitution to fit the new goal**
+   — would require removing the Commercial Office, Tender
+   Office, and Business Development Office. (REJECTED —
+   removes constitutional capability.)
+
+**Recommended Resolution:** **Option 1** — Major Amendment
+v2.3 → v2.4. Adds new constitutional surface WITHOUT removing
+any existing Office, Agent, Stage, Filter, or Workflow.
+Preserves all 259/259 tests, 17/17 Offices, 69/69 Principal
+Agents, 25/25 Readiness Criteria from the v1.0 build.
+
+**Required Approver:** **Class 4 — Authorised Executive
+(Constitutional Owner)** per Authority Matrix §3.4 for any
+amendment to the Constitution.
+
+**Approval Status:** **SUBMITTED — awaiting Class 4 sign-off
+on Constitution v2.4.**
+
+**Closure Evidence:** (to be filled after Constitution v2.4
+adoption and Phase 9 implementation.)
+
+**What is NOT being done now (per Owner direction):**
+
+- The Constitution v2.3 is **NOT** being modified.
+- The Charter Manual (Document 02) is **NOT** being modified.
+- The Workflow (Document 06) is **NOT** being modified.
+- The UI/UX Specification (Document 07) is **NOT** being
+  modified.
+- The Implementation Roadmap (Document 08) is **NOT** being
+  modified.
+- No new Phase 9 code, schema, engine, agent, route, or
+  template is being written.
+- The v1.0 build on `main` (8 commits, 259/259 tests,
+  17/17 Offices, 69/69 Agents, 92 entities) is **frozen**
+  pending the Class 4 decision.
+
+---
+
+---
+
 ## Open Gaps (Phase 2)
 
 ### GAP-PHASE1-001 — Second-factor mechanism not specified in Phase 1 governing docs

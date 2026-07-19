@@ -720,4 +720,100 @@ Constitution has not been modified.
 
 *End of Decision and Assumption Register — Phase 8.*
 
+---
+
+# Phase 8 (Post-Sign-Off) — DAR-E-002: Proactive Product Discovery as Constitutional Extension
+
+**Status:** **PENDING Class 4 sign-off on Constitution v2.4.**
+**No implementation work proceeds until the amendment is adopted.**
+
+## DAR-E-002 (Major — Constitutional Owner Direction)
+
+- **Date:** 2026-07-19
+- **Title:** Proactive Product Discovery as constitutional extension
+- **Severity:** **Major — Constitution Amendment Required**
+- **Originating Document:** Constitutional Owner direction (new goal)
+
+**Description.** The Constitutional Owner has directed that the
+System shall additionally support **Proactive Product
+Discovery** across all sectors, with explicit qualification
+filters for:
+
+1. **Kuwait climate suitability** (heat, wind, dust
+   tolerance).
+2. **Retrofit-friendliness** (no major system / machine /
+   pipe change required to install).
+3. **No agent in Kuwait** (exclusive representation
+   opportunity available).
+4. **Low operating cost** (no specialised training burden;
+   no engineering team required to operate).
+5. **Focus on medium / emerging companies** (not just
+   established tier-1 manufacturers).
+
+**End goal:** **exclusive agency acquisition in Kuwait** for
+the industrial maintenance and oil & gas sectors.
+
+This is a **constitutional extension** (Option 1 of
+GAP-CONST-001), not a replacement of the existing Techno
+Service AI Intelligence System. The existing Constitution
+v2.3 **stays in force** until v2.4 is adopted.
+
+**Constitutional Surface to be Added (v2.4):**
+
+- 1 new Office (Office 18, Product Discovery Proactive).
+- 4 new Principal Agents (Global Product Monitor; New
+  Product Detector; Emerging Company Scout; Patent Watch).
+- 1 new Discovery Order stage (Stage 8.5, Proactive
+  Discovery — runs BEFORE the existing 24 stages).
+- 5 new qualification filters (No Agent in Kuwait;
+  Operating Cost; Training Burden; Company Size;
+  Kuwait Suitability for Climate).
+- 1 new workflow (Exclusive Agency Acquisition Workflow).
+- 4-6 new canonical entities.
+- 5-7 new UI/UX screens.
+- 2-3 new external service integrations.
+
+**Constitutional Surface PRESERVED (v2.3 → v2.4):**
+
+- 17 Offices alive (Document 02 §4.1..4.17) — unchanged.
+- 69 Principal Agents activated — unchanged.
+- 24 stages of the Discovery Order — unchanged (Stage 8.5
+  is ADDED, not substituted).
+- 92 canonical entities — unchanged (new entities are
+  ADDED, not substituted).
+- 25/25 Readiness Criteria — unchanged.
+- 259/259 tests green — unchanged.
+- 17 TTAs in force — unchanged.
+- Document Hierarchy and Change Control (Article XXIX) —
+  unchanged.
+- Constitution v2.3 — **unchanged** until v2.4 is adopted.
+
+**Approval Status:** **PENDING Class 4 sign-off on
+Constitution v2.4.** Per Authority Matrix §3.4, any
+amendment to the Constitution requires Class 4
+(Authorised Executive / Constitutional Owner) approval.
+
+**Closure Path:**
+
+1. Constitutional Owner signs off on Constitution v2.4
+   (Major Amendment).
+2. v2.4 is adopted; the 5 Lower Documents (02, 06, 07, 08)
+   are updated under the v2.4 authority.
+3. Phase 9 (Proactive Product Discovery) implementation
+   is authorised per the v2.4 surface.
+4. GAP-CONST-001 is closed with the v2.4 adoption evidence.
+
+**What is NOT being done now (per Owner direction):**
+
+- No amendment to Constitution v2.3.
+- No amendment to the 5 Lower Documents (02, 06, 07, 08).
+- No Phase 9 implementation.
+- The v1.0 build (8 commits on `main`, 259/259 tests,
+  17/17 Offices, 69/69 Agents, 92 entities, 25/25 RC) is
+  **frozen** as the constitutional baseline.
+
+---
+
+*End of Decision and Assumption Register — Phase 8 (Post-Sign-Off DAR-E-002).*
+
 
