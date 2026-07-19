@@ -1,7 +1,7 @@
 # Constitutional Traceability
 
 **Project:** Techno Service AI Intelligence System
-**Phase:** 7 — Every Office Alive: Performance, Reporting, Notification, Risk, Security, Relationship, Executive (current phase)
+**Phase:** 8 — Production Hardening and Launch (current phase)
 
 This matrix is the bidirectional trace between the implementation
 artefacts (Phase 1 + Phase 2) and the constitutional clauses / Lower
@@ -236,3 +236,55 @@ column is the constitutional source that authorises it.
 ---
 
 *End of Constitutional Traceability — Phase 7.*
+
+---
+
+## E. Phase 8 implementation items → constitutional source
+
+| Backlog ID | Title | Constitutional / Lower Document clause | Code location |
+|---|---|---|---|
+| IMPL-P8-001 | Quality Assurance Office (§4.10) — 3 agents | Document 02 §4.10; Constitution Article XVI (Quality) | `src/techno_service_ai/quality.py` |
+| IMPL-P8-002 | Quality Reviewer Agent (§4.10.1) | Document 02 §4.10.1 | `src/techno_service_ai/agents.py:QualityReviewerAgent` |
+| IMPL-P8-003 | Output Auditor Agent (§4.10.2) | Document 02 §4.10.2 | `src/techno_service_ai/agents.py:OutputAuditorAgent` |
+| IMPL-P8-004 | Standards Compliance Agent (§4.10.3) | Document 02 §4.10.3 | `src/techno_service_ai/agents.py:StandardsComplianceAgent` |
+| IMPL-P8-005 | OutputAuditReport entity (ENT-QA-003) | Document 02 §4.10.2; Constitution Article XX §6 | `src/techno_service_ai/phase2_schema.py:OutputAuditReport` |
+| IMPL-P8-006 | 17 Offices / 69 Principal Agents full roster | Document 02 §4.1..4.17 | `src/techno_service_ai/agents.py:all_office_roster` |
+| IMPL-P8-007 | TOTP 2FA (closes GAP-PHASE1-001) | Document 04 §1.7; Constitution Article XXV | `src/techno_service_ai/twofa.py` |
+| IMPL-P8-008 | WCAG 2.1 AA baseline (closes GAP-PHASE1-002) | Document 07 §1; Constitution Article XXV | `src/techno_service_ai/wcag.py` |
+| IMPL-P8-009 | 25 Readiness Criteria verification | Document 08 §2.9, Section 13 | `docs/RELEASE_READINESS_CHECKLIST.md` |
+| IMPL-P8-010 | Continuity Plan + Backup + Recovery Test | Document 06 §12; Constitution Article XXV | `tests/test_phase8.py:test_continuity_and_recovery_backup_and_restore` |
+| IMPL-P8-011 | Production Launch Summary | Document 08 §2.9; Constitution Article XXIX | `docs/PRODUCTION_LAUNCH_SUMMARY.md` |
+| IMPL-P8-012 | Handover to Operations plan | Document 04 §1.10 (Operational Architecture); Constitution Article XXIX | `docs/HANDOVER_TO_OPERATIONS.md` |
+| IMPL-P8-013 | Maintenance Phase plan | Document 04 §1.10; Constitution Article XXIX | `docs/MAINTENANCE_PHASE.md` |
+| IMPL-P8-014 | Phase 8 routes + templates (Quality Office UI) | Document 07 §4.10 | `src/techno_service_ai/phase8_routes.py` + `templates/phase8/*.html` |
+| IMPL-P8-015 | Test suite for AC-P8-001..011 | Document 08 §2.9 | `tests/test_phase8.py` (26 tests) |
+
+## F. Phase 8 constitutional clauses → implementation evidence
+
+| Clause | Test file(s) proving compliance |
+|---|---|
+| Article VI — Discovery Order (S14 Quality Review) | `tests/test_phase8.py:test_quality_engine_*` (Quality Reviewer Agent) |
+| Article VIII — Constitutional Registers (Register Steward unaffected) | (carried forward) |
+| Article XII — Human Approval (Material override of Quality Review) | `tests/test_phase8.py:test_quality_engine_material_override_requires_approval` |
+| Article XVI — Quality (Quality Reviewer, Output Auditor, Standards Compliance) | `tests/test_phase8.py:test_phase8_full_roster_17_offices_69_agents` + 3 §4.10 engine tests |
+| Article XVII — Independence of Verification (Quality may NOT replace Verification) | `tests/test_phase8.py:test_quality_engine_rejects_without_criteria` + `test_quality_engine_rejects_without_reviewer` |
+| Article XX — No Silent Amendment (Output Audit Report carries trigger) | `tests/test_phase8.py:test_audit_log_immutable_at_app_layer` (DB trigger verified Phase 2) |
+| Article XX paragraph 7 — Constitutional Incident (Output Auditor may not conceal) | `tests/test_phase8.py:test_output_audit_concealment_rejected` |
+| Article XXV — Security (2FA TOTP, secure cookie, JWT env) | `tests/test_phase8.py:test_totp_engine_present` |
+| Article XXIX — Document Hierarchy and Change Control | `docs/PRODUCTION_LAUNCH_SUMMARY.md` (Sign-off) + `docs/DECISION_AND_ASSUMPTION_REGISTER.md` (Phase 8) |
+| AC-P8-001 17 Offices / 69 Principal Agents | `tests/test_phase8.py:test_phase8_full_roster_17_offices_69_agents` |
+| AC-P8-002 Quality Reviewer | `tests/test_phase8.py:test_quality_engine_*` (5 tests) |
+| AC-P8-003 Output Auditor | `tests/test_phase8.py:test_output_audit_*` (4 tests) |
+| AC-P8-004 Standards Compliance | `tests/test_phase8.py:test_standards_compliance_*` (4 tests) |
+| AC-P8-005 25 Readiness Criteria | `tests/test_phase8.py:test_readiness_checklist_*` (2 tests) |
+| AC-P8-006 PRODUCTION_LAUNCH_SUMMARY.md | `tests/test_phase8.py:test_production_launch_summary_present` |
+| AC-P8-007 2FA (TOTP) | `tests/test_phase8.py:test_totp_engine_present` |
+| AC-P8-008 WCAG 2.1 AA baseline | `tests/test_phase8.py:test_wcag_*` (2 tests) |
+| AC-P8-009 Continuity and Recovery (RC-010 / RC-025) | `tests/test_phase8.py:test_continuity_and_recovery_backup_and_restore` |
+| AC-P8-010 Performance SLA (dev-environment, RC-017) | `tests/test_phase8.py:test_performance_dashboard_endpoint_under_sla` |
+| AC-P8-011 Audit immutability (RC-023) | `tests/test_phase8.py:test_audit_log_immutable_at_app_layer` + `test_audit_log_exportable_csv_and_json` |
+| All 25 Readiness Criteria | `docs/RELEASE_READINESS_CHECKLIST.md` (RC-001..RC-025 Satisfied with evidence) |
+
+---
+
+*End of Constitutional Traceability — Phase 8.*

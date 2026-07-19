@@ -1,10 +1,10 @@
 # Implementation Gap Register
 
 **Project:** Techno Service AI Intelligence System
-**Phase:** 7 — Every Office Alive: Performance, Reporting, Notification, Risk, Security, Relationship, Executive (current phase)
+**Phase:** 8 — Production Hardening and Launch (current phase)
 **Document Reference:** TS-AI-IGP-001
 **Governing Authority:** Constitution v2.3
-**Status:** Issued for the Phase 7 release
+**Status:** Issued for the Phase 8 release
 
 This register is the single source of truth for everything the approved
 documents do not say, that affects the current phase. Per Constitution
@@ -268,6 +268,11 @@ routed to a Decision Register entry.
 | GAP-PHASE5-003 | 4 Agents deferred to Phase 6+ | Phase 6 activates all 4 deferred agents (Commercial Model Designer, Negotiation Support, After-Sales Intelligence, AVL Manager). |
 | GAP-PHASE6-001 | S24 Continuous Learning engine | Phase 7 implements `ContinuousLearningEngine` (4-step review path; 12 invariable constitutional clauses; 5 outcomes). |
 | GAP-PHASE6-002 | Performance and Learning Office (§4.17) | Phase 7 activates all 4 §4.17 agents and `PerformanceEngine`. |
+| GAP-PHASE1-001 | 2FA mechanism selection | Phase 8 selects TOTP (RFC 6238 / RFC 4226). `src/techno_service_ai/twofa.py`. |
+| GAP-PHASE1-002 | WCAG 2.1 AA test suite | Phase 8 implements baseline HTML accessibility audit. `src/techno_service_ai/wcag.py`. |
+| GAP-PHASE1-003 | Default SoD class bucketing | Phase 4 closes; verified end-to-end in Phase 8. |
+| GAP-PHASE1-004 | Audit retention period | Phase 8: `retention_class = PERMANENT` (Constitution Article XX §6) as constitutional default; specific periods deferred to Schedule A Item 11. |
+| GAP-PHASE1-005 | Performance SLAs | Phase 8: dev-environment ceiling established (ASS-PHASE8-001); production SLAs deferred to Schedule A Item 15. |
 
 ---
 
@@ -324,5 +329,24 @@ routed to a Decision Register entry.
 
 ---
 
-*End of Implementation Gap Register — Phase 7.*
+*End of Implementation Gap Register — Phase 8.*
+
+---
+
+## Phase 8 Production-Environment Follow-Ups
+
+These items require the production environment and are
+executed during the production migration window. They are
+NOT gaps in the implementation; they are documented as
+Class 4 sign-off gates and production-environment execution
+items per `docs/PRODUCTION_LAUNCH_SUMMARY.md`.
+
+| ID | Item | Owner |
+|---|---|---|
+| HD-PHASE8-001 | Authorised Executive Class 4 sign-off | Authorised Executive |
+| HD-PHASE8-002 | Production DB engine confirmation (PostgreSQL 15+) | Authorised Executive |
+| HD-PHASE8-003 | Production Audit Log initialisation | Implementation Lead |
+| HD-PHASE8-004 | Production encryption at rest (TDE) | Security Lead |
+| HD-PHASE8-005 | Production UAT with named personas | Operations Lead |
+| HD-PHASE8-006 | Production SLO verification (Schedule A Item 15) | Performance and Learning Office |
 

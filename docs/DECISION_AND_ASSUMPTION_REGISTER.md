@@ -1,7 +1,7 @@
 # Decision and Assumption Register
 
 **Project:** Techno Service AI Intelligence System
-**Phase:** 7 — Every Office Alive: Performance, Reporting, Notification, Risk, Security, Relationship, Executive (current phase)
+**Phase:** 8 — Production Hardening and Launch (current phase)
 **Governing Authority:** Constitution v2.3
 **Document Reference:** TS-AI-DAR-001
 **Status:** Issued for the Phase 6 release
@@ -551,5 +551,173 @@ not been modified.
 ---
 
 *End of Decision and Assumption Register — Phase 7.*
+
+---
+
+# Phase 8 Update — Production Hardening and Launch
+
+**Status:** Issued for the Phase 8 release. The Constitutional
+Compliance Attestation is **signed** (Implementation Lead +
+Constitutional Compliance). The Class 4 sign-off (HD-PHASE8-001,
+Authorised Executive) is the production-launch gate and is
+**PENDING** until the production environment is provisioned.
+
+## Summary
+
+Phase 8 activates the last Office (Quality Assurance §4.10),
+implements the production-hardening deliverables, and produces
+the 25 Readiness Criteria checklist. The system is **READY FOR
+PRODUCTION MIGRATION** subject to the Class 4 sign-off and
+the production-environment execution items.
+
+After Phase 8, every Office listed in Document 02 is alive,
+and every Charter-defined Principal Agent is activated.
+
+## New Temporary Technical Assumptions
+
+#### ASS-PHASE8-001 — Dev-environment performance ceiling as a working SLA
+
+- **Description:** Per Document 05 Gap 20.2-3 (Specific KPI
+  Thresholds — Pending Lower Document, Schedule A Item 15),
+  the constitutional performance SLAs (latency, throughput,
+  concurrency, scalability, mobile response, dashboard
+  response) are not yet defined in a Lower Document. Phase 8
+  establishes a **dev-environment working ceiling** of
+  <500 ms p95 for dashboard renders as a Temporary Technical
+  Assumption, measured by
+  `tests/test_phase8.py:test_performance_dashboard_endpoint_under_sla`.
+- **Governing source:** Constitution Article XIV (Performance);
+  Document 05 Gap 20.2-3.
+- **Owner:** Implementation Engineer.
+- **Expiry / review:** When Schedule A Item 15 is adopted as a
+  Lower Document, the production-environment SLAs replace this
+  TTA. The dev-environment ceiling is recorded as a transitional
+  value and is superseded by the production SLO.
+- **Constitutional impact:** None — the assumption is
+  technical, not constitutional.
+- **Rationale:** The Performance, Commercial Outcome, and
+  Lessons Learned Standard is a Pending Lower Document.
+  Without it, no specific SLA can be asserted. The dev-environment
+  ceiling is a working number to keep the Performance and
+  Learning Office operational; the production SLO is the
+  production-environment verification item (HD-PHASE8-006).
+
+#### ASS-PHASE8-002 — Production database engine: PostgreSQL 15+ (TTA)
+
+- **Description:** The dev-environment database engine is
+  SQLite (ASS-PHASE1-003). For the production environment,
+  PostgreSQL 15+ is selected as the constitutional-grade RDBMS.
+  The selection is a Temporary Technical Assumption per
+  Implementer README §6. HD-PHASE8-002 records the
+  production-engine selection for Human Approval.
+- **Governing source:** Document 05 §3 (Information Domain
+  model); Document 04 §1.4 (Database Layer).
+- **Owner:** Implementation Engineer.
+- **Expiry / review:** Re-evaluate when the production
+  deployment plan is finalised.
+- **Constitutional impact:** None — the engine is an
+  implementation choice; the constitutional rules (no-silent-
+  amendment triggers; canonical entity pattern) are portable
+  to PostgreSQL with the standard DDL translation.
+- **Rationale:** PostgreSQL provides native `CREATE TRIGGER`
+  semantics equivalent to the SQLite `RAISE(ABORT)` pattern;
+  TDE / column-level encryption (HD-PHASE8-004); row-level
+  security; JSONB; mature migration tooling. The constitutional
+  triggers are translated from SQLite
+  `BEFORE UPDATE/DELETE RAISE(ABORT)` to PostgreSQL
+  `BEFORE UPDATE/DELETE RAISE EXCEPTION`. The migration
+  framework (`migrations.apply_all`) is portable with one
+  DDL translation step.
+
+## Closed Gaps
+
+- **GAP-PHASE1-001** — 2FA mechanism selection. **Closed in
+  Phase 8** with TOTP (RFC 6238 / RFC 4226). See
+  `src/techno_service_ai/twofa.py`.
+- **GAP-PHASE1-002** — WCAG 2.1 AA test suite. **Closed in
+  Phase 8** with the baseline audit at
+  `src/techno_service_ai/wcag.py`. The full axe-core / pa11y
+  integration is a production-environment follow-up.
+- **GAP-PHASE1-003** — Default SoD class bucketing. **Closed
+  in Phase 4** (Office-specific SoD activation) and verified
+  end-to-end in Phase 8.
+- **GAP-PHASE1-004** — Audit retention period. **Closed in
+  Phase 8** with `retention_class = PERMANENT` (Constitution
+  Article XX §6) as the constitutional default; specific
+  retention periods are deferred to the Knowledge, Data,
+  Records, and Institutional Memory Standard (Schedule A
+  Item 11).
+- **GAP-PHASE1-005** — Performance SLAs. **Closed in Phase 8
+  (dev-environment)** with ASS-PHASE8-001; production SLAs
+  remain deferred to Schedule A Item 15.
+
+## New Records (constitutional entities)
+
+- **OutputAuditReport (ENT-QA-003)** — declared in Document 02
+  §4.10.2 but missing from the Phase 2 schema. Added in
+  Phase 8 as a constitutional table with auto-installed
+  triggers. Phase 2 entity count 91 → 92.
+
+## TTA inventory (Phase 8 close)
+
+| ID | Title | Status |
+|---|---|---|
+| ASS-PHASE1-001..006 | Phase 1 tech stack | In force (carried forward) |
+| ASS-PHASE2-001..005 | Phase 2 data foundation | In force (carried forward) |
+| ASS-PHASE3-001..005 | Phase 3 workflow / verification / approval | In force (carried forward) |
+| ASS-PHASE8-001 | Dev-environment performance ceiling | **New — in force** |
+| ASS-PHASE8-002 | Production database engine: PostgreSQL 15+ | **New — in force** |
+| **Total** | | **17 TTAs** |
+
+## Architectural decisions
+
+1. **Quality Assurance Office is the last Office activated**;
+   all 17 Offices per Document 02 §4.1..4.17 are now alive.
+   The Charter-defined Principal Agent count is **69** (the
+   5 Verifier Agents of the Verification Office §4.9 are
+   included in the full roster via a thin adapter).
+2. **2FA (TOTP)** is selected as the default enterprise
+   mechanism (constant-time, offline-capable, auditable).
+   The selection is per Document 04 §1.7 (Security Layer) and
+   Constitution Article XXV.
+3. **WCAG 2.1 AA baseline** is implemented as a pure-Python
+   audit (`src/techno_service_ai/wcag.py`) covering the
+   constitutional-floor checks (lang / title / main / h1 /
+   input labels / img alt). The full axe-core integration is
+   a production-environment follow-up.
+4. **Continuity and Recovery** is verified at the backup /
+   restore layer by
+   `tests/test_phase8.py:test_continuity_and_recovery_backup_and_restore`.
+   The Rollback path is the Phase 2 migration framework
+   (`REC-ROLL-001..003`).
+5. **Production migration** is documented in
+   `docs/PRODUCTION_LAUNCH_SUMMARY.md` and recorded as
+   HD-PHASE8-001 (Class 4 sign-off gate).
+
+## What did NOT change
+
+No new Office (beyond the 1 activated in Phase 8), Agent
+(beyond the 3), Decision Class, workflow stage, gate, status,
+screen, or architectural layer has been introduced. The
+Constitution has not been modified.
+
+## Open items for production-environment execution
+
+1. **HD-PHASE8-001** — Authorised Executive Class 4 sign-off
+   on the Production Launch.
+2. **HD-PHASE8-002** — Production database engine selection
+   (PostgreSQL 15+) — recorded as ASS-PHASE8-002; awaits
+   Authorised Executive confirmation.
+3. **HD-PHASE8-003** — Production Audit Log initialisation
+   with the production-migration event.
+4. **HD-PHASE8-004** — Production encryption at rest
+   (TDE / column-level).
+5. **HD-PHASE8-005** — Production UAT with named personas.
+6. **HD-PHASE8-006** — Production SLO verification
+   (Schedule A Item 15; 30-day post-launch window).
+
+---
+
+*End of Decision and Assumption Register — Phase 8.*
 
 

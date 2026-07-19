@@ -78,6 +78,9 @@ def create_app() -> FastAPI:
     # Phase 7 routes (Performance, Reporting, Notification, Risk, Security, Relationship, Executive — Every Office Alive).
     from .phase7_routes import add_phase7_routes
     add_phase7_routes(app)
+    # Phase 8 routes (Quality Assurance Office — closes the last Charter Office; Production Hardening).
+    from .phase8_routes import add_phase8_routes
+    add_phase8_routes(app)
 
     @app.on_event("startup")
     def _startup() -> None:

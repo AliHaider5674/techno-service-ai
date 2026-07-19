@@ -1,0 +1,86 @@
+{% extends "phase8/base.html" %}
+{% block title %}Quality Office Dashboard{% endblock %}
+{% block content %}
+<h1>Quality Assurance Office</h1>
+<p class="qa-meta">Document 02 §4.10 — 3 Principal Agents (Quality Reviewer, Output Auditor, Standards Compliance).</p>
+
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1rem 0;">
+  <a class="qa-card" href="/quality/review/new" style="text-decoration:none;color:inherit;">
+    <h3>New Quality Review</h3>
+    <p class="qa-meta">§4.10.1 — Apply quality criteria; identify rework.</p>
+  </a>
+  <a class="qa-card" href="/quality/audit/new" style="text-decoration:none;color:inherit;">
+    <h3>New Output Audit</h3>
+    <p class="qa-meta">§4.10.2 — Audit completed outputs; detect patterns.</p>
+  </a>
+  <a class="qa-card" href="/quality/standards/new" style="text-decoration:none;color:inherit;">
+    <h3>New Standards Compliance</h3>
+    <p class="qa-meta">§4.10.3 — Map outputs to standards; identify gaps.</p>
+  </a>
+</div>
+
+<a class="qa-card" href="/quality/release-readiness" style="display:block;text-decoration:none;color:inherit;">
+  <h3>Release Readiness — 25 Constitutional Criteria</h3>
+  <p class="qa-meta">RC-001..RC-025 — the constitutional gate to production.</p>
+</a>
+
+<h2 style="margin-top:1.5rem;">Recent Quality Reviews</h2>
+{% if quality_reviews %}
+<table class="qa-table">
+  <thead><tr><th>ID</th><th>Target</th><th>Outcome</th><th>Reviewer</th><th>Date</th></tr></thead>
+  <tbody>
+  {% for r in quality_reviews %}
+    <tr>
+      <td>{{ r.id[:8] }}</td>
+      <td>{{ r.target_type }}/{{ r.target_id[:8] }}</td>
+      <td><span class="qa-badge">{{ r.outcome }}</span></td>
+      <td>{{ r.reviewer_id[:8] }}</td>
+      <td>{{ r.review_date }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="qa-meta">No quality reviews yet.</p>
+{% endif %}
+
+<h2 style="margin-top:1.5rem;">Recent Output Audit Reports</h2>
+{% if audit_reports %}
+<table class="qa-table">
+  <thead><tr><th>Sample</th><th>Target</th><th>Method</th><th>Breach</th><th>Drift</th><th>Date</th></tr></thead>
+  <tbody>
+  {% for a in audit_reports %}
+    <tr>
+      <td>{{ a.sample_id[:8] }}</td>
+      <td>{{ a.target_type }}/{{ a.target_id[:8] }}</td>
+      <td>{{ a.selection_method }}</td>
+      <td>{{ "YES" if a.constitutional_breach else "no" }}</td>
+      <td>{{ "YES" if a.material_drift else "no" }}</td>
+      <td>{{ a.audit_date }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="qa-meta">No audit reports yet.</p>
+{% endif %}
+
+<h2 style="margin-top:1.5rem;">Recent Standards Compliance Reports</h2>
+{% if standards_reports %}
+<table class="qa-table">
+  <thead><tr><th>Target</th><th>Standard</th><th>Status</th><th>Date</th></tr></thead>
+  <tbody>
+  {% for s in standards_reports %}
+    <tr>
+      <td>{{ s.target_type }}/{{ s.target_id[:8] }}</td>
+      <td>{{ s.standard }}</td>
+      <td><span class="qa-badge">{{ s.compliance_status }}</span></td>
+      <td>{{ s.report_date }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="qa-meta">No standards compliance reports yet.</p>
+{% endif %}
+{% endblock %}

@@ -40,6 +40,14 @@ from .continuous_learning import (
     LearningUpdateScope,
 )
 from .db import SessionLocal
+from .quality import (
+    AuditSampleSpec,
+    OutputAuditEngine,
+    QualityEngine,
+    QualityReviewSpec,
+    StandardsComplianceEngine,
+    StandardsComplianceSpec,
+)
 from .knowledge import (
     InstitutionalMemoryIndexSpec,
     KnowledgeEngine,
@@ -91,12 +99,14 @@ from .phase2_schema import (
     NotificationPreference,
     NotificationRecord,
     Opportunity,
+    OutputAuditReport,
     PartnerProfile,
     PartnerRelationshipHistory,
     PrequalificationStatusReport,
     PreliminaryReview,
     PricingAnalysis,
     ProblemOrNeed,
+    QualityReview,
     ProductAnalysis,
     ProjectStatusReport,
     QuotationDossier,
@@ -108,6 +118,7 @@ from .phase2_schema import (
     RestrictedProhibitedEntity,
     RootCause,
     SecurityEvent,
+    StandardsComplianceReport,
     TechnologyCategoryAnalysis,
     Tender,
     TenderQualificationReport,
@@ -176,6 +187,16 @@ def _now() -> datetime:
 
 def _uuid() -> str:
     return str(uuid.uuid4())
+
+
+def _parse_iso(iso_str: str) -> datetime:
+    """Parse an ISO date / datetime string; fall back to now() on bad input."""
+    if not iso_str:
+        return _now()
+    try:
+        return datetime.fromisoformat(iso_str.replace("Z", "+00:00"))
+    except ValueError:
+        return _now()
 
 
 # ---------------------------------------------------------------------------
@@ -2646,6 +2667,205 @@ class WorkflowService:
         self._commit_and_audit(
             rec, actor_id, role_code, "PARTNER_HISTORY",
             {"partner_id": partner_id},
+        )
+        return rec
+
+    # -----------------------------------------------------------------
+    # Phase 8 — Quality Assurance Office (§4.10)
+    # -----------------------------------------------------------------
+
+    def create_quality_review(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        target_type: str,
+        target_id: str,
+        reviewer_id: str,
+        criteria_specs: list,
+        verification_record_id: str,
+        review_date: str,
+        notes: str = "",
+    ) -> QualityReview:
+        """Stage 14 — Quality Reviewer Agent (§4.10.1).
+
+        Pure-logic engine validates the criteria; if the review
+        passes, persists a QualityReview record.
+        """
+        from .quality import (
+            QualityCriterion,
+            QualityCriterionStatus,
+            QualityEngine,
+        )
+        criteria = [
+            QualityCriterion(
+                criterion_name=c.get("name", ""),
+                description=c.get("description", ""),
+                weight=float(c.get("weight", 0.0)),
+                status=QualityCriterionStatus(c.get("status", "MET")),
+                finding=c.get("finding", ""),
+            )
+            for c in criteria_specs
+        ]
+        spec = QualityReviewSpec(
+            target_type=target_type,
+            target_id=target_id,
+            reviewer_id=reviewer_id,
+            criteria=criteria,
+            verification_record_id=verification_record_id,
+            review_date=review_date,
+            notes=notes,
+        )
+        result = QualityEngine().review(spec)
+        rec = QualityReview(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            target_type=result.target_type,
+            target_id=result.target_id,
+            reviewer_id=result.reviewer_id,
+            outcome=result.outcome.value,
+            rationale=("; ".join(result.findings) if result.findings else None),
+            review_date=_parse_iso(review_date),
+            source_citation=(
+                f"Quality Review ({result.outcome.value}) by "
+                f"{result.reviewer_id} on {result.target_type}/{result.target_id}"
+            ),
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "QUALITY_REVIEW",
+            {
+                "stage": "S14",
+                "target_type": target_type,
+                "target_id": target_id,
+                "outcome": result.outcome.value,
+                "criteria_count": result.criteria_count,
+                "criteria_met": result.criteria_met,
+            },
+        )
+        return rec
+
+    def create_audit_sample(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        sample_id: str,
+        target_type: str,
+        target_id: str,
+        selection_method: str,
+        audit_criteria: list,
+        audit_date: str,
+        notes: str = "",
+    ) -> OutputAuditReport:
+        """§4.10.2 — Output Auditor Agent.
+
+        Pure-logic engine validates the sample; if it passes (no
+        concealment), persists an OutputAuditReport record.
+        """
+        from .quality import (
+            AuditProgramSelection,
+            OutputAuditEngine,
+        )
+        spec = AuditSampleSpec(
+            sample_id=sample_id,
+            target_type=target_type,
+            target_id=target_id,
+            selection_method=AuditProgramSelection(selection_method),
+            audit_criteria=audit_criteria,
+            audit_date=audit_date,
+            notes=notes,
+        )
+        result = OutputAuditEngine().audit_sample(spec)
+        rec = OutputAuditReport(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            sample_id=result.sample_id,
+            target_type=result.target_type,
+            target_id=result.target_id,
+            selection_method=result.selection_method.value,
+            finding=result.finding,
+            corrective_action_recommended=result.corrective_action_recommended,
+            pattern_detected=result.pattern_detected,
+            material_drift=result.material_drift,
+            constitutional_breach=result.constitutional_breach,
+            human_approval_required=result.human_approval_required,
+            audit_date=_parse_iso(audit_date),
+            source_citation=(
+                f"Output Audit ({result.selection_method.value}) on "
+                f"{result.target_type}/{result.target_id}: {result.finding}"
+            ),
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "OUTPUT_AUDIT",
+            {
+                "sample_id": sample_id,
+                "target_type": target_type,
+                "target_id": target_id,
+                "selection_method": selection_method,
+                "constitutional_breach": result.constitutional_breach,
+                "human_approval_required": result.human_approval_required,
+            },
+        )
+        return rec
+
+    def create_standards_compliance_report(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        target_type: str,
+        target_id: str,
+        standard: str,
+        target_evidence: str,
+        review_date: str,
+        notes: str = "",
+    ) -> StandardsComplianceReport:
+        """§4.10.3 — Standards Compliance Agent.
+
+        Pure-logic engine evaluates the standard; persists a
+        StandardsComplianceReport record.
+        """
+        from .quality import (
+            StandardsComplianceEngine,
+        )
+        spec = StandardsComplianceSpec(
+            target_type=target_type,
+            target_id=target_id,
+            standard=standard,
+            target_evidence=target_evidence,
+            review_date=review_date,
+            notes=notes,
+        )
+        result = StandardsComplianceEngine().evaluate(spec)
+        rec = StandardsComplianceReport(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            target_type=result.target_type,
+            target_id=result.target_id,
+            standard=result.standard,
+            compliance_status=result.compliance_status.value,
+            report_date=_parse_iso(review_date),
+            source_citation=(
+                f"Standards Compliance ({result.compliance_status.value}) "
+                f"for standard {result.standard!r} on "
+                f"{result.target_type}/{result.target_id}"
+            ),
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            rec, actor_id, role_code, "STANDARDS_COMPLIANCE",
+            {
+                "target_type": target_type,
+                "target_id": target_id,
+                "standard": standard,
+                "compliance_status": result.compliance_status.value,
+                "human_approval_required": result.human_approval_required,
+            },
         )
         return rec
 

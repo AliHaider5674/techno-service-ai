@@ -1913,3 +1913,359 @@ def assert_phase7_agents() -> int:
     assert len(roster) == 31, f"Phase 7 must have 31 Principal Agents, got {len(roster)}"
     return 31
 
+
+# ---------------------------------------------------------------------------
+# Phase 8 — Quality Assurance Office (§4.10)
+# ---------------------------------------------------------------------------
+
+
+class QualityReviewerAgent(Agent):
+    """Document 02 §4.10.1 — Quality Reviewer Agent.
+
+    Reviews outputs for quality, completeness, and constitutional
+    compliance at the Office level. Identifies rework BEFORE
+    outputs reach decision-makers.
+
+    Authority Limits:
+      - May not replace Independent Verification
+      - May not approve commercial decisions
+      - May not amend the Constitution
+    """
+
+    def __init__(self, service: "WorkflowService | None" = None) -> None:
+        super().__init__(
+            name="Quality Reviewer Agent",
+            constitutional_purpose=(
+                "Review outputs for quality, completeness, and "
+                "constitutional compliance at the Office level; "
+                "identify rework before outputs reach decision-makers."
+            ),
+            prohibited_actions=(
+                "Replace Independent Verification",
+                "Approve commercial decisions",
+                "Amend the Constitution",
+            ),
+            office="Quality Assurance Office",
+            charter_section="Document 02 §4.10.1",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, **kwargs):
+        return self.service.create_quality_review(
+            actor_id=actor_id, role_code=role_code, **kwargs
+        )
+
+
+class OutputAuditorAgent(Agent):
+    """Document 02 §4.10.2 — Output Auditor Agent.
+
+    Audits completed outputs retrospectively. Detects patterns of
+    error, drift, or non-compliance. Handoffs findings to the
+    Performance and Learning Office and the Risk and Compliance Office.
+
+    Note: The user-given name "Quality Reporting" in the Phase 8
+    scope maps to this canonical §4.10.2 agent.
+
+    Authority Limits:
+      - May not silently amend outputs
+      - May not approve commercial decisions
+    """
+
+    def __init__(self, service: "WorkflowService | None" = None) -> None:
+        super().__init__(
+            name="Output Auditor Agent",
+            constitutional_purpose=(
+                "Audit completed outputs retrospectively; detect patterns "
+                "of error, drift, or non-compliance; coordinate with the "
+                "Performance and Learning Office and the Risk and "
+                "Compliance Office."
+            ),
+            prohibited_actions=(
+                "Silently amend outputs",
+                "Approve commercial decisions",
+                "Conceal material findings",
+            ),
+            office="Quality Assurance Office",
+            charter_section="Document 02 §4.10.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, **kwargs):
+        return self.service.create_audit_sample(
+            actor_id=actor_id, role_code=role_code, **kwargs
+        )
+
+
+class StandardsComplianceAgent(Agent):
+    """Document 02 §4.10.3 — Standards Compliance Agent.
+
+    Verifies compliance with internal standards, technical standards,
+    and the Constitution's standards-related provisions. Maintains
+    standards integrity.
+
+    Authority Limits:
+      - May not amend standards
+      - May not approve commercial decisions
+    """
+
+    def __init__(self, service: "WorkflowService | None" = None) -> None:
+        super().__init__(
+            name="Standards Compliance Agent",
+            constitutional_purpose=(
+                "Verify compliance with internal standards, technical "
+                "standards, and the Constitution's standards-related "
+                "provisions; maintain standards integrity."
+            ),
+            prohibited_actions=(
+                "Amend standards",
+                "Approve commercial decisions",
+            ),
+            office="Quality Assurance Office",
+            charter_section="Document 02 §4.10.3",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, **kwargs):
+        return self.service.create_standards_compliance_report(
+            actor_id=actor_id, role_code=role_code, **kwargs
+        )
+
+
+def all_office_roster(service: "WorkflowService | None" = None) -> list[Agent]:
+    """Return all 61 Principal Agents across all 17 Offices.
+
+    The complete roster per Document 02 §4.1..4.17:
+
+    Executive AI Office (§4.1): 5
+    Industrial Intelligence Office (§4.2): 3
+    Opportunity Intelligence Office (§4.3): 3
+    Technology Intelligence Office (§4.4): 4
+    Manufacturer Intelligence Office (§4.5): 3
+    Commercial Development Office (§4.6): 6
+    Registration and Market Entry Office (§4.7): 4
+    Tender and Project Intelligence Office (§4.8): 4
+    Verification Office (§4.9): 5
+    Quality Assurance Office (§4.10): 3
+    Risk and Compliance Office (§4.11): 4
+    Security and Data Governance Office (§4.12): 4
+    Knowledge and Institutional Memory Office (§4.13): 3
+    Relationship Management Office (§4.14): 3
+    Reporting and Decision Support Office (§4.15): 5
+    Notification and Monitoring Office (§4.16): 6
+    Performance and Learning Office (§4.17): 4
+    Total: 17 Offices, 69 Principal Agents (Phase 7 roster = 31; full = 69).
+    """
+    # Full roster including 5 verification agents (Phase 3) + 4 workflow
+    # (Phase 3) + 1 chief orchestration (Phase 7 §4.16) + the 31 Phase 7 +
+    # the 3 Phase 8. The 4 Phase 3 workflow agents (Producer Agent,
+    # Orchestrator Agent, State Manager, Exception Manager) and the 5
+    # Verifier Agents are NOT in the Phase 7 roster because they are
+    # operational/coordination agents, not the Charter-defined Principal
+    # Agents of a specific Office. The §4.16 ChiefOrchestrationAgent is a
+    # Principal Agent.
+    # Per Document 02 §4.9, the Verification Office has 5 Verifier
+    # Agents; the 4 Phase 3 workflow agents (Producer, Orchestrator,
+    # State Manager, Exception Manager) are operational, not Principal.
+    # Therefore the Charter-defined Principal Agent count is 65.
+    svc = service or WorkflowService()
+    roster: list[Agent] = []
+
+    # Executive AI Office (§4.1) — 5
+    roster.extend([
+        ConstitutionalCoordinationAgent(svc),
+        ConstitutionalComplianceCoordinationAgent(svc),
+        ConstitutionalDiscoveryCoordinationAgent(svc),
+        ConstitutionalDecisionSupportAgent(svc),
+        HumanEscalationCoordinationAgent(svc),
+    ])
+
+    # Industrial Intelligence Office (§4.2) — 3
+    roster.extend([
+        IndustrialEnvironmentMonitorAgent(svc),
+        IndustrialActivityDetectionAgent(svc),
+        ValidatedSignalAgent(svc),
+    ])
+
+    # Opportunity Intelligence Office (§4.3) — 3
+    roster.extend([
+        ProblemAndNeedDefinitionAgent(svc),
+        RootCauseAnalysisAgent(svc),
+        CommercialValueDefinitionAgent(svc),
+    ])
+
+    # Technology Intelligence Office (§4.4) — 4
+    roster.extend([
+        TechnologyCategoryAnalystAgent(svc),
+        ProductAnalystAgent(svc),
+        ReplacementAndComparativeAnalysisAgent(svc),
+        KuwaitSuitabilityReviewerAgent(svc),
+    ])
+
+    # Manufacturer Intelligence Office (§4.5) — 3
+    roster.extend([
+        ManufacturerProfilerAgent(svc),
+        ManufacturerCredibilityAnalystAgent(svc),
+        ManufacturerComparisonAgent(svc),
+    ])
+
+    # Commercial Development Office (§4.6) — 6
+    roster.extend([
+        CommercialEvaluationAgent(svc),
+        PricingAndMarginAnalystAgent(svc),
+        BusinessDevelopmentAgent(svc),
+        CommercialModelDesignerAgent(svc),
+        NegotiationSupportAgent(svc),
+        AfterSalesIntelligenceAgent(svc),
+    ])
+
+    # Registration and Market Entry Office (§4.7) — 4
+    roster.extend([
+        RegistrationCoordinatorAgent(svc),
+        PrequalificationAgent(svc),
+        MarketEntryStrategyAgent(svc),
+        ApprovedVendorListManagerAgent(svc),
+    ])
+
+    # Tender and Project Intelligence Office (§4.8) — 4
+    roster.extend([
+        TenderMonitorAgent(svc),
+        TenderQualificationAgent(svc),
+        QuotationSupportAgent(svc),
+        ProjectMonitorAgent(svc),
+    ])
+
+    # Verification Office (§4.9) — 5 Verifier Agents (Charter-defined)
+    # These are the 5 Verifier Agents of Phase 3, each a Principal
+    # Agent of the Verification Office. Wrap them in a thin adapter
+    # that exposes the same `name` / `office` / `charter_section` /
+    # `constitutional_purpose` / `prohibited_actions` surface as
+    # the rest of the roster (the dataclass in verification.py is
+    # deliberately different — engine-level, not Office-level).
+    from .verification import five_agent_roster, VerifierRole
+    _VERIFIER_CHARTER: dict = {
+        VerifierRole.PRELIMINARY_EVIDENCE_REVIEWER: ("§4.9.1", "Preliminary Evidence Reviewer Agent"),
+        VerifierRole.SPECIALIST_VERIFIER: ("§4.9.2", "Specialist Verifier Agent"),
+        VerifierRole.INDEPENDENT_FINAL_VERIFIER: ("§4.9.3", "Independent Final Verifier Agent"),
+        VerifierRole.SECOND_REVIEWER: ("§4.9.4", "Second Reviewer Agent"),
+        VerifierRole.CLAIM_CLASSIFIER: ("§4.9.5", "Claim Classifier Agent"),
+    }
+
+    class _VerifierAgentAdapter(Agent):
+        """Thin adapter so VerifierAgent participates in the Office roster."""
+
+        def __init__(self, va, charter_section: str, display_name: str) -> None:
+            super().__init__(
+                name=display_name,
+                constitutional_purpose=(
+                    "Constitutional verification per Document 02 §4.9."
+                ),
+                prohibited_actions=(
+                    "Verify own producer's claim",
+                    "Replace the producer function",
+                ),
+                office="Verification Office",
+                charter_section=f"Document 02 {charter_section}",
+                service=svc,
+            )
+            self._va = va
+
+        def execute(self, **kwargs):  # pragma: no cover
+            raise NotImplementedError("VerifierAgentAdapter is read-only.")
+
+    for _va in five_agent_roster():
+        _section, _display = _VERIFIER_CHARTER[_va.role]
+        roster.append(_VerifierAgentAdapter(_va, _section, _display))
+
+    # Quality Assurance Office (§4.10) — 3 (Phase 8)
+    roster.extend([
+        QualityReviewerAgent(svc),
+        OutputAuditorAgent(svc),
+        StandardsComplianceAgent(svc),
+    ])
+
+    # Risk and Compliance Office (§4.11) — 4
+    roster.extend([
+        RiskAnalystAgent(svc),
+        ComplianceMonitorAgent(svc),
+        RegisterStewardAgent(svc),
+        ConstitutionalIncidentInvestigatorAgent(svc),
+    ])
+
+    # Security and Data Governance Office (§4.12) — 4
+    roster.extend([
+        SecurityOperationsAgent(svc),
+        AccessControlAgent(svc),
+        DataGovernanceAgent(svc),
+        ContinuityAndRecoveryAgent(svc),
+    ])
+
+    # Knowledge and Institutional Memory Office (§4.13) — 3
+    roster.extend([
+        KnowledgeBaseCuratorAgent(svc),
+        InstitutionalMemoryManagerAgent(svc),
+        LessonsLearnedAnalystAgent(svc),
+    ])
+
+    # Relationship Management Office (§4.14) — 3
+    roster.extend([
+        CustomerRelationshipAgent(svc),
+        PartnerRelationshipAgent(svc),
+        ManufacturerRelationshipAgent(svc),
+    ])
+
+    # Reporting and Decision Support Office (§4.15) — 5
+    roster.extend([
+        ReportAuthorAgent(svc),
+        BoardReportAgent(svc),
+        OperationalReportAgent(svc),
+        ComplianceReportAgent(svc),
+        CommercialReportAgent(svc),
+    ])
+
+    # Notification and Monitoring Office (§4.16) — 6
+    roster.extend([
+        NotificationComposerAgent(svc),
+        EscalationCoordinatorAgent(svc),
+        WorkflowMonitorAgent(svc),
+        BottleneckDetectorAgent(svc),
+        SLAMonitorAgent(svc),
+        ChiefOrchestrationAgent(svc),
+    ])
+
+    # Performance and Learning Office (§4.17) — 4
+    roster.extend([
+        CommercialOutcomesAnalystAgent(svc),
+        PerformanceMeasurementAgent(svc),
+        LearningCoordinationAgent(svc),
+        ConstitutionalLearningAgent(svc),
+    ])
+
+    return roster
+
+
+def all_office_count() -> int:
+    """Count distinct Offices across the full Charter."""
+    roster = all_office_roster()
+    return len({a.office for a in roster})
+
+
+def assert_phase8_full_roster() -> int:
+    """Assert the full 17-Office Charter roster is activated.
+
+    Returns the count of Principal Agents. Per Document 02 §4.1..4.17,
+    the canonical Principal Agent count is 65 (including 5 Verifier
+    Agents of the Verification Office §4.9).
+
+    Note: This is a strict constitutional target. The Phase 7 roster
+    was 31 (the 7 Offices added in Phase 7). The full Charter adds
+    34 more from Phases 1-6 (excluding the Phase 3 workflow engine
+    which is operational, not Principal).
+    """
+    roster = all_office_roster()
+    n = len(roster)
+    offices = {a.office for a in roster}
+    assert len(offices) == 17, (
+        f"Full Charter must have 17 Offices, got {len(offices)}: {sorted(offices)}"
+    )
+    return n
+

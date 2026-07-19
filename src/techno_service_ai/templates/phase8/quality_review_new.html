@@ -1,0 +1,44 @@
+{% extends "phase8/base.html" %}
+{% block title %}New Quality Review{% endblock %}
+{% block content %}
+<h1>New Quality Review</h1>
+<p class="qa-meta">Document 02 §4.10.1 — applies quality criteria; identifies rework before outputs reach decision-makers.</p>
+
+{% if error %}<div class="qa-error">{{ error }}</div>{% endif %}
+
+<form method="post" action="/quality/review/new">
+  <div class="qa-form-row">
+    <label for="target_type">Target Type</label>
+    <input id="target_type" name="target_type" required placeholder="e.g. REPORT, TENDER, OPPORTUNITY" />
+  </div>
+  <div class="qa-form-row">
+    <label for="target_id">Target ID</label>
+    <input id="target_id" name="target_id" required />
+  </div>
+  <div class="qa-form-row">
+    <label for="verification_record_id">Verification Record ID</label>
+    <input id="verification_record_id" name="verification_record_id" required />
+  </div>
+  <div class="qa-form-row">
+    <label for="review_date">Review Date (ISO)</label>
+    <input id="review_date" name="review_date" required placeholder="2026-07-19" />
+  </div>
+  <div class="qa-form-row">
+    <label for="criterion_names">Criteria (one name per line)</label>
+    <textarea id="criterion_names" name="criterion_names" required placeholder="accuracy&#10;completeness&#10;constitutional_compliance"></textarea>
+  </div>
+  <div class="qa-form-row">
+    <label for="criterion_weights">Weights (one per line; sum to 1.0)</label>
+    <textarea id="criterion_weights" name="criterion_weights" required placeholder="0.4&#10;0.3&#10;0.3"></textarea>
+  </div>
+  <div class="qa-form-row">
+    <label for="criterion_statuses">Statuses (one per line; MET / NOT_MET / PARTIALLY_MET / NOT_APPLICABLE)</label>
+    <textarea id="criterion_statuses" name="criterion_statuses" required placeholder="MET&#10;MET&#10;MET"></textarea>
+  </div>
+  <div class="qa-form-row">
+    <label for="notes">Notes</label>
+    <textarea id="notes" name="notes"></textarea>
+  </div>
+  <button type="submit" style="padding:.5rem 1rem;background:#111827;color:#fff;border:none;border-radius:4px;">Create Quality Review</button>
+</form>
+{% endblock %}

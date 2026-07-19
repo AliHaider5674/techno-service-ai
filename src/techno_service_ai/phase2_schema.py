@@ -830,6 +830,33 @@ class StandardsComplianceReport(ConstitutionalMixin, Base):
     report_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class OutputAuditReport(ConstitutionalMixin, Base):
+    """ENT-QA-003 — Output Audit Report.
+
+    Produced by the Output Auditor Agent (Document 02 §4.10.2).
+    Records audit programme samples, findings, and corrective
+    action recommendations. Phase 8 constitutional correction —
+    the entity was declared in Document 02 §4.10.2 but missing
+    from the Phase 2 schema. Constitutional triggers (no in-place
+    update / no silent delete) are auto-installed.
+    """
+
+    __tablename__ = "output_audit_report"
+    __constitutional__ = True  # type: ignore[attr-defined]
+
+    sample_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    target_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    target_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    selection_method: Mapped[str] = mapped_column(String(32), nullable=False)
+    finding: Mapped[str] = mapped_column(Text, nullable=False)
+    corrective_action_recommended: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    pattern_detected: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    material_drift: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    constitutional_breach: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    human_approval_required: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    audit_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 # ---------------------------------------------------------------------------
 # Information Domain 13 — Risk and Compliance
 # ---------------------------------------------------------------------------

@@ -1,0 +1,36 @@
+{% extends "phase8/base.html" %}
+{% block title %}New Standards Compliance Report{% endblock %}
+{% block content %}
+<h1>New Standards Compliance Report</h1>
+<p class="qa-meta">Document 02 §4.10.3 — map outputs to standards; identify gaps. Material deviation triggers Human Approval.</p>
+
+{% if error %}<div class="qa-error">{{ error }}</div>{% endif %}
+
+<form method="post" action="/quality/standards/new">
+  <div class="qa-form-row">
+    <label for="target_type">Target Type</label>
+    <input id="target_type" name="target_type" required placeholder="e.g. REPORT" />
+  </div>
+  <div class="qa-form-row">
+    <label for="target_id">Target ID</label>
+    <input id="target_id" name="target_id" required />
+  </div>
+  <div class="qa-form-row">
+    <label for="standard">Standard</label>
+    <input id="standard" name="standard" required placeholder="e.g. ISO-9001:2015 / Constitution Article XX" />
+  </div>
+  <div class="qa-form-row">
+    <label for="target_evidence">Target Evidence</label>
+    <textarea id="target_evidence" name="target_evidence" placeholder="Notes on compliance. Use 'non-compliant' or 'violation' to flag a material deviation."></textarea>
+  </div>
+  <div class="qa-form-row">
+    <label for="review_date">Review Date (ISO)</label>
+    <input id="review_date" name="review_date" required placeholder="2026-07-19" />
+  </div>
+  <div class="qa-form-row">
+    <label for="notes">Notes</label>
+    <textarea id="notes" name="notes"></textarea>
+  </div>
+  <button type="submit" style="padding:.5rem 1rem;background:#111827;color:#fff;border:none;border-radius:4px;">Create Standards Compliance Report</button>
+</form>
+{% endblock %}

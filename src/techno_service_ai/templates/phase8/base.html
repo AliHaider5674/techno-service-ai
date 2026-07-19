@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Quality Assurance{% endblock %} · Techno Service AI</title>
+  <link rel="stylesheet" href="/static/app.css" />
+  <style>
+    .qa-card { background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:0.5rem 0; }
+    .qa-card h3 { margin:0 0 .5rem 0;font-size:1.05rem; }
+    .qa-meta { color:#6b7280;font-size:.85rem; }
+    .qa-badge { display:inline-block;padding:.15rem .5rem;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:.75rem;font-weight:600; }
+    .qa-error { background:#fee2e2;border:1px solid #fecaca;padding:.75rem;border-radius:6px;margin:.5rem 0;color:#991b1b; }
+    .qa-form-row { display:flex;flex-direction:column;margin:.5rem 0; }
+    .qa-form-row label { font-weight:600;margin-bottom:.25rem; }
+    .qa-form-row input, .qa-form-row textarea, .qa-form-row select { padding:.5rem;border:1px solid #d1d5db;border-radius:4px;font:inherit; }
+    .qa-form-row textarea { min-height:5rem; }
+    .qa-table { width:100%;border-collapse:collapse;margin:.5rem 0; }
+    .qa-table th, .qa-table td { padding:.5rem;border:1px solid #e5e7eb;text-align:left; }
+    .qa-table th { background:#f9fafb; }
+  </style>
+</head>
+<body>
+  <header style="background:#111827;color:#fff;padding:1rem;">
+    <a href="/home" style="color:#fff;text-decoration:none;font-weight:700;">Techno Service AI</a>
+    · <a href="/quality/" style="color:#9ca3af;">Quality Office</a>
+    {% if principal %}
+    <span style="float:right;color:#9ca3af;font-size:.9rem;">
+      {{ principal.display_name }}{% if principal.persona_label %} · {{ principal.persona_label }}{% endif %}
+    </span>
+    {% endif %}
+  </header>
+  <main style="max-width:1100px;margin:0 auto;padding:1rem;">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
