@@ -1,7 +1,7 @@
 # Constitutional Traceability
 
 **Project:** Techno Service AI Intelligence System
-**Phase:** 4 — Discovery Order Operational Surfaces (current phase)
+**Phase:** 5 — Manufacturer, Commercial, and Registration Offices (current phase)
 
 This matrix is the bidirectional trace between the implementation
 artefacts (Phase 1 + Phase 2) and the constitutional clauses / Lower
@@ -145,4 +145,29 @@ column is the constitutional source that authorises it.
 
 ---
 
-*End of Constitutional Traceability — Phase 4.*
+## C. Phase 5 — Manufacturer, Commercial, Registration Offices
+
+| Clause / AC | Test file(s) proving compliance |
+|---|---|
+| Article VIII §2 — Represented Principal at Commercial Gate | `test_phase5.py:test_register_compliance_rejects_non_represented_at_commercial_gate`, `test_register_compliance_cleared_for_represented_principal` |
+| Article VIII §3 — Conflict / Do-Not-Pursue rejected everywhere | `test_phase5.py:test_register_compliance_rejects_conflict_entity_everywhere` |
+| Article VIII §4 — Restricted / Prohibited rejected everywhere | `test_phase5.py:test_register_compliance_rejects_restricted_entity_everywhere` |
+| Article VIII — 3 Registers honored at every commercial gate (AC-P5-008) | `test_phase5.py:test_three_registers_honored_at_every_commercial_gate` |
+| Document 02 §4.5.1 — Manufacturer Profiler (no representation status alone) | `test_phase5.py:test_kuwait_representation_status_derived_from_register` |
+| Document 02 §4.5.2 — Credibility multi-dimensional (AC-P5-002) | `test_phase5.py:test_credibility_assessment_requires_all_six_dimensions` |
+| Document 02 §4.5.3 — Comparison multi-criteria, no selection (AC-P5-001) | `test_phase5.py:test_manufacturer_comparison_requires_multi_criteria`, `test_manufacturer_comparison_prohibits_selection` |
+| Document 02 §4.6.1 — Commercial Evaluation multi-dimensional + assumptions + uncertainty (AC-P5-004) | `test_phase5.py:test_commercial_evaluation_requires_seven_dimensions`, `test_commercial_evaluation_requires_assumptions`, `test_commercial_evaluation_requires_uncertainty` |
+| Document 02 §4.6.3 — BD engagement requires Human Approval (AC-P5-005) | `test_phase5.py:test_bd_engagement_requires_human_approval` |
+| Document 02 §4.6.3 — BD engagement requires register clearance (AC-P5-005) | `test_phase5.py:test_bd_engagement_requires_register_clearance` |
+| Document 02 §4.6.5 — Pricing margin floor | `test_phase5.py:test_pricing_below_floor_requires_human_approval` |
+| Document 02 §4.7.1 — Registration filing requires Human Approval (AC-P5-007) | `test_phase5.py:test_registration_filing_requires_human_approval` |
+| Document 02 §4.7.2 — Prequalification submission requires Human Approval | `test_phase5.py:test_prequalification_submission_requires_human_approval` |
+| Document 02 §4.7.3 — Market Entry multi-path, no selection | `test_phase5.py:test_market_entry_requires_two_path_options`, `test_market_entry_prohibits_path_selection` |
+| Document 06 §3.1 — Discovery Order S11..S18 walked end-to-end | `test_phase5.py:test_discovery_order_walk_s11_to_s18_creates_real_records`, `test_discovery_order_skip_rejected_in_phase5` |
+| 9 Principal Agents activated (3 Offices × 3 Agents) | `test_phase5.py:test_phase5_agent_roster_9_agents`, `test_phase5_three_offices_represented`, `test_phase5_agents_match_canonical_names` |
+| 16 Phase 5 routes registered + render | `tests/test_phase5_routes.py` (3 tests) |
+| Document 05 §3.9 — ENT-REG-004 MarketEntryOptions (Phase 5 schema addition) | `phase2_schema.py:MarketEntryOptionsReport`; `__constitutional__ = True`; BEFORE UPDATE/DELETE trigger auto-installed |
+
+---
+
+*End of Constitutional Traceability — Phase 5.*

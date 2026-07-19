@@ -1,0 +1,56 @@
+{% extends "phase5/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Credibility Assessment — Document 02 §4.5.2, AC-P5-002.</strong>
+  Multi-dimensional scorecard with 6 defined dimensions.
+  Single-dimension assessment is REJECTED.
+  ADVERSE / BELOW_THRESHOLD findings require Human Approval.
+</div>
+
+<h2>{{ mfr.manufacturer_name }} — Credibility Assessment</h2>
+
+<h3>The 6 defined dimensions</h3>
+<table>
+  <thead><tr><th>Dimension</th><th>Latest score</th></tr></thead>
+  <tbody>
+  {% for d in dimensions %}
+    <tr>
+      <td><code>{{ d }}</code></td>
+      <td>
+        {% if creds %}
+          {% set latest = creds[0] %}
+          {% if d == "financial_stability" %}{{ latest.financial_stability or "—" }}
+          {% elif d == "quality_systems" %}{{ latest.quality_systems or "—" }}
+          {% elif d == "delivery_track_record" %}{{ latest.delivery_track_record or "—" }}
+          {% elif d == "after_sales_capability" %}{{ latest.after_sales_capability or "—" }}
+          {% elif d == "references" %}{{ latest.references or "—" }}
+          {% elif d == "reputation" %}{{ latest.reputation or "—" }}
+          {% else %}—{% endif %}
+        {% else %}—{% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h3>Assessment history ({{ creds | length }})</h3>
+{% if creds %}
+<table>
+  <thead><tr><th>Date</th><th>Overall classification</th><th>Source</th></tr></thead>
+  <tbody>
+  {% for c in creds %}
+    <tr>
+      <td>{{ c.assessment_date }}</td>
+      <td><span class="badge {{ c.overall_classification | lower }}">{{ c.overall_classification }}</span></td>
+      <td>{{ c.source_citation or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No credibility assessments yet. The Manufacturer Credibility
+  Analyst Agent (§4.5.2) creates the first assessment when invoked.</p>
+{% endif %}
+
+<p><a href="/manufacturers/{{ mfr.id }}">← Back to Workspace</a></p>
+{% endblock %}

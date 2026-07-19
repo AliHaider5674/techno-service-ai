@@ -1,0 +1,33 @@
+{% extends "phase5/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Business Development — Document 02 §4.6.3, AC-P5-005.</strong>
+  Every External Communication requires Human Approval (Article XII)
+  AND a clear register check (Article VIII).
+  Unauthorised contact is constitutionally PROHIBITED.
+</div>
+
+<h2>BD Engagements — Opportunity {{ opp_id }}</h2>
+{% if opp %}
+<p><strong>Opportunity:</strong> {{ opp.opportunity_title }} (status: {{ opp.intelligence_status }})</p>
+{% endif %}
+
+{% if engagements %}
+<table>
+  <thead><tr><th>Date</th><th>Type</th><th>Counterpart</th><th>Summary</th><th>Source</th></tr></thead>
+  <tbody>
+  {% for e in engagements %}
+    <tr>
+      <td>{{ e.engagement_date }}</td>
+      <td>{{ e.engagement_type }}</td>
+      <td>{{ e.counterpart or "—" }}</td>
+      <td>{{ e.summary or "—" }}</td>
+      <td>{{ e.source_citation or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No BD engagement records yet for this opportunity.</p>
+{% endif %}
+{% endblock %}

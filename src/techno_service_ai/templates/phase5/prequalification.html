@@ -1,0 +1,28 @@
+{% extends "phase5/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Prequalification — Document 02 §4.7.2.</strong>
+  Maintains prequalification with customers and authorities.
+  Submissions (status=QUALIFIED) require Human Approval.
+</div>
+
+<h2>Prequalification Status Reports ({{ qualifications | length }})</h2>
+
+{% if qualifications %}
+<table>
+  <thead><tr><th>Authority</th><th>Status</th><th>Notes</th><th>Created</th></tr></thead>
+  <tbody>
+  {% for q in qualifications %}
+    <tr>
+      <td>{{ q.authority }}</td>
+      <td><span class="badge {{ q.status | lower }}">{{ q.status }}</span></td>
+      <td>{{ q.notes or "—" }}</td>
+      <td>{{ q.created_at }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No prequalification records yet.</p>
+{% endif %}
+{% endblock %}

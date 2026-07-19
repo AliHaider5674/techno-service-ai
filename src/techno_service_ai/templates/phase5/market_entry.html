@@ -1,0 +1,36 @@
+{% extends "phase5/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Market Entry — Document 02 §4.7.3.</strong>
+  Multi-path market-entry options. The Agent does NOT select a path.
+  Selection is a Human Authority decision. At least 2 path options
+  are required.
+</div>
+
+<h2>Market Entry Options — Opportunity {{ opp_id }}</h2>
+{% if opp %}
+<p><strong>Opportunity:</strong> {{ opp.opportunity_title }}</p>
+{% endif %}
+
+{% if options %}
+  {% for o in options %}
+  <div class="zone">
+    <div class="ztitle">Options Report — {{ o.report_date }}</div>
+    <p><strong>Path options:</strong> {{ o.options_set }}</p>
+    <p><strong>Stakeholder map:</strong> {{ o.stakeholder_map }}</p>
+    <p><strong>Risk map:</strong> {{ o.risk_map }}</p>
+    <p><strong>Selected path (set ONLY by Human Approval):</strong>
+      {% if o.selected_path %}
+        <span class="register-ok">{{ o.selected_path }}</span>
+      {% else %}
+        <span class="empty">None — vendor-neutral, awaiting human decision</span>
+      {% endif %}
+    </p>
+    <p><strong>Source:</strong> {{ o.source_citation or "—" }}</p>
+  </div>
+  {% endfor %}
+{% else %}
+<p class="empty">No market entry options report yet. The Market
+  Entry Strategy Agent (§4.7.3) creates the first one when invoked.</p>
+{% endif %}
+{% endblock %}

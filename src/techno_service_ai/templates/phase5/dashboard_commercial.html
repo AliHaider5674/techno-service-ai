@@ -1,0 +1,67 @@
+{% extends "phase5/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Commercial Intelligence Dashboard — Document 02 §4.6 + §4.7.</strong>
+  The KPIs reflect real data from the Commercial Development Office
+  and the Registration and Market Entry Office.
+</div>
+
+<div class="kpi"><div class="n">{{ evaluations | length }}</div><div class="label">Commercial evaluations</div></div>
+<div class="kpi"><div class="n">{{ pricing | length }}</div><div class="label">Pricing analyses</div></div>
+<div class="kpi"><div class="n">{{ engagements | length }}</div><div class="label">BD engagements</div></div>
+<div class="kpi"><div class="n">{{ registrations | length }}</div><div class="label">Registration records</div></div>
+
+<h3>Recent Commercial Evaluations</h3>
+{% if evaluations %}
+<table>
+  <thead><tr><th>Date</th><th>Opportunity</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for e in evaluations[:20] %}
+    <tr>
+      <td>{{ e.evaluation_date }}</td>
+      <td><a href="/commercial/quotation/{{ e.opportunity_id }}">{{ e.opportunity_id }}</a></td>
+      <td><span class="badge {{ e.status | lower }}">{{ e.status }}</span></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No commercial evaluations yet.</p>
+{% endif %}
+
+<h3>Recent BD Engagements</h3>
+{% if engagements %}
+<table>
+  <thead><tr><th>Date</th><th>Type</th><th>Counterpart</th></tr></thead>
+  <tbody>
+  {% for e in engagements[:20] %}
+    <tr>
+      <td>{{ e.engagement_date }}</td>
+      <td>{{ e.engagement_type }}</td>
+      <td>{{ e.counterpart or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No BD engagements yet.</p>
+{% endif %}
+
+<h3>Recent Registration Records</h3>
+{% if registrations %}
+<table>
+  <thead><tr><th>Type</th><th>Authority</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for r in registrations[:20] %}
+    <tr>
+      <td>{{ r.registration_type }}</td>
+      <td>{{ r.authority }}</td>
+      <td><span class="badge {{ r.status | lower }}">{{ r.status }}</span></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No registration records yet.</p>
+{% endif %}
+{% endblock %}

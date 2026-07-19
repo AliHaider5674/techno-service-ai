@@ -1,10 +1,10 @@
 # Implementation Gap Register
 
 **Project:** Techno Service AI Intelligence System
-**Phase:** 2 — Data Foundation (current phase)
+**Phase:** 5 — Manufacturer, Commercial, and Registration Offices (current phase)
 **Document Reference:** TS-AI-IGP-001
 **Governing Authority:** Constitution v2.3
-**Status:** Issued for the Phase 2 release
+**Status:** Issued for the Phase 5 release
 
 This register is the single source of truth for everything the approved
 documents do not say, that affects the current phase. Per Constitution
@@ -195,7 +195,61 @@ routed to a Decision Register entry.
   Commercial, Registration agents (S11-S18). Phase 6 activates
   Tender, Project, Knowledge agents (S19-S24).
 - **Human Approval Required:** `No`.
+- **Status:** `Open` (carried forward to Phase 5).
+
+---
+
+## Phase 5 Gaps
+
+### GAP-PHASE5-001 — DecisionLogEntry field-name mismatch
+
+- **Description:** The `phase2_schema.DecisionLogEntry` model has
+  fields `target_type` / `target_id` / `decision` (and the inherited
+  ConstitutionalMixin fields). The existing
+  `log_service.LogService.write_decision_log` calls
+  `DecisionLogEntry(decision_summary=..., rationale=..., conditions=...,
+  related_approval_id=..., opportunity_canonical_id=...)` — these
+  fields do not exist on the schema model.
+- **Impact:** `Low` for Phase 5 (the Phase 5 walker S13/S14/S15
+  invocations record stage completion in the walker's own state,
+  bypassing the LogService). `Medium` for future phases that need
+  to write rich Decision Log entries from the engine layer.
+- **Recommended resolution:** Phase 6 reconciles the schema and the
+  LogService. Either the schema is extended with the missing fields,
+  or the LogService is rewritten to use the schema's field names.
+- **Human Approval Required:** `No` (operational, not constitutional).
 - **Status:** `Open`.
+
+### GAP-PHASE5-002 — Walker S13/S14/S15 placeholders
+
+- **Description:** The `DiscoveryOrderWalker` S13, S14, S15
+  invocations are thin placeholders. The underlying engines
+  (Phase 3 verification, approval) exist; the placeholder methods
+  record stage completion in the walker state but do not write
+  Decision Log entries (because of GAP-PHASE5-001).
+- **Impact:** `Low` for the Discovery Order walk test (the
+  walk completes and produces real records). `Medium` for
+  audit traceability of the S13-S15 decisions.
+- **Recommended resolution:** Phase 6 wires the Phase 3 engines
+  to write Decision Log entries (closes GAP-PHASE5-001 first).
+- **Human Approval Required:** `No`.
+- **Status:** `Open` (depends on GAP-PHASE5-001).
+
+### GAP-PHASE5-003 — 4 Agents deferred to Phase 6+
+
+- **Description:** Document 02 §4.6 lists 6 Commercial Development
+  Principal Agents and §4.7 lists 4 Registration/Market Entry
+  Principal Agents. Phase 5 activates 3 of each. The remaining
+  4 — Commercial Model Designer (§4.6.2), Negotiation Support
+  (§4.6.4), After-Sales Intelligence (§4.6.6), Approved Vendor
+  List Manager (§4.7.4) — are deferred to Phase 6.
+- **Impact:** `Cosmetic` for the Phase 5 AC (the 3-of-N selection
+  is HD-PHASE5-001, acknowledged by the user). `Major` for the
+  full Office coverage.
+- **Recommended resolution:** Phase 6 activates the remaining
+  Commercial Development and Registration agents.
+- **Human Approval Required:** `No`.
+- **Status:** `Open` (deferred to Phase 6).
 
 ---
 
@@ -207,6 +261,8 @@ routed to a Decision Register entry.
 | GAP-PHASE3-001 | Engine service-layer wiring | Phase 4 implements WorkflowService + DiscoveryOrderWalker. |
 | GAP-PHASE3-002 | ORCH-COND path | Phase 4 implements ORCHCONDEngine with 4 omission types. |
 | GAP-PHASE3-003 | Decision Log / Handoff Log / Escalation Log wiring | Phase 4 implements LogService for the 3 Log entities. |
+| GAP-PHASE4-001 | Notification / Handoff service layers for Stages 11+ | Phase 5 carries this forward; the engines are in place; service-layer wiring is partial. |
+| GAP-PHASE4-002 | 24-stage walk currently ends at S10 | Phase 5 extends the walker to S11..S18. S19..S24 deferred to Phase 6. |
 
 ---
 

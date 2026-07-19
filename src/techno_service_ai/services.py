@@ -24,23 +24,68 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from . import audit
+from .commercial import (
+    BDEngagementMissingApprovalError,
+    BDEngagementSpec,
+    CommercialDimensionScore,
+    CommercialEngine,
+    CommercialEvaluationMissingAssumptionsError,
+    CommercialEvaluationSpec,
+    EngagementType,
+    PricingAnalysisSpec,
+)
 from .db import SessionLocal
 from .log_service import LogService
+from .manufacturer import (
+    CredibilityAssessmentSpec,
+    CredibilityDimensionScore,
+    KuwaitRepresentationStatus,
+    ManufacturerComparisonSpec,
+    ManufacturerEngine,
+    ManufacturerProfileSpec,
+    ScoreLevel,
+)
 from .phase2_schema import (
+    BusinessDevelopmentEngagement,
+    CommercialEvaluation,
     ComparativeAnalysis,
+    ConflictDoNotPursueEntity,
     ConstitutionalMixin,
     EnvironmentalUpdate,
     IndustrialActivity,
     IndustrialEnvironmentProfile,
     KuwaitSuitabilityReview,
+    ManufacturerComparisonReport,
+    ManufacturerCredibilityAssessment,
+    ManufacturerProfile,
+    MarketEntryOptionsReport,
     Opportunity,
+    PrequalificationStatusReport,
     PreliminaryReview,
+    PricingAnalysis,
     ProblemOrNeed,
     ProductAnalysis,
+    RepresentedPrincipal,
+    RegistrationStatusReport,
+    RestrictedProhibitedEntity,
     RootCause,
     TechnologyCategoryAnalysis,
     ValidatedSignal,
     ValueCase,
+)
+from .register_compliance import (
+    GateKind,
+    RegisterCheckResult,
+    RegisterComplianceEngine,
+    RegisterEntry,
+)
+from .registration import (
+    MarketEntryOptionsSpec,
+    PrequalificationStatusReportSpec,
+    PrequalificationStatus,
+    RegistrationEngine,
+    RegistrationStatusReportSpec,
+    RegistrationStatus,
 )
 from .schema import User
 from .vqr import ImprovementEvidence, VQRClassification, VQREngine, VQRResult
@@ -74,6 +119,10 @@ class WorkflowService:
 
     def __init__(self) -> None:
         self.vqr_engine = VQREngine()
+        self.manufacturer_engine = ManufacturerEngine()
+        self.commercial_engine = CommercialEngine()
+        self.registration_engine = RegistrationEngine()
+        self.register_engine = RegisterComplianceEngine()
 
     # -----------------------------------------------------------------
     # Industrial Intelligence (S01-S03)
@@ -550,6 +599,609 @@ class WorkflowService:
                     "ksr_recorded": ksr_recorded,
                 },
             )
+
+    # -----------------------------------------------------------------
+    # Manufacturer Intelligence (S11) — Phase 5
+    # -----------------------------------------------------------------
+
+    def create_manufacturer_profile(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        manufacturer_name: str,
+        profile_date: Optional[str] = None,
+        ownership: str = "",
+        certifications: str = "",
+        production_capacity: str = "",
+        references: str = "",
+        quality_indicators: str = "",
+        after_sales_capability: str = "",
+        global_reputation: str = "",
+        source_citation: str = "",
+    ) -> ManufacturerProfile:
+        """Stage 11 — Manufacturer Profiler Agent (§4.5.1).
+
+        Creates a ManufacturerProfile (ENT-MAN-001). The Agent does NOT
+        declare representation status (Article VIII §2) — that is
+        determined by the Register Compliance Engine.
+        """
+        spec = ManufacturerProfileSpec(
+            manufacturer_name=manufacturer_name,
+            profile_date=profile_date or _now().isoformat(),
+            source_citation=source_citation or f"Manufacturer profile: {manufacturer_name}",
+            ownership=ownership,
+            certifications=certifications,
+            production_capacity=production_capacity,
+            references=references,
+            quality_indicators=quality_indicators,
+            after_sales_capability=after_sales_capability,
+            global_reputation=global_reputation,
+        )
+        self.manufacturer_engine.validate_profile(spec)
+        m = ManufacturerProfile(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            manufacturer_name=manufacturer_name,
+            ownership=ownership or None,
+            certifications=certifications or None,
+            production_capacity=production_capacity or None,
+            references=references or None,
+            quality_indicators=quality_indicators or None,
+            after_sales_capability=after_sales_capability or None,
+            global_reputation=global_reputation or None,
+            profile_date=_now(),
+            register_reference="UNRESOLVED",  # Set by Register Compliance check.
+            active=True,
+            source_citation=source_citation or f"Manufacturer profile: {manufacturer_name}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(m, actor_id, role_code, "MANUFACTURER_PROFILE", {"stage": "S11"})
+        return m
+
+    def create_credibility_assessment(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        manufacturer_id: str,
+        dimension_scores: dict[str, str],
+        rationale_per_dimension: Optional[dict[str, str]] = None,
+        source_citation: str = "",
+    ) -> ManufacturerCredibilityAssessment:
+        """Stage 11 — Manufacturer Credibility Analyst Agent (§4.5.2).
+
+        Creates a ManufacturerCredibilityAssessment (ENT-MAN-002). A
+        multi-dimensional scorecard is REQUIRED — single-dimension
+        assessment is a Failure Condition (AC-P5-002).
+        """
+        rationale_per_dimension = rationale_per_dimension or {}
+        scores = tuple(
+            CredibilityDimensionScore(
+                dimension=name,
+                score=ScoreLevel(level.upper()),
+                source_citation=source_citation or f"Score for {name}",
+                rationale=rationale_per_dimension.get(name, ""),
+            )
+            for name, level in dimension_scores.items()
+        )
+        spec = CredibilityAssessmentSpec(
+            manufacturer_id=manufacturer_id,
+            assessment_date=_now().isoformat(),
+            source_citation=source_citation or "Multi-dimensional Credibility Assessment",
+            dimensions=scores,
+        )
+        result = self.manufacturer_engine.evaluate_credibility(spec)
+        # The engine has already validated the multi-dimensional requirement.
+        # Map the result to the schema. The 6 fields map 1:1.
+        dim_map = {d.dimension: d.score.value for d in result.dimension_scores}
+        c = ManufacturerCredibilityAssessment(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            manufacturer_id=manufacturer_id,
+            financial_stability=dim_map.get("financial_stability"),
+            quality_systems=dim_map.get("quality_systems"),
+            delivery_track_record=dim_map.get("delivery_track_record"),
+            after_sales_capability=dim_map.get("after_sales_capability"),
+            references=dim_map.get("references"),
+            reputation=dim_map.get("reputation"),
+            assessment_date=_now(),
+            overall_classification=result.overall_classification.value,
+            source_citation=source_citation or "Credibility Assessment",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            c, actor_id, role_code, "CREDIBILITY_ASSESSMENT",
+            {
+                "stage": "S11",
+                "manufacturer_id": manufacturer_id,
+                "overall_classification": result.overall_classification.value,
+                "requires_human_approval": result.requires_human_approval,
+            },
+        )
+        return c
+
+    def create_manufacturer_comparison(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        opportunity_id: str,
+        manufacturer_ids: list[str],
+        criteria: list[str],
+        trade_offs: str,
+        recommended_manufacturer_id: Optional[str] = None,
+        recommended_manufacturer_name: Optional[str] = None,
+        comparison_summary: str = "",
+        source_citation: str = "",
+    ) -> ManufacturerComparisonReport:
+        """Stage 11 — Manufacturer Comparison Agent (§4.5.3).
+
+        Creates a ManufacturerComparisonReport (ENT-MAN-003). The
+        Agent does NOT select a Manufacturer — that is a Human
+        Authority decision.
+        """
+        spec = ManufacturerComparisonSpec(
+            opportunity_id=opportunity_id,
+            manufacturer_ids=tuple(manufacturer_ids),
+            criteria=tuple(criteria),
+            trade_offs=trade_offs,
+            comparison_date=_now().isoformat(),
+            source_citation=source_citation or "Multi-criteria Manufacturer Comparison",
+            recommended_manufacturer_id=recommended_manufacturer_id,
+            recommended_manufacturer_name=recommended_manufacturer_name,
+            comparison_summary=comparison_summary,
+        )
+        self.manufacturer_engine.validate_comparison(spec)
+        c = ManufacturerComparisonReport(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            opportunity_id=opportunity_id,
+            comparison_summary=comparison_summary or f"Comparison across {len(criteria)} criteria, {len(manufacturer_ids)} manufacturers.",
+            recommended_manufacturer_id=recommended_manufacturer_id,
+            recommended_manufacturer_name=recommended_manufacturer_name,
+            comparison_date=_now(),
+            source_citation=source_citation or "Manufacturer Comparison Report",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            c, actor_id, role_code, "MANUFACTURER_COMPARISON",
+            {"stage": "S11", "opportunity_id": opportunity_id, "criteria_count": len(criteria)},
+        )
+        return c
+
+    def get_kuwait_representation_status(
+        self, *, manufacturer_id: str, manufacturer_name: str
+    ) -> KuwaitRepresentationStatus:
+        """Determine the Kuwait Representation status of a Manufacturer.
+
+        Per Document 02 §4.5.1 Authority Limits: the Manufacturer
+        Profiler Agent may NOT declare representation status alone.
+        The status is derived from the Represented Principals register.
+        """
+        entries = self._query_register_entries_for_entity(
+            entity_id=manufacturer_id, entity_name=manufacturer_name
+        )
+        return ManufacturerEngine.kuwait_representation_status(
+            manufacturer_id=manufacturer_id, register_entries=entries
+        )
+
+    # -----------------------------------------------------------------
+    # Register Compliance Gate (Article VIII) — Phase 5
+    # -----------------------------------------------------------------
+
+    def _query_register_entries_for_entity(
+        self, *, entity_id: str, entity_name: str
+    ) -> tuple[RegisterEntry, ...]:
+        """Query the three registers for entries matching the entity.
+
+        Returns a tuple of RegisterEntry values for the engine. The
+        match is by id (preferred) OR by name (for name-only entries).
+        """
+        entries: list[RegisterEntry] = []
+        with SessionLocal() as s:
+            # Represented Principals
+            rps = s.query(RepresentedPrincipal).all()
+            for r in rps:
+                if (r.manufacturer_id == entity_id) or (r.brand == entity_name and r.manufacturer_id is None):
+                    entries.append(RegisterEntry(
+                        entity_id=r.manufacturer_id,
+                        entity_name=r.brand,
+                        register_kind="REPRESENTED_PRINCIPAL",
+                        status=r.status,
+                        effective_to=r.effective_to,
+                        reason=r.reason or "",
+                    ))
+            # Conflict
+            conflicts = s.query(ConflictDoNotPursueEntity).all()
+            for c in conflicts:
+                if (c.entity_id == entity_id) or (c.entity_name == entity_name and c.entity_id is None):
+                    entries.append(RegisterEntry(
+                        entity_id=c.entity_id,
+                        entity_name=c.entity_name,
+                        register_kind="CONFLICT",
+                        status=c.status,
+                        effective_to=c.effective_to,
+                        reason=c.reason or "",
+                    ))
+            # Restricted
+            restricted = s.query(RestrictedProhibitedEntity).all()
+            for r in restricted:
+                if (r.entity_id == entity_id) or (r.entity_name == entity_name and r.entity_id is None):
+                    entries.append(RegisterEntry(
+                        entity_id=r.entity_id,
+                        entity_name=r.entity_name,
+                        register_kind="RESTRICTED",
+                        status=r.status,
+                        effective_to=r.effective_to,
+                        reason=r.reason or "",
+                    ))
+        return tuple(entries)
+
+    def check_register_compliance(
+        self,
+        *,
+        entity_id: str,
+        entity_name: str,
+        gate: GateKind,
+    ) -> RegisterCheckResult:
+        """Run the Register Compliance check at the given gate.
+
+        Returns a RegisterCheckResult. The Service Layer's caller is
+        expected to call `raise_for_rejection` on the result to enforce
+        the rejection at the gate.
+        """
+        entries = self._query_register_entries_for_entity(
+            entity_id=entity_id, entity_name=entity_name
+        )
+        return self.register_engine.check(
+            entity_id=entity_id,
+            entity_name=entity_name,
+            register_entries=entries,
+            gate=gate,
+        )
+
+    # -----------------------------------------------------------------
+    # Commercial Development (S12, S16) — Phase 5
+    # -----------------------------------------------------------------
+
+    def create_commercial_evaluation(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        opportunity_id: str,
+        dimension_scores: dict[str, str],
+        assumptions: str,
+        uncertainty: str,
+        margin_estimate: str = "",
+        pricing_basis: str = "",
+        source_citation: str = "",
+    ) -> CommercialEvaluation:
+        """Stage 12 — Commercial Evaluation Agent (§4.6.1).
+
+        Creates a CommercialEvaluation (ENT-COM-001). A multi-dimensional
+        scorecard with assumptions and uncertainty is REQUIRED.
+        """
+        scores = tuple(
+            CommercialDimensionScore(dimension=name, score=level, rationale="")
+            for name, level in dimension_scores.items()
+        )
+        spec = CommercialEvaluationSpec(
+            opportunity_id=opportunity_id,
+            evaluation_date=_now().isoformat(),
+            source_citation=source_citation or "Commercial Evaluation",
+            dimensions=scores,
+            assumptions=assumptions,
+            uncertainty=uncertainty,
+            margin_estimate=margin_estimate,
+            pricing_basis=pricing_basis,
+        )
+        result = self.commercial_engine.evaluate(spec)
+        c = CommercialEvaluation(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            opportunity_id=opportunity_id,
+            commercial_case_description=source_citation or "Commercial Evaluation",
+            margin_estimate=margin_estimate or None,
+            pricing_basis=pricing_basis or None,
+            evaluation_date=_now(),
+            status=result.overall_viability.value,
+            source_citation=source_citation or "Commercial Evaluation",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            c, actor_id, role_code, "COMMERCIAL_EVALUATION",
+            {
+                "stage": "S12",
+                "opportunity_id": opportunity_id,
+                "viability": result.overall_viability.value,
+            },
+        )
+        return c
+
+    def create_pricing_analysis(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        opportunity_id: str,
+        pricing_basis: str,
+        margin_scenarios: str,
+        margin_floor: Optional[float] = None,
+        source_citation: str = "",
+    ) -> PricingAnalysis:
+        """Stage 12 — Pricing and Margin Analyst Agent (§4.6.5).
+
+        Creates a PricingAnalysis (ENT-COM-005). If `margin_floor` is
+        given, the proposed margin is checked. Below the floor
+        requires Human Approval.
+        """
+        spec = PricingAnalysisSpec(
+            opportunity_id=opportunity_id,
+            analysis_date=_now().isoformat(),
+            source_citation=source_citation or "Pricing Analysis",
+            pricing_basis=pricing_basis,
+            margin_scenarios=margin_scenarios,
+            margin_floor=margin_floor,
+        )
+        result = self.commercial_engine.evaluate_pricing(spec)
+        p = PricingAnalysis(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            opportunity_id=opportunity_id,
+            pricing_basis=pricing_basis or None,
+            margin_scenarios=margin_scenarios or None,
+            analysis_date=_now(),
+            source_citation=source_citation or "Pricing Analysis",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            p, actor_id, role_code, "PRICING_ANALYSIS",
+            {
+                "stage": "S12",
+                "opportunity_id": opportunity_id,
+                "status": result.status.value,
+                "requires_human_approval": result.requires_human_approval,
+            },
+        )
+        return p
+
+    def create_bd_engagement(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        opportunity_id: str,
+        engagement_type: str,
+        counterpart: str,
+        summary: str,
+        counterpart_entity_id: Optional[str] = None,
+        counterpart_entity_name: Optional[str] = None,
+        human_approval_id: Optional[str] = None,
+        source_citation: str = "",
+    ) -> BusinessDevelopmentEngagement:
+        """Stage 16 — Business Development Agent (§4.6.3).
+
+        Creates a BusinessDevelopmentEngagement (ENT-COM-003). REQUIRES:
+          (a) Human Approval reference (Constitution Article XII).
+          (b) Register Compliance clearance (Constitution Article VIII).
+
+        A non-Represented Principal at the Commercial Gate → REJECTED.
+        A Restricted or Conflict entity → REJECTED everywhere.
+        """
+        # Run the register check on the counterpart.
+        register_outcome_value = "CLEARED"
+        if counterpart_entity_id or counterpart_entity_name:
+            try:
+                result = self.check_register_compliance(
+                    entity_id=counterpart_entity_id or "",
+                    entity_name=counterpart_entity_name or counterpart,
+                    gate=GateKind.COMMERCIAL,
+                )
+                register_outcome_value = result.outcome.value
+                from .register_compliance import raise_for_rejection
+                raise_for_rejection(result)
+            except Exception:
+                # The register check raised — the BD engagement is blocked.
+                raise
+
+        # Verify the human approval reference and register outcome.
+        spec = BDEngagementSpec(
+            opportunity_id=opportunity_id,
+            engagement_type=EngagementType(engagement_type.upper()),
+            counterpart=counterpart,
+            summary=summary,
+            engagement_date=_now().isoformat(),
+            human_approval_id=human_approval_id,
+            register_outcome=register_outcome_value,
+        )
+        self.commercial_engine.evaluate_engagement(spec)
+        e = BusinessDevelopmentEngagement(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            opportunity_id=opportunity_id,
+            engagement_type=engagement_type.upper(),
+            counterpart=counterpart,
+            summary=summary,
+            engagement_date=_now(),
+            source_citation=source_citation or f"BD Engagement: {engagement_type} with {counterpart}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            e, actor_id, role_code, "BD_ENGAGEMENT",
+            {
+                "stage": "S16",
+                "opportunity_id": opportunity_id,
+                "human_approval_id": human_approval_id,
+                "register_outcome": register_outcome_value,
+            },
+        )
+        return e
+
+    # -----------------------------------------------------------------
+    # Registration and Market Entry (S17, S18) — Phase 5
+    # -----------------------------------------------------------------
+
+    def create_registration_status(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        opportunity_id: str,
+        registration_type: str,
+        authority: str,
+        status: str,
+        notes: str = "",
+        human_approval_id: Optional[str] = None,
+        source_citation: str = "",
+    ) -> RegistrationStatusReport:
+        """Stage 17 — Registration Coordinator Agent (§4.7.1).
+
+        Creates a RegistrationStatusReport (ENT-REG-001). A filing
+        (status=REGISTERED) REQUIRES Human Approval.
+        """
+        spec = RegistrationStatusReportSpec(
+            opportunity_id=opportunity_id,
+            registration_type=registration_type,
+            authority=authority,
+            status=RegistrationStatus(status.upper()),
+            notes=notes,
+            human_approval_id=human_approval_id,
+        )
+        result = self.registration_engine.evaluate_registration(spec)
+        r = RegistrationStatusReport(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            opportunity_id=opportunity_id,
+            registration_type=registration_type,
+            authority=authority,
+            status=result.status.value,
+            notes=notes or None,
+            source_citation=source_citation or f"Registration: {registration_type} / {authority}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            r, actor_id, role_code, "REGISTRATION_STATUS",
+            {
+                "stage": "S17",
+                "opportunity_id": opportunity_id,
+                "registration_type": registration_type,
+                "status": result.status.value,
+                "requires_human_approval": result.requires_human_approval,
+            },
+        )
+        return r
+
+    def create_prequalification_status(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        opportunity_id: str,
+        authority: str,
+        status: str,
+        notes: str = "",
+        human_approval_id: Optional[str] = None,
+        source_citation: str = "",
+    ) -> PrequalificationStatusReport:
+        """Stage 17 — Prequalification Agent (§4.7.2).
+
+        Creates a PrequalificationStatusReport (schema ENT-REG-003,
+        canonical ENT-REG-002). A submission (status=QUALIFIED) REQUIRES
+        Human Approval.
+        """
+        spec = PrequalificationStatusReportSpec(
+            opportunity_id=opportunity_id,
+            authority=authority,
+            status=PrequalificationStatus(status.upper()),
+            notes=notes,
+            human_approval_id=human_approval_id,
+        )
+        result = self.registration_engine.evaluate_prequalification(spec)
+        p = PrequalificationStatusReport(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            opportunity_id=opportunity_id,
+            authority=authority,
+            status=result.status.value,
+            notes=notes or None,
+            source_citation=source_citation or f"Prequalification: {authority}",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            p, actor_id, role_code, "PREQUALIFICATION_STATUS",
+            {
+                "stage": "S17",
+                "opportunity_id": opportunity_id,
+                "authority": authority,
+                "status": result.status.value,
+                "requires_human_approval": result.requires_human_approval,
+            },
+        )
+        return p
+
+    def create_market_entry_options(
+        self,
+        *,
+        actor_id: str,
+        role_code: str,
+        opportunity_id: str,
+        options: list[str],
+        stakeholder_map: str,
+        risk_map: str,
+        manufacturer_id: Optional[str] = None,
+        source_citation: str = "",
+    ) -> MarketEntryOptionsReport:
+        """Stage 18 — Market Entry Strategy Agent (§4.7.3).
+
+        Creates a MarketEntryOptionsReport (ENT-REG-004 / schema
+        ENT-REG-005). At least 2 path options REQUIRED. The Agent
+        does NOT select a path.
+        """
+        spec = MarketEntryOptionsSpec(
+            opportunity_id=opportunity_id,
+            manufacturer_id=manufacturer_id,
+            options_set=tuple(options),
+            stakeholder_map=stakeholder_map,
+            risk_map=risk_map,
+            report_date=_now().isoformat(),
+            source_citation=source_citation or "Market Entry Options",
+            selected_path=None,
+        )
+        result = self.registration_engine.evaluate_market_entry(spec)
+        import json
+        m = MarketEntryOptionsReport(
+            id=_uuid(),
+            canonical_id=_uuid(),
+            version=1,
+            opportunity_id=opportunity_id,
+            manufacturer_id=manufacturer_id,
+            options_set=json.dumps(list(result.options_set)),
+            stakeholder_map=result.stakeholder_map,
+            risk_map=result.risk_map,
+            selected_path=None,
+            report_date=_now(),
+            source_citation=source_citation or "Market Entry Options Report",
+            created_by=actor_id,
+        )
+        self._commit_and_audit(
+            m, actor_id, role_code, "MARKET_ENTRY_OPTIONS",
+            {
+                "stage": "S18",
+                "opportunity_id": opportunity_id,
+                "options_count": result.options_count,
+            },
+        )
+        return m
 
     # -----------------------------------------------------------------
     # Internal: write + audit

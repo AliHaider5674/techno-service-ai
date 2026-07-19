@@ -1,0 +1,85 @@
+{% extends "phase5/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Market Status — market data, channel data, regulatory data.</strong>
+  The screen summarises the three Constitutional Registers and the
+  latest Market Entry Options reports.
+</div>
+
+<h3>Represented Principals ({{ rps | length }})</h3>
+{% if rps %}
+<table>
+  <thead><tr><th>Brand</th><th>Scope</th><th>Effective from</th><th>Effective to</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for r in rps %}
+    <tr>
+      <td>{{ r.brand }}</td>
+      <td>{{ r.scope }}</td>
+      <td>{{ r.effective_from }}</td>
+      <td>{{ r.effective_to or "open-ended" }}</td>
+      <td><span class="badge {{ r.status | lower }}">{{ r.status }}</span></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No Represented Principals registered.</p>
+{% endif %}
+
+<h3>Conflict / Do-Not-Pursue ({{ conflicts | length }})</h3>
+{% if conflicts %}
+<table>
+  <thead><tr><th>Entity</th><th>Conflict type</th><th>Effective from</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for c in conflicts %}
+    <tr>
+      <td>{{ c.entity_name }}</td>
+      <td>{{ c.conflict_type }}</td>
+      <td>{{ c.effective_from }}</td>
+      <td><span class="badge conflict">{{ c.status }}</span></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No Conflict / Do-Not-Pursue entities.</p>
+{% endif %}
+
+<h3>Restricted / Prohibited ({{ restricted | length }})</h3>
+{% if restricted %}
+<table>
+  <thead><tr><th>Entity</th><th>Restriction type</th><th>Effective from</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for r in restricted %}
+    <tr>
+      <td>{{ r.entity_name }}</td>
+      <td>{{ r.restriction_type }}</td>
+      <td>{{ r.effective_from }}</td>
+      <td><span class="badge restricted">{{ r.status }}</span></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No Restricted / Prohibited entities.</p>
+{% endif %}
+
+<h3>Recent Market Entry Options ({{ options | length }})</h3>
+{% if options %}
+<table>
+  <thead><tr><th>Date</th><th>Opportunity</th><th>Manufacturer</th><th>Options count</th></tr></thead>
+  <tbody>
+  {% for o in options %}
+    <tr>
+      <td>{{ o.report_date }}</td>
+      <td><a href="/market-entry/{{ o.opportunity_id }}">{{ o.opportunity_id }}</a></td>
+      <td>{{ o.manufacturer_id or "—" }}</td>
+      <td>{{ (o.options_set | from_json | length) if o.options_set else 0 }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No market entry options reports yet.</p>
+{% endif %}
+{% endblock %}

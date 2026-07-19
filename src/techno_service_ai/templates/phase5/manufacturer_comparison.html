@@ -1,0 +1,37 @@
+{% extends "phase5/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Manufacturer Comparison — Document 02 §4.5.3.</strong>
+  Multi-criteria, multi-manufacturer, vendor-neutral. The Agent does
+  NOT select a Manufacturer. Selection is a Human Authority decision.
+</div>
+
+<h2>{{ mfr.manufacturer_name }} — Comparison Reports</h2>
+
+{% if comparisons %}
+<table>
+  <thead><tr><th>Date</th><th>Opportunity</th><th>Recommended (constitutionally PROHIBITED)</th><th>Summary</th></tr></thead>
+  <tbody>
+  {% for cmp in comparisons %}
+    <tr>
+      <td>{{ cmp.comparison_date }}</td>
+      <td>{{ cmp.opportunity_id or "—" }}</td>
+      <td>
+        {% if cmp.recommended_manufacturer_id %}
+          <span class="register-warn">{{ cmp.recommended_manufacturer_name }} (selection_violation)</span>
+        {% else %}
+          <span class="register-ok">None — vendor-neutral</span>
+        {% endif %}
+      </td>
+      <td>{{ cmp.comparison_summary or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No comparison reports yet. The Manufacturer Comparison
+  Agent (§4.5.3) creates the first comparison when invoked.</p>
+{% endif %}
+
+<p><a href="/manufacturers/{{ mfr.id }}">← Back to Workspace</a></p>
+{% endblock %}

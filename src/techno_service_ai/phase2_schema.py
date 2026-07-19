@@ -595,7 +595,8 @@ class PrequalificationStatusReport(ConstitutionalMixin, Base):
 
 
 class ApprovedVendorListStatusReport(ConstitutionalMixin, Base):
-    """ENT-REG-004 — Approved Vendor List Status Report."""
+    """ENT-REG-004 — Approved Vendor List Status Report (Phase 2 mapping
+    for canonical ENT-REG-003)."""
 
     __tablename__ = "approved_vendor_list_status_report"
     __constitutional__ = True  # type: ignore[attr-defined]
@@ -604,6 +605,34 @@ class ApprovedVendorListStatusReport(ConstitutionalMixin, Base):
     authority: Mapped[str] = mapped_column(String(255), nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="PENDING")
     renewal_date: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class MarketEntryOptionsReport(ConstitutionalMixin, Base):
+    """ENT-REG-005 — Market Entry Options Report (Phase 5 addition).
+
+    Per Document 05 §3.9 (canonical ENT-REG-004) and Document 02 §4.7.3
+    (Market Entry Strategy Agent). The report is the Output of Stage 18
+    (Market Entry). It records the multi-path options set, the
+    stakeholder map, and the risk map. The Agent does NOT select a
+    path; selection is a Human Approval decision.
+
+    This entity was missing from the Phase 2 implementation (it was
+    declared in Document 05 but not added to the schema). It is
+    constitutional — append-only via the BEFORE UPDATE/DELETE triggers
+    installed by `db.install_constitutional_triggers`.
+    """
+
+    __tablename__ = "market_entry_options_report"
+    __constitutional__ = True  # type: ignore[attr-defined]
+
+    opportunity_id: Mapped[str] = mapped_column(String(36), ForeignKey("opportunity.id"), nullable=False)
+    manufacturer_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("manufacturer_profile.id"), nullable=True)
+    options_set: Mapped[str] = mapped_column(Text, nullable=False)  # JSON-encoded list of path options
+    stakeholder_map: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    risk_map: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    selected_path: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)  # Set only by Human Approval
+    report_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    source_citation: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,47 @@
+{% extends "phase5/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Manufacturer Intelligence Dashboard — Document 02 §4.5.</strong>
+  The KPIs reflect real data from the Manufacturer Intelligence Office.
+</div>
+
+<div class="kpi"><div class="n">{{ mfrs | length }}</div><div class="label">Manufacturer profiles</div></div>
+<div class="kpi"><div class="n">{{ creds | length }}</div><div class="label">Credibility assessments</div></div>
+<div class="kpi"><div class="n">{{ comparisons | length }}</div><div class="label">Comparison reports</div></div>
+
+<h3>Recent Manufacturer Profiles</h3>
+{% if mfrs %}
+<table>
+  <thead><tr><th>Name</th><th>Profile date</th><th>Certifications</th></tr></thead>
+  <tbody>
+  {% for m in mfrs[:20] %}
+    <tr>
+      <td><a href="/manufacturers/{{ m.id }}">{{ m.manufacturer_name }}</a></td>
+      <td>{{ m.profile_date }}</td>
+      <td>{{ m.certifications or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No manufacturer profiles yet.</p>
+{% endif %}
+
+<h3>Recent Credibility Assessments</h3>
+{% if creds %}
+<table>
+  <thead><tr><th>Date</th><th>Manufacturer</th><th>Overall</th></tr></thead>
+  <tbody>
+  {% for c in creds[:20] %}
+    <tr>
+      <td>{{ c.assessment_date }}</td>
+      <td><a href="/manufacturers/{{ c.manufacturer_id }}">{{ c.manufacturer_id }}</a></td>
+      <td><span class="badge {{ c.overall_classification | lower }}">{{ c.overall_classification }}</span></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No credibility assessments yet.</p>
+{% endif %}
+{% endblock %}

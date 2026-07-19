@@ -1,0 +1,50 @@
+{% extends "phase5/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Quotation Dossier — Document 06 §4.7 GATE-TENDER.</strong>
+  Combines the Commercial Evaluation and the Pricing Analysis. Pricing
+  below the approved margin floor requires Human Approval.
+</div>
+
+<h2>Quotation Dossier — Opportunity {{ opp_id }}</h2>
+{% if opp %}
+<p><strong>Opportunity:</strong> {{ opp.opportunity_title }}</p>
+{% endif %}
+
+<h3>Commercial Evaluations ({{ evaluations | length }})</h3>
+{% if evaluations %}
+<table>
+  <thead><tr><th>Date</th><th>Status</th><th>Margin</th><th>Description</th></tr></thead>
+  <tbody>
+  {% for e in evaluations %}
+    <tr>
+      <td>{{ e.evaluation_date }}</td>
+      <td><span class="badge {{ e.status | lower }}">{{ e.status }}</span></td>
+      <td>{{ e.margin_estimate or "—" }}</td>
+      <td>{{ e.commercial_case_description or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No commercial evaluations.</p>
+{% endif %}
+
+<h3>Pricing Analyses ({{ pricing | length }})</h3>
+{% if pricing %}
+<table>
+  <thead><tr><th>Date</th><th>Basis</th><th>Margin scenarios</th></tr></thead>
+  <tbody>
+  {% for p in pricing %}
+    <tr>
+      <td>{{ p.analysis_date }}</td>
+      <td>{{ p.pricing_basis or "—" }}</td>
+      <td>{{ p.margin_scenarios or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No pricing analyses.</p>
+{% endif %}
+{% endblock %}

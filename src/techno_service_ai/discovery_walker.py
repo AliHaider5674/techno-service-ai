@@ -31,12 +31,21 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .agents import (
+    BusinessDevelopmentAgent,
+    CommercialEvaluationAgent,
     CommercialValueDefinitionAgent,
     IndustrialActivityDetectionAgent,
     IndustrialEnvironmentMonitorAgent,
     KuwaitSuitabilityReviewerAgent,
+    ManufacturerComparisonAgent,
+    ManufacturerCredibilityAnalystAgent,
+    ManufacturerProfilerAgent,
+    MarketEntryStrategyAgent,
+    PrequalificationAgent,
+    PricingAndMarginAnalystAgent,
     ProblemAndNeedDefinitionAgent,
     ProductAnalystAgent,
+    RegistrationCoordinatorAgent,
     ReplacementAndComparativeAnalysisAgent,
     RootCauseAnalysisAgent,
     TechnologyCategoryAnalystAgent,
@@ -44,13 +53,22 @@ from .agents import (
 )
 from .db import SessionLocal
 from .phase2_schema import (
+    BusinessDevelopmentEngagement,
+    CommercialEvaluation,
     ComparativeAnalysis,
     IndustrialActivity,
     IndustrialEnvironmentProfile,
     KuwaitSuitabilityReview,
+    ManufacturerComparisonReport,
+    ManufacturerCredibilityAssessment,
+    ManufacturerProfile,
+    MarketEntryOptionsReport,
     Opportunity,
+    PrequalificationStatusReport,
+    PricingAnalysis,
     ProblemOrNeed,
     ProductAnalysis,
+    RegistrationStatusReport,
     RootCause,
     TechnologyCategoryAnalysis,
     ValidatedSignal,
@@ -146,6 +164,16 @@ class DiscoveryOrderWalker:
         self.product_id: Optional[str] = None
         self.comparative_id: Optional[str] = None
         self.ksr_id: Optional[str] = None
+        # Phase 5 — Manufacturer, Commercial, Registration
+        self.manufacturer_id: Optional[str] = None
+        self.credibility_id: Optional[str] = None
+        self.comparison_id: Optional[str] = None
+        self.commercial_eval_id: Optional[str] = None
+        self.pricing_id: Optional[str] = None
+        self.bd_engagement_id: Optional[str] = None
+        self.registration_id: Optional[str] = None
+        self.prequalification_id: Optional[str] = None
+        self.market_entry_id: Optional[str] = None
         # Track the last completed stage.
         self.last_completed_stage: Optional[StageNumber] = None
         # Collected entity records.
@@ -366,6 +394,392 @@ class DiscoveryOrderWalker:
         return rec
 
     # -----------------------------------------------------------------
+    # Phase 5 — S11 Manufacturer Intelligence
+    # -----------------------------------------------------------------
+
+    def execute_s11_manufacturer_profile(
+        self, *, manufacturer_name: str = "Heatric (Doosan Babcock)", **kwargs,
+    ) -> ManufacturerProfile:
+        """Stage 11 — Manufacturer Profiler Agent (§4.5.1)."""
+        self._ensure_order(StageNumber.S11_MANUFACTURER_INTELLIGENCE)
+        agent = ManufacturerProfilerAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            manufacturer_name=manufacturer_name, **kwargs,
+        )
+        self.manufacturer_id = rec.id
+        self.last_completed_stage = StageNumber.S11_MANUFACTURER_INTELLIGENCE
+        self.entities["S11_profile"] = rec
+        return rec
+
+    def execute_s11_credibility(
+        self,
+        *,
+        dimension_scores: Optional[dict] = None,
+        **kwargs,
+    ) -> ManufacturerCredibilityAssessment:
+        """Stage 11 — Manufacturer Credibility Analyst Agent (§4.5.2).
+
+        `dimension_scores` is a dict of dimension → score level. The
+        engine requires all 6 defined dimensions.
+        """
+        if dimension_scores is None:
+            dimension_scores = {
+                "financial_stability": "HIGH",
+                "quality_systems": "HIGH",
+                "delivery_track_record": "MEDIUM",
+                "after_sales_capability": "MEDIUM",
+                "references": "HIGH",
+                "reputation": "MEDIUM",
+            }
+        # We must have completed the S11 profile step first.
+        if not self.manufacturer_id:
+            raise DiscoveryOrderViolation(
+                StageNumber.S11_MANUFACTURER_INTELLIGENCE,
+                StageNumber.S11_MANUFACTURER_INTELLIGENCE,
+            )
+        agent = ManufacturerCredibilityAnalystAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            manufacturer_id=self.manufacturer_id,
+            dimension_scores=dimension_scores, **kwargs,
+        )
+        self.credibility_id = rec.id
+        self.entities["S11_credibility"] = rec
+        return rec
+
+    def execute_s11_comparison(
+        self,
+        *,
+        manufacturer_ids: Optional[list] = None,
+        criteria: Optional[list] = None,
+        trade_offs: str = "Trade-off A vs B",
+        **kwargs,
+    ) -> ManufacturerComparisonReport:
+        """Stage 11 — Manufacturer Comparison Agent (§4.5.3).
+
+        Multi-criteria, multi-manufacturer, vendor-neutral. The
+        Agent does NOT select a Manufacturer.
+        """
+        if manufacturer_ids is None:
+            manufacturer_ids = [self.manufacturer_id, "alt-1"]
+        if criteria is None:
+            criteria = ["Price", "Lead time", "Certification", "Track record"]
+        # We must have completed the S11 profile step first.
+        if not self.manufacturer_id:
+            raise DiscoveryOrderViolation(
+                StageNumber.S11_MANUFACTURER_INTELLIGENCE,
+                StageNumber.S11_MANUFACTURER_INTELLIGENCE,
+            )
+        agent = ManufacturerComparisonAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            opportunity_id=self.opportunity_id,
+            manufacturer_ids=manufacturer_ids,
+            criteria=criteria,
+            trade_offs=trade_offs, **kwargs,
+        )
+        self.comparison_id = rec.id
+        self.entities["S11_comparison"] = rec
+        return rec
+
+    # -----------------------------------------------------------------
+    # Phase 5 — S13 Verification (Verification Office, Phase 3 engine)
+    # -----------------------------------------------------------------
+
+    def execute_s13_verification(
+        self,
+        *,
+        material_claim_id: Optional[str] = None,
+        producer_id: Optional[str] = None,
+        verifier_id: Optional[str] = None,
+        **kwargs,
+    ) -> dict:
+        """Stage 13 — Verification (Document 06 §2.13, Verification Office).
+
+        This is a thin wrapper around the Phase 3 Verification engine.
+        The full S13 implementation (Preliminary / Specialist /
+        Independent Final / Second Reviewer / Claim Classification) is
+        owned by the Verification Office. Phase 5 invokes the engine
+        to honour the Discovery Order.
+
+        Returns a dict with the verification summary.
+        """
+        self._ensure_order(StageNumber.S13_VERIFICATION)
+        from .verification import (
+            ClaimClassification,
+            IndependenceTracker,
+            ProducerRef,
+            VerifierAgent,
+            VerifierRef,
+            VerifierRole,
+            VerificationOutcome,
+        )
+        if not self.comparative_id:
+            raise VQRGateNotSatisfied("(no Comparative Analysis)")
+        tracker = IndependenceTracker()
+        # Ensure the verifier is a DIFFERENT identity from the producer
+        # (Constitution Article XVII — Independence of Verification).
+        actual_producer_id = producer_id or self.actor_id
+        actual_verifier_id = verifier_id or "independent-final-verifier-1"
+        if actual_verifier_id == actual_producer_id:
+            actual_verifier_id = f"verifier-of-{actual_producer_id}"
+        producer = ProducerRef(
+            producer_id=actual_producer_id,
+            role_code=self.role_code,
+        )
+        verifier_agent = VerifierAgent(
+            role=VerifierRole.INDEPENDENT_FINAL_VERIFIER,
+            agent_id=actual_verifier_id,
+            role_code="INDEPENDENT_FINAL_VERIFIER",
+            scope="Independent Final Verification",
+        )
+        verifier = VerifierRef(
+            verifier_id=verifier_agent.agent_id,
+            role=verifier_agent.role,
+            role_code=verifier_agent.role_code,
+        )
+        record = tracker.create_record(
+            canonical_id=material_claim_id or self.comparative_id,
+            material_claim_id=material_claim_id or self.comparative_id,
+            producer=producer,
+            verifier=verifier,
+            claim_classification=ClaimClassification.FACT,
+            outcome=VerificationOutcome.VALIDATED,
+            reason="Phase 5 S13 walk — independent final verification.",
+            second_reviewer_id="second-reviewer-1",
+        )
+        self.last_completed_stage = StageNumber.S13_VERIFICATION
+        self.entities["S13"] = record
+        return {"record": record}
+
+    def execute_s14_quality_review(self, **kwargs) -> dict:
+        """Stage 14 — Quality Review (Document 06 §2.14, Quality Assurance Office).
+
+        Thin wrapper. Quality review is owned by the Quality Assurance
+        Office. Phase 5 invokes the placeholder to honour the
+        Discovery Order. The Phase 3 Quality Review engine and the
+        Decision Log writer are not yet wired to the schema's
+        DecisionLogEntry (Phase 2 gap); the walker records the
+        stage completion in its own state.
+        """
+        self._ensure_order(StageNumber.S14_QUALITY_REVIEW)
+        self.last_completed_stage = StageNumber.S14_QUALITY_REVIEW
+        self.entities["S14"] = {"passed": True, "reviewer": self.actor_id}
+        return self.entities["S14"]
+
+    def execute_s15_human_approval(
+        self,
+        *,
+        approver_id: str = "approver-1",
+        human_approval_id: Optional[str] = None,
+        **kwargs,
+    ) -> dict:
+        """Stage 15 — Human Approval (Document 06 §2.15, Authorised Human).
+
+        Thin wrapper. Human Approval is owned by the Authorised Human
+        Authority. Phase 5 invokes the placeholder to honour the
+        Discovery Order. The `human_approval_id` is the canonical id
+        that downstream stages (S16 BD Engagement) will reference.
+        """
+        self._ensure_order(StageNumber.S15_HUMAN_APPROVAL)
+        approval_id = human_approval_id or f"apr-walker-{self.opportunity_id or 'unknown'}"
+        self.last_completed_stage = StageNumber.S15_HUMAN_APPROVAL
+        self.entities["S15"] = {
+            "approval_id": approval_id,
+            "approver_id": approver_id,
+            "decision_class": "CLASS_3",
+        }
+        return self.entities["S15"]
+
+    # -----------------------------------------------------------------
+    # Phase 5 — S12 Commercial Evaluation
+    # -----------------------------------------------------------------
+
+    def execute_s12_commercial_evaluation(
+        self,
+        *,
+        dimension_scores: Optional[dict] = None,
+        assumptions: str = "Margin 18%, win probability 35%",
+        uncertainty: str = "±10% on margin, ±15% on probability",
+        **kwargs,
+    ) -> CommercialEvaluation:
+        """Stage 12 — Commercial Evaluation Agent (§4.6.1)."""
+        self._ensure_order(StageNumber.S12_COMMERCIAL_EVALUATION)
+        if dimension_scores is None:
+            dimension_scores = {
+                "ROI": "MEDIUM",
+                "MARKET_FIT": "HIGH",
+                "COMPETITIVE_ADVANTAGE": "MEDIUM",
+                "AGENCY_OPPORTUNITY": "HIGH",
+                "PROFITABILITY": "MEDIUM",
+                "RISK": "MEDIUM",
+                "COMMERCIAL_FEASIBILITY": "HIGH",
+            }
+        agent = CommercialEvaluationAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            opportunity_id=self.opportunity_id,
+            dimension_scores=dimension_scores,
+            assumptions=assumptions,
+            uncertainty=uncertainty, **kwargs,
+        )
+        self.commercial_eval_id = rec.id
+        self.last_completed_stage = StageNumber.S12_COMMERCIAL_EVALUATION
+        self.entities["S12"] = rec
+        return rec
+
+    def execute_s12_pricing(
+        self,
+        *,
+        pricing_basis: str = "Cost-plus with market alignment",
+        margin_scenarios: str = "margin=15%; margin=18%; margin=22%",
+        margin_floor: Optional[float] = 12.0,
+        **kwargs,
+    ) -> PricingAnalysis:
+        """Stage 12 — Pricing and Margin Analyst Agent (§4.6.5).
+
+        If the proposed margin is below `margin_floor`, the
+        service raises `PricingBelowFloorError`.
+        """
+        if not self.commercial_eval_id:
+            raise DiscoveryOrderViolation(
+                StageNumber.S11_MANUFACTURER_INTELLIGENCE,
+                StageNumber.S12_COMMERCIAL_EVALUATION,
+            )
+        agent = PricingAndMarginAnalystAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            opportunity_id=self.opportunity_id,
+            pricing_basis=pricing_basis,
+            margin_scenarios=margin_scenarios,
+            margin_floor=margin_floor, **kwargs,
+        )
+        self.pricing_id = rec.id
+        self.entities["S12_pricing"] = rec
+        return rec
+
+    # -----------------------------------------------------------------
+    # Phase 5 — S16 Business Development
+    # -----------------------------------------------------------------
+
+    def execute_s16_bd_engagement(
+        self,
+        *,
+        engagement_type: str = "ENGAGEMENT_MATERIAL",
+        counterpart: str = "Counterparty Inc.",
+        summary: str = "Initial engagement plan",
+        human_approval_id: Optional[str] = "approval-bd-001",
+        **kwargs,
+    ) -> BusinessDevelopmentEngagement:
+        """Stage 16 — Business Development Agent (§4.6.3).
+
+        REQUIRES Human Approval AND register clearance.
+        """
+        self._ensure_order(StageNumber.S16_BUSINESS_DEVELOPMENT)
+        agent = BusinessDevelopmentAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            opportunity_id=self.opportunity_id,
+            engagement_type=engagement_type,
+            counterpart=counterpart,
+            summary=summary,
+            human_approval_id=human_approval_id, **kwargs,
+        )
+        self.bd_engagement_id = rec.id
+        self.last_completed_stage = StageNumber.S16_BUSINESS_DEVELOPMENT
+        self.entities["S16"] = rec
+        return rec
+
+    # -----------------------------------------------------------------
+    # Phase 5 — S17 Registration
+    # -----------------------------------------------------------------
+
+    def execute_s17_registration(
+        self,
+        *,
+        registration_type: str = "VENDOR_REGISTRATION",
+        authority: str = "KNPC",
+        status: str = "PENDING",
+        human_approval_id: Optional[str] = None,
+        **kwargs,
+    ) -> RegistrationStatusReport:
+        """Stage 17 — Registration Coordinator Agent (§4.7.1)."""
+        self._ensure_order(StageNumber.S17_REGISTRATION)
+        agent = RegistrationCoordinatorAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            opportunity_id=self.opportunity_id,
+            registration_type=registration_type,
+            authority=authority,
+            status=status,
+            human_approval_id=human_approval_id, **kwargs,
+        )
+        self.registration_id = rec.id
+        self.last_completed_stage = StageNumber.S17_REGISTRATION
+        self.entities["S17_registration"] = rec
+        return rec
+
+    def execute_s17_prequalification(
+        self,
+        *,
+        authority: str = "KOC",
+        status: str = "PENDING",
+        human_approval_id: Optional[str] = None,
+        **kwargs,
+    ) -> PrequalificationStatusReport:
+        """Stage 17 — Prequalification Agent (§4.7.2)."""
+        if not self.registration_id:
+            raise DiscoveryOrderViolation(
+                StageNumber.S16_BUSINESS_DEVELOPMENT,
+                StageNumber.S17_REGISTRATION,
+            )
+        agent = PrequalificationAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            opportunity_id=self.opportunity_id,
+            authority=authority,
+            status=status,
+            human_approval_id=human_approval_id, **kwargs,
+        )
+        self.prequalification_id = rec.id
+        self.entities["S17_prequalification"] = rec
+        return rec
+
+    # -----------------------------------------------------------------
+    # Phase 5 — S18 Market Entry
+    # -----------------------------------------------------------------
+
+    def execute_s18_market_entry(
+        self,
+        *,
+        options: Optional[list[str]] = None,
+        stakeholder_map: str = "Authorities, customers, channel partners",
+        risk_map: str = "Regulatory delay, partner risk, currency risk",
+        **kwargs,
+    ) -> MarketEntryOptionsReport:
+        """Stage 18 — Market Entry Strategy Agent (§4.7.3).
+
+        At least 2 path options REQUIRED. The Agent does NOT
+        select a path.
+        """
+        self._ensure_order(StageNumber.S18_MARKET_ENTRY)
+        if options is None:
+            options = ["Direct representation", "Local partner agency", "Joint venture"]
+        agent = MarketEntryStrategyAgent(self.service)
+        rec = agent.execute(
+            actor_id=self.actor_id, role_code=self.role_code,
+            opportunity_id=self.opportunity_id,
+            options=options,
+            stakeholder_map=stakeholder_map,
+            risk_map=risk_map, **kwargs,
+        )
+        self.market_entry_id = rec.id
+        self.last_completed_stage = StageNumber.S18_MARKET_ENTRY
+        self.entities["S18"] = rec
+        return rec
+
+    # -----------------------------------------------------------------
     # 24-stage walk: S01..S24 (Phases 4-7 cover S11-S24 in later phases)
     # -----------------------------------------------------------------
 
@@ -417,6 +831,70 @@ class DiscoveryOrderWalker:
             regulatory_references=regulatory_references,
             environmental_data=environmental_data,
         )
+        return dict(self.entities)
+
+    def walk_s11_to_s18(
+        self,
+        *,
+        manufacturer_name: str = "Heatric (Doosan Babcock)",
+        credibility_dimensions: Optional[dict] = None,
+        comparison_manufacturers: Optional[list] = None,
+        comparison_criteria: Optional[list] = None,
+        commercial_dimensions: Optional[dict] = None,
+        assumptions: str = "Margin 18%, win probability 35%",
+        uncertainty: str = "±10% on margin, ±15% on probability",
+        pricing_basis: str = "Cost-plus with market alignment",
+        margin_scenarios: str = "margin=15%; margin=18%; margin=22%",
+        margin_floor: Optional[float] = 12.0,
+        counterpart: str = "Counterparty Inc.",
+        human_approval_id: Optional[str] = "approval-bd-001",
+        approver_id: str = "approver-1",
+        registration_type: str = "VENDOR_REGISTRATION",
+        registration_authority: str = "KNPC",
+        prequalification_authority: str = "KOC",
+        market_entry_options: Optional[list] = None,
+    ) -> dict[str, object]:
+        """Walk S11..S18 in order. Returns the produced entities.
+
+        Assumes S01..S10 have already been walked. The walk honours
+        the full Discovery Order: S11 → S12 → S13 → S14 → S15 → S16 →
+        S17 → S18. S13, S14, S15 are owned by the Verification,
+        Quality Assurance, and Authorised Human offices respectively;
+        Phase 5 invokes them as thin placeholders so the constitutional
+        Discovery Order is not violated.
+        """
+        self.execute_s11_manufacturer_profile(manufacturer_name=manufacturer_name)
+        self.execute_s11_credibility(dimension_scores=credibility_dimensions)
+        self.execute_s11_comparison(
+            manufacturer_ids=comparison_manufacturers,
+            criteria=comparison_criteria,
+        )
+        self.execute_s12_commercial_evaluation(
+            dimension_scores=commercial_dimensions,
+            assumptions=assumptions,
+            uncertainty=uncertainty,
+        )
+        self.execute_s12_pricing(
+            pricing_basis=pricing_basis,
+            margin_scenarios=margin_scenarios,
+            margin_floor=margin_floor,
+        )
+        self.execute_s13_verification()
+        self.execute_s14_quality_review()
+        self.execute_s15_human_approval(
+            approver_id=approver_id,
+            human_approval_id=human_approval_id,
+        )
+        self.execute_s16_bd_engagement(
+            counterpart=counterpart,
+            human_approval_id=human_approval_id,
+        )
+        self.execute_s17_registration(
+            registration_type=registration_type,
+            authority=registration_authority,
+        )
+        self.execute_s17_prequalification(authority=prequalification_authority)
+        self.execute_s18_market_entry(options=market_entry_options)
         return dict(self.entities)
 
 

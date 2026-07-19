@@ -1,0 +1,32 @@
+{% extends "phase5/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Registration — Document 02 §4.7.1, AC-P5-007.</strong>
+  The Registration Coordinator Agent maintains registration status.
+  Filings (status=REGISTERED) require Human Approval. The Registration
+  Gate is at the entry of Stage 17 and at the entry of every
+  Prequalification and Approved Vendor List activity.
+</div>
+
+<h2>Registration Status Reports ({{ registrations | length }})</h2>
+
+{% if registrations %}
+<table>
+  <thead><tr><th>Type</th><th>Authority</th><th>Status</th><th>Notes</th><th>Created</th></tr></thead>
+  <tbody>
+  {% for r in registrations %}
+    <tr>
+      <td>{{ r.registration_type }}</td>
+      <td>{{ r.authority }}</td>
+      <td><span class="badge {{ r.status | lower }}">{{ r.status }}</span></td>
+      <td>{{ r.notes or "—" }}</td>
+      <td>{{ r.created_at }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No registration records yet. The Registration
+  Coordinator Agent (§4.7.1) creates the first record when invoked.</p>
+{% endif %}
+{% endblock %}

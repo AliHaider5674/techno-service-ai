@@ -1,10 +1,10 @@
 # Decision and Assumption Register
 
 **Project:** Techno Service AI Intelligence System
-**Phase:** 4 — Discovery Order Operational Surfaces (current phase)
+**Phase:** 5 — Manufacturer, Commercial, and Registration Offices (current phase)
 **Governing Authority:** Constitution v2.3
 **Document Reference:** TS-AI-DAR-001
-**Status:** Issued for the Phase 4 release
+**Status:** Issued for the Phase 5 release
 
 This register is the single source of truth for every decision and temporary
 technical assumption taken during the implementation. It is required by the
@@ -272,5 +272,74 @@ architectural layer has been introduced. The Constitution has not been modified.
 
 ---
 
-*End of Decision and Assumption Register — Phase 4.*
+# Phase 5 Update — Manufacturer, Commercial, and Registration Offices
+
+**Status:** Issued for the Phase 5 release.
+
+## Summary
+
+Phase 5 activates 9 of the 13 Principal Agents listed in
+Document 02 §4.5-4.7 (3 Manufacturer + 3 Commercial + 3 Registration).
+The remaining 4 agents (Commercial Model Designer, Negotiation
+Support, After-Sales Intelligence, Approved Vendor List Manager)
+are deferred to Phase 6+ per the Implementation Roadmap.
+
+The Register Compliance Gate (Constitution Article VIII) is
+introduced as a service-layer helper backed by a pure-logic
+engine. The engine enforces the three constitutional rules
+(Restricted / Conflict / Non-Represented) at every commercial
+gate. The Register Compliance check is invoked at the entry of
+S16 (BD), S18 (Market Entry), and at the `manufacturer_id` lookup
+in S11 (Kuwait Representation derivation).
+
+## New Temporary Technical Assumptions
+
+**None.** Phase 5 introduces no new TTA. The 16 Phase 1-3 TTAs
+(6 + 5 + 5) remain in force through Phase 8 or until permanent
+decision.
+
+## New Records (constitutional entities)
+
+- `MarketEntryOptionsReport` (ENT-REG-004, schema ENT-REG-005) —
+  declared in Document 05 §3.9 but missing from the Phase 2
+  schema. Added in Phase 5 as a constitutional table. The
+  Phase 2 entity count is 91 (up from 90).
+
+## Architectural decisions
+
+1. **Pure-logic engine layer for Phase 5** (mirrors Phase 3/4):
+   `manufacturer.py`, `commercial.py`, `registration.py`,
+   `register_compliance.py`. No DB coupling. All error classes
+   are typed exceptions whose messages are the constitutional text.
+
+2. **Register Compliance is a separate engine**, not a method on
+   the WorkflowService. The Service Layer wraps the engine and
+   exposes `check_register_compliance(entity_id, entity_name, gate)`
+   for the service-layer callers.
+
+3. **BD engagement requires BOTH (a) Human Approval reference AND
+   (b) register clearance** (Constitution Article VIII + Article
+   XII). Missing either is REJECTED at the service-layer with a
+   typed exception.
+
+4. **Kuwait Representation status is derived from the Represented
+   Principals register** — the Manufacturer Profiler Agent does
+   NOT declare representation status alone (Document 02 §4.5.1
+   Authority Limits). The status is one of: REPRESENTED,
+   UNRESOLVED, SUPERSEDED.
+
+5. **S13, S14, S15 placeholders in the walker** — the underlying
+   engines exist (Phase 3 verification, approval). The walker
+   invokes thin wrappers that record stage completion. The full
+   service-layer wiring is deferred (GAP-PHASE5-001).
+
+## What did NOT change
+
+No new Office, Agent (beyond the 9 activated), Decision Class,
+workflow stage, gate, status, screen, or architectural layer has
+been introduced. The Constitution has not been modified.
+
+---
+
+*End of Decision and Assumption Register — Phase 5.*
 

@@ -1,0 +1,30 @@
+{% extends "phase5/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Document 02 §4.5 — Manufacturer Intelligence Office.</strong>
+  Three Principal Agents: Manufacturer Profiler (§4.5.1), Manufacturer
+  Credibility Analyst (§4.5.2), Manufacturer Comparison (§4.5.3).
+  The Office does NOT declare representation status — that comes from
+  the three Constitutional Registers (Article VIII).
+</div>
+<h2>Manufacturers ({{ manufacturers | length }})</h2>
+{% if manufacturers %}
+<table>
+  <thead><tr><th>Name</th><th>Ownership</th><th>Certifications</th><th>Profile date</th></tr></thead>
+  <tbody>
+  {% for m in manufacturers %}
+    <tr>
+      <td><a href="/manufacturers/{{ m.id }}">{{ m.manufacturer_name }}</a></td>
+      <td>{{ m.ownership or "—" }}</td>
+      <td>{{ m.certifications or "—" }}</td>
+      <td>{{ m.profile_date }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No manufacturers yet. The Manufacturer Profiler Agent
+  (§4.5.1) creates the first profile once a Comparative Analysis (S09)
+  is complete and the Kuwait Suitability Review (S10) is recorded.</p>
+{% endif %}
+{% endblock %}

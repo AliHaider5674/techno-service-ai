@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title or "Phase 5" }} — {{ app_name }}</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>
+    .phase5 { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+    .phase5 h1 { font-size: 1.4rem; margin: 0.5rem 0; }
+    .phase5 h2 { font-size: 1.1rem; margin: 1rem 0 0.3rem; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+    .phase5 h3 { font-size: 1rem; margin: 0.8rem 0 0.2rem; color: #445; }
+    .phase5 .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; background: #eef; color: #224; }
+    .phase5 .badge.represented { background: #dfd; color: #060; }
+    .phase5 .badge.unresolved { background: #fed; color: #840; }
+    .phase5 .badge.superseded { background: #ffd; color: #880; }
+    .phase5 .badge.restricted { background: #fdd; color: #800; }
+    .phase5 .badge.conflict { background: #fdd; color: #800; }
+    .phase5 .badge.cleared { background: #dfd; color: #060; }
+    .phase5 .badge.highly_credible, .phase5 .badge.credible { background: #dfd; color: #060; }
+    .phase5 .badge.below_threshold, .phase5 .badge.adverse { background: #fdd; color: #800; }
+    .phase5 .badge.conditionally_credible, .phase5 .badge.unverified { background: #ffd; color: #880; }
+    .phase5 .badge.commercially_viable { background: #dfd; color: #060; }
+    .phase5 .badge.conditionally_viable { background: #ffd; color: #880; }
+    .phase5 .badge.not_viable { background: #fdd; color: #800; }
+    .phase5 .badge.within_floor { background: #dfd; color: #060; }
+    .phase5 .badge.at_floor { background: #ffd; color: #880; }
+    .phase5 .badge.below_floor { background: #fdd; color: #800; }
+    .phase5 .badge.qualified, .phase5 .badge.registered { background: #dfd; color: #060; }
+    .phase5 .badge.pending, .phase5 .badge.in_progress { background: #ffd; color: #880; }
+    .phase5 .badge.expired, .phase5 .badge.rejected { background: #fdd; color: #800; }
+    .phase5 table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+    .phase5 th, .phase5 td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #eee; }
+    .phase5 th { background: #f6f6f9; }
+    .phase5 .constitutional { border: 1px solid #ccd; padding: 0.5rem 1rem; margin: 0.5rem 0; background: #fafafd; }
+    .phase5 .principal { font-size: 0.9rem; color: #555; margin-bottom: 1rem; }
+    .phase5 .kpi { display: inline-block; padding: 1rem 1.5rem; margin: 0.5rem; background: #f6f6f9; border-radius: 6px; }
+    .phase5 .kpi .n { font-size: 1.6rem; font-weight: 600; }
+    .phase5 .kpi .label { font-size: 0.85rem; color: #555; }
+    .phase5 .zone { border: 1px solid #ddd; padding: 0.6rem; margin: 0.4rem 0; background: #fff; }
+    .phase5 .zone .ztitle { font-size: 0.85rem; color: #777; margin-bottom: 0.3rem; }
+    .phase5 .empty { color: #888; font-style: italic; padding: 1rem; }
+    .phase5 .register-warn { background: #fdd; color: #800; padding: 0.5rem; border-radius: 4px; margin: 0.5rem 0; }
+    .phase5 .register-ok { background: #dfd; color: #060; padding: 0.5rem; border-radius: 4px; margin: 0.5rem 0; }
+  </style>
+</head>
+<body>
+  <div class="phase5">
+    <h1>{{ title or "Phase 5" }}</h1>
+    {% if principal %}
+    <div class="principal">Signed in as <strong>{{ principal.display_name }}</strong> ({{ principal.username }}) — roles: {{ principal.role_codes | join(", ") }}</div>
+    {% endif %}
+    {% block body %}{% endblock %}
+    <hr />
+    <p>
+      <a href="/">← Home</a> ·
+      <a href="/dashboards/manufacturer">Manufacturer Dashboard</a> ·
+      <a href="/dashboards/commercial">Commercial Dashboard</a> ·
+      <a href="/manufacturers">Manufacturers</a> ·
+      <a href="/commercial">Commercial</a> ·
+      <a href="/registration">Registration</a>
+    </p>
+  </div>
+</body>
+</html>

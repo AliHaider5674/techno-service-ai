@@ -1,0 +1,87 @@
+{% extends "phase5/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Kuwait Representation — Constitution Article VIII §2, AC-P5-003.</strong>
+  The status is derived from the Represented Principals register.
+  A non-Represented Principal is REJECTED at the Commercial Gate.
+  The Manufacturer Profiler Agent may NOT declare this status alone.
+</div>
+
+<h2>{{ mfr.manufacturer_name }} — Kuwait Representation</h2>
+
+<div class="zone">
+  <div class="ztitle">Status</div>
+  {% if kuwait_status.value == "REPRESENTED" %}
+    <div class="register-ok">REPRESENTED</div>
+  {% elif kuwait_status.value == "SUPERSEDED" %}
+    <div class="register-warn">SUPERSEDED</div>
+  {% else %}
+    <div class="register-warn">UNRESOLVED</div>
+  {% endif %}
+  <p>The status is the live derivation from the three Constitutional
+    Registers (Article VIII). It changes as the registers change.</p>
+</div>
+
+<h3>Represented Principals register ({{ rps | length }})</h3>
+{% if rps %}
+<table>
+  <thead><tr><th>Brand</th><th>Scope</th><th>Effective from</th><th>Effective to</th><th>Status</th><th>Reason</th></tr></thead>
+  <tbody>
+  {% for r in rps %}
+    <tr>
+      <td>{{ r.brand }}</td>
+      <td>{{ r.scope }}</td>
+      <td>{{ r.effective_from }}</td>
+      <td>{{ r.effective_to or "open-ended" }}</td>
+      <td><span class="badge {{ r.status | lower }}">{{ r.status }}</span></td>
+      <td>{{ r.reason }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No entries on the Represented Principals register match this Manufacturer.</p>
+{% endif %}
+
+<h3>Conflict register ({{ conflicts | length }})</h3>
+{% if conflicts %}
+<div class="register-warn">A Conflict / Do-Not-Pursue entity match was found. Per Article VIII §3, any commercial action is REJECTED.</div>
+<table>
+  <thead><tr><th>Entity name</th><th>Conflict type</th><th>Effective from</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for c in conflicts %}
+    <tr>
+      <td>{{ c.entity_name }}</td>
+      <td>{{ c.conflict_type }}</td>
+      <td>{{ c.effective_from }}</td>
+      <td><span class="badge conflict">{{ c.status }}</span></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No Conflict matches for this Manufacturer.</p>
+{% endif %}
+
+<h3>Restricted register ({{ restricted | length }})</h3>
+{% if restricted %}
+<div class="register-warn">A Restricted / Prohibited entity match was found. Per Article VIII §4, any commercial action is REJECTED — at every gate.</div>
+<table>
+  <thead><tr><th>Entity name</th><th>Restriction type</th><th>Effective from</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for r in restricted %}
+    <tr>
+      <td>{{ r.entity_name }}</td>
+      <td>{{ r.restriction_type }}</td>
+      <td>{{ r.effective_from }}</td>
+      <td><span class="badge restricted">{{ r.status }}</span></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No Restricted matches for this Manufacturer.</p>
+{% endif %}
+
+<p><a href="/manufacturers/{{ mfr.id }}">← Back to Workspace</a></p>
+{% endblock %}

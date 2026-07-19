@@ -1,0 +1,27 @@
+{% extends "phase5/base.html" %}
+{% block body %}
+<div class="constitutional">
+  <strong>Manufacturer Profile — Document 02 §4.5.1.</strong>
+  The Manufacturer Profiler Agent maintains this record. The Agent
+  does NOT declare representation status (that comes from the Registers).
+</div>
+
+<h2>{{ mfr.manufacturer_name }}</h2>
+
+<div class="zone">
+  <div class="ztitle">Profile</div>
+  <p><strong>Profile date:</strong> {{ mfr.profile_date }}</p>
+  <p><strong>Ownership:</strong> {{ mfr.ownership or "—" }}</p>
+  <p><strong>Certifications:</strong> {{ mfr.certifications or "—" }}</p>
+  <p><strong>Production capacity:</strong> {{ mfr.production_capacity or "—" }}</p>
+  <p><strong>References:</strong> {{ mfr.references or "—" }}</p>
+  <p><strong>Quality indicators:</strong> {{ mfr.quality_indicators or "—" }}</p>
+  <p><strong>After-sales capability:</strong> {{ mfr.after_sales_capability or "—" }}</p>
+  <p><strong>Global reputation:</strong> {{ mfr.global_reputation or "—" }}</p>
+  <p><strong>Source citation:</strong> {{ mfr.source_citation }}</p>
+  <p><strong>Register reference:</strong> <code>{{ mfr.register_reference }}</code></p>
+  <p><strong>Active:</strong> {{ mfr.active }}</p>
+</div>
+
+<p><a href="/manufacturers/{{ mfr.id }}">← Back to Workspace</a></p>
+{% endblock %}

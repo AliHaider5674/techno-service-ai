@@ -421,3 +421,307 @@ def assert_total_agents() -> int:
     roster = ten_agent_roster()
     assert len(roster) == 10, f"Phase 4 must have 10 Principal Agents, got {len(roster)}"
     return 10
+
+
+# ---------------------------------------------------------------------------
+# Phase 5 — Manufacturer Intelligence Office (§4.5)
+# ---------------------------------------------------------------------------
+
+
+class ManufacturerProfilerAgent(Agent):
+    """Document 02 §4.5.1 — Manufacturer Profiler Agent.
+
+    Drives Stage 11 (Manufacturer Intelligence). Maintains the
+    Manufacturer Profile (ENT-MAN-001). Does NOT declare representation
+    status (that comes from the Registers).
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Manufacturer Profiler Agent",
+            constitutional_purpose="Maintain constitutional profiles of Manufacturers.",
+            prohibited_actions=(
+                "Declare representation status alone",
+                "Promote a Manufacturer",
+                "Bind Techno Service",
+            ),
+            office="Manufacturer Intelligence Office",
+            charter_section="Document 02 §4.5.1",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, **kwargs):
+        return self.service.create_manufacturer_profile(
+            actor_id=actor_id, role_code=role_code, **kwargs
+        )
+
+
+class ManufacturerCredibilityAnalystAgent(Agent):
+    """Document 02 §4.5.2 — Manufacturer Credibility Analyst Agent.
+
+    Drives Stage 11. Produces the multi-dimensional Credibility
+    Assessment (ENT-MAN-002). ADVERSE / BELOW_THRESHOLD findings
+    require Human Approval.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Manufacturer Credibility Analyst Agent",
+            constitutional_purpose="Assess Manufacturer credibility against constitutional criteria.",
+            prohibited_actions=(
+                "Declare representation status alone",
+                "Promote a Manufacturer",
+            ),
+            office="Manufacturer Intelligence Office",
+            charter_section="Document 02 §4.5.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, manufacturer_id: str, **kwargs):
+        return self.service.create_credibility_assessment(
+            actor_id=actor_id, role_code=role_code, manufacturer_id=manufacturer_id, **kwargs
+        )
+
+
+class ManufacturerComparisonAgent(Agent):
+    """Document 02 §4.5.3 — Manufacturer Comparison Agent.
+
+    Drives Stage 11. Produces the Manufacturer Comparison Report
+    (ENT-MAN-003). Vendor-neutral by design. Does NOT select a
+    Manufacturer.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Manufacturer Comparison Agent",
+            constitutional_purpose="Compare candidate Manufacturers objectively.",
+            prohibited_actions=(
+                "Select a Manufacturer",
+                "Promote a brand",
+            ),
+            office="Manufacturer Intelligence Office",
+            charter_section="Document 02 §4.5.3",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, opportunity_id: str, **kwargs):
+        return self.service.create_manufacturer_comparison(
+            actor_id=actor_id, role_code=role_code, opportunity_id=opportunity_id, **kwargs
+        )
+
+
+# ---------------------------------------------------------------------------
+# Phase 5 — Commercial Development Office (§4.6) — selected agents
+# ---------------------------------------------------------------------------
+
+
+class CommercialEvaluationAgent(Agent):
+    """Document 02 §4.6.1 — Commercial Evaluation Agent.
+
+    Drives Stage 12. Produces the Commercial Evaluation (ENT-COM-001)
+    with a multi-dimensional scorecard, assumptions, and uncertainty.
+    Does NOT approve pursuit.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Commercial Evaluation Agent",
+            constitutional_purpose="Evaluate the commercial case for an Opportunity.",
+            prohibited_actions=(
+                "Approve pursuit",
+                "Bind Techno Service",
+            ),
+            office="Commercial Development Office",
+            charter_section="Document 02 §4.6.1",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, opportunity_id: str, **kwargs):
+        return self.service.create_commercial_evaluation(
+            actor_id=actor_id, role_code=role_code, opportunity_id=opportunity_id, **kwargs
+        )
+
+
+class PricingAndMarginAnalystAgent(Agent):
+    """Document 02 §4.6.5 — Pricing and Margin Analyst Agent.
+
+    Drives Stage 12. Produces the Pricing Analysis (ENT-COM-005).
+    Flags margin floors. Does NOT set or commit prices.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Pricing and Margin Analyst Agent",
+            constitutional_purpose="Analyse pricing, cost, and margin.",
+            prohibited_actions=(
+                "Set or commit prices",
+                "Bind Techno Service",
+            ),
+            office="Commercial Development Office",
+            charter_section="Document 02 §4.6.5",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, opportunity_id: str, **kwargs):
+        return self.service.create_pricing_analysis(
+            actor_id=actor_id, role_code=role_code, opportunity_id=opportunity_id, **kwargs
+        )
+
+
+class BusinessDevelopmentAgent(Agent):
+    """Document 02 §4.6.3 — Business Development Agent.
+
+    Drives Stage 16. Prepares engagement materials. Constitutionally
+    REQUIRES Human Approval AND register clearance for any external
+    contact. Does NOT contact a counterparty without Human Approval.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Business Development Agent",
+            constitutional_purpose="Prepare business development engagement for an Opportunity.",
+            prohibited_actions=(
+                "Contact without Human Approval",
+                "Commit prices or margins",
+                "Promise exclusivity",
+                "Bind Techno Service",
+            ),
+            office="Commercial Development Office",
+            charter_section="Document 02 §4.6.3",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, opportunity_id: str, **kwargs):
+        return self.service.create_bd_engagement(
+            actor_id=actor_id, role_code=role_code, opportunity_id=opportunity_id, **kwargs
+        )
+
+
+# ---------------------------------------------------------------------------
+# Phase 5 — Registration and Market Entry Office (§4.7) — selected agents
+# ---------------------------------------------------------------------------
+
+
+class RegistrationCoordinatorAgent(Agent):
+    """Document 02 §4.7.1 — Registration Coordinator Agent.
+
+    Drives Stage 17. Maintains the Registration Status Report
+    (ENT-REG-001). Does NOT file or commit without Human Approval.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Registration Coordinator Agent",
+            constitutional_purpose="Govern manufacturer, partner, and product registration processes.",
+            prohibited_actions=(
+                "File without Human Approval",
+                "Misrepresent registration status",
+                "Bind Techno Service",
+            ),
+            office="Registration and Market Entry Office",
+            charter_section="Document 02 §4.7.1",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, opportunity_id: str, **kwargs):
+        return self.service.create_registration_status(
+            actor_id=actor_id, role_code=role_code, opportunity_id=opportunity_id, **kwargs
+        )
+
+
+class PrequalificationAgent(Agent):
+    """Document 02 §4.7.2 — Prequalification Agent.
+
+    Drives Stage 17. Maintains the Prequalification Status Report
+    (ENT-REG-002). Does NOT submit or commit without Human Approval.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Prequalification Agent",
+            constitutional_purpose="Govern prequalification with customers and authorities.",
+            prohibited_actions=(
+                "Submit without Human Approval",
+                "Misrepresent status",
+                "Bind Techno Service",
+            ),
+            office="Registration and Market Entry Office",
+            charter_section="Document 02 §4.7.2",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, opportunity_id: str, **kwargs):
+        return self.service.create_prequalification_status(
+            actor_id=actor_id, role_code=role_code, opportunity_id=opportunity_id, **kwargs
+        )
+
+
+class MarketEntryStrategyAgent(Agent):
+    """Document 02 §4.7.3 — Market Entry Strategy Agent.
+
+    Drives Stage 18. Produces the Market Entry Options Report
+    (ENT-REG-004). Does NOT select a path; selection is a Human
+    Authority decision.
+    """
+
+    def __init__(self, service: WorkflowService | None = None) -> None:
+        super().__init__(
+            name="Market Entry Strategy Agent",
+            constitutional_purpose="Design market-entry strategies for new Manufacturers, products, or territories.",
+            prohibited_actions=(
+                "Select a market-entry path",
+                "Bind Techno Service",
+            ),
+            office="Registration and Market Entry Office",
+            charter_section="Document 02 §4.7.3",
+            service=service or WorkflowService(),
+        )
+
+    def execute(self, *, actor_id: str, role_code: str, opportunity_id: str, **kwargs):
+        return self.service.create_market_entry_options(
+            actor_id=actor_id, role_code=role_code, opportunity_id=opportunity_id, **kwargs
+        )
+
+
+# ---------------------------------------------------------------------------
+# Phase 5 Roster — 9 Principal Agents (3 Manufacturer + 3 Commercial + 3 Registration)
+# ---------------------------------------------------------------------------
+
+
+def nine_agent_roster(service: WorkflowService | None = None) -> list[Agent]:
+    """Return the 9 Principal Agents activated in Phase 5 (3 Offices).
+
+    Manufacturer Intelligence: 3
+    Commercial Development: 3
+    Registration and Market Entry: 3
+    Total: 9.
+
+    Per Document 02 §4.5, §4.6, §4.7 — Phase 5 activates 3 of the 5
+    Commercial Development agents and 3 of the 4 Registration/Market
+    Entry agents. The remaining agents (Commercial Model Designer,
+    Negotiation Support, After-Sales Intelligence, Approved Vendor
+    List Manager) are deferred to Phase 6+.
+    """
+    svc = service or WorkflowService()
+    return [
+        # Manufacturer Intelligence (3)
+        ManufacturerProfilerAgent(svc),
+        ManufacturerCredibilityAnalystAgent(svc),
+        ManufacturerComparisonAgent(svc),
+        # Commercial Development (3)
+        CommercialEvaluationAgent(svc),
+        PricingAndMarginAnalystAgent(svc),
+        BusinessDevelopmentAgent(svc),
+        # Registration and Market Entry (3)
+        RegistrationCoordinatorAgent(svc),
+        PrequalificationAgent(svc),
+        MarketEntryStrategyAgent(svc),
+    ]
+
+
+def assert_phase5_agents() -> int:
+    """Assert the 9-agent Phase 5 roster is complete. Returns the count."""
+    roster = nine_agent_roster()
+    assert len(roster) == 9, f"Phase 5 must have 9 Principal Agents, got {len(roster)}"
+    return 9
+
