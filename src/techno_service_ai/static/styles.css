@@ -296,3 +296,46 @@ table.data code {
   .app-main { max-width: 1320px; }
   .narrow { max-width: 460px; }
 }
+
+
+/* ---------- i18n: language switcher + RTL ---------- */
+.lang-switcher {
+  display: inline-flex;
+  gap: .25rem;
+  margin-left: auto;
+  margin-right: .5rem;
+  align-items: center;
+}
+.lang-link {
+  padding: .25rem .5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: .85rem;
+  text-decoration: none;
+  color: #1f3a8a;
+  background: #fff;
+}
+.lang-link:hover { background: #f3f4f6; }
+.lang-link.active {
+  background: #1f3a8a;
+  color: #fff;
+  border-color: #1f3a8a;
+  font-weight: 600;
+}
+.lang-link[aria-current="true"] {
+  background: #1f3a8a;
+  color: #fff;
+  border-color: #1f3a8a;
+  font-weight: 600;
+}
+
+/* RTL: flip margins/paddings to logical properties where possible.
+   The English baseline uses physical properties; the RTL overrides
+   below only adjust what visibly breaks (margins, text alignment,
+   the language switcher position). */
+html[dir="rtl"] body { text-align: right; }
+html[dir="rtl"] .app-header { flex-direction: row-reverse; }
+html[dir="rtl"] .lang-switcher { margin-left: .5rem; margin-right: auto; }
+html[dir="rtl"] .narrow { margin-left: auto; margin-right: auto; }
+html[dir="rtl"] .alert, html[dir="rtl"] .card { text-align: right; }
+html[dir="rtl"] table { direction: rtl; }

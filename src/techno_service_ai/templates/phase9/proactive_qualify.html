@@ -1,33 +1,33 @@
 {% extends "phase9/base.html" %}
-{% block title %}New Product Detector — 5 Qualification Filters{% endblock %}
+{% block title %}{{ "qualify.title" | t(lang_code()) }}{% endblock %}
 {% block content %}
-<h1>New Product Detector — §4.18.2</h1>
-<p class="pd-meta">SCR-PD-003. Apply the 5 qualification filters (F1..F5). All 5 must PASS for QUALIFIED.</p>
+<h1>{{ "qualify.title" | t(lang_code()) }}</h1>
+<p class="pd-meta">{{ "qualify.subtitle" | t(lang_code()) }}</p>
 
 {% if error %}<div class="pd-error">{{ error }}</div>{% endif %}
 
 <form method="post" action="/proactive/qualify">
   <div class="pd-form-row">
-    <label for="discovery_id">Discovery ID</label>
+    <label for="discovery_id">{{ "qualify.discovery_id" | t(lang_code()) }}</label>
     <input id="discovery_id" name="discovery_id" required />
   </div>
 
-  <h3 style="margin-top:1rem;">F1 — Kuwait Climate Suitability</h3>
+  <h3 style="margin-top:1rem;">{{ "qualify.f1.heading" | t(lang_code()) }}</h3>
   <div class="pd-form-row">
-    <label for="f1_heat_rating">Heat Rating (must include 55C+ or 60C+)</label>
+    <label for="f1_heat_rating">{{ "qualify.f1.heat" | t(lang_code()) }}</label>
     <input id="f1_heat_rating" name="f1_heat_rating" placeholder="e.g. -10C to +60C" value="-10C to +60C" />
   </div>
   <div class="pd-form-row">
-    <label for="f1_dust_rating">Dust Rating (IP65 / IP66 / NEMA 4)</label>
+    <label for="f1_dust_rating">{{ "qualify.f1.dust" | t(lang_code()) }}</label>
     <input id="f1_dust_rating" name="f1_dust_rating" placeholder="e.g. IP66" value="IP66" />
   </div>
 
-  <h3 style="margin-top:1rem;">F2 — Retrofit-Friendliness</h3>
+  <h3 style="margin-top:1rem;">{{ "qualify.f2.heading" | t(lang_code()) }}</h3>
   <div class="pd-form-row">
-    <label><input type="checkbox" name="f2_requires_major_change" /> Requires major system change (FAIL if checked)</label>
+    <label><input type="checkbox" name="f2_requires_major_change" /> {{ "qualify.f2.requires_change" | t(lang_code()) }}</label>
   </div>
   <div class="pd-form-row">
-    <label for="f2_installation_complexity">Installation Complexity</label>
+    <label for="f2_installation_complexity">{{ "qualify.f2.complexity" | t(lang_code()) }}</label>
     <select id="f2_installation_complexity" name="f2_installation_complexity">
       <option value="LOW" selected>LOW</option>
       <option value="MEDIUM">MEDIUM</option>
@@ -35,21 +35,21 @@
     </select>
   </div>
 
-  <h3 style="margin-top:1rem;">F3 — No Agent in Kuwait</h3>
+  <h3 style="margin-top:1rem;">{{ "qualify.f3.heading" | t(lang_code()) }}</h3>
   <div class="pd-form-row">
-    <label for="f3_existing_agents">Existing agents in Kuwait (comma-separated; empty = exclusive available)</label>
+    <label for="f3_existing_agents">{{ "qualify.f3.agents" | t(lang_code()) }}</label>
     <input id="f3_existing_agents" name="f3_existing_agents" placeholder="" />
   </div>
 
-  <h3 style="margin-top:1rem;">F4 — Low Operating Cost</h3>
+  <h3 style="margin-top:1rem;">{{ "qualify.f4.heading" | t(lang_code()) }}</h3>
   <div class="pd-form-row">
-    <label><input type="checkbox" name="f4_requires_specialised_training" /> Requires specialised training (FAIL if checked)</label>
+    <label><input type="checkbox" name="f4_requires_specialised_training" /> {{ "qualify.f4.training" | t(lang_code()) }}</label>
   </div>
   <div class="pd-form-row">
-    <label><input type="checkbox" name="f4_requires_engineering_team" /> Requires engineering team (FAIL if checked)</label>
+    <label><input type="checkbox" name="f4_requires_engineering_team" /> {{ "qualify.f4.engineering" | t(lang_code()) }}</label>
   </div>
   <div class="pd-form-row">
-    <label for="f4_annual_maintenance_cost">Annual Maintenance Cost</label>
+    <label for="f4_annual_maintenance_cost">{{ "qualify.f4.maint" | t(lang_code()) }}</label>
     <select id="f4_annual_maintenance_cost" name="f4_annual_maintenance_cost">
       <option value="LOW" selected>LOW</option>
       <option value="MEDIUM">MEDIUM</option>
@@ -57,19 +57,19 @@
     </select>
   </div>
 
-  <h3 style="margin-top:1rem;">F5 — Medium / Emerging Company</h3>
+  <h3 style="margin-top:1rem;">{{ "qualify.f5.heading" | t(lang_code()) }}</h3>
   <div class="pd-form-row">
-    <label for="f5_employee_count">Employee Count (10..2000)</label>
+    <label for="f5_employee_count">{{ "qualify.f5.employees" | t(lang_code()) }}</label>
     <input type="number" id="f5_employee_count" name="f5_employee_count" value="200" />
   </div>
   <div class="pd-form-row">
-    <label for="f5_annual_revenue_usd">Annual Revenue USD (1M..500M)</label>
+    <label for="f5_annual_revenue_usd">{{ "qualify.f5.revenue" | t(lang_code()) }}</label>
     <input type="number" id="f5_annual_revenue_usd" name="f5_annual_revenue_usd" value="20000000" />
   </div>
   <div class="pd-form-row">
-    <label><input type="checkbox" name="f5_is_tier_1" /> Tier-1 manufacturer (FAIL if checked)</label>
+    <label><input type="checkbox" name="f5_is_tier_1" /> {{ "qualify.f5.tier1" | t(lang_code()) }}</label>
   </div>
 
-  <button type="submit" style="padding:.5rem 1rem;background:#111827;color:#fff;border:none;border-radius:4px;">Apply 5 Filters</button>
+  <button type="submit" style="padding:.5rem 1rem;background:#111827;color:#fff;border:none;border-radius:4px;">{{ "qualify.submit" | t(lang_code()) }}</button>
 </form>
 {% endblock %}

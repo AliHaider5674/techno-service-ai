@@ -1,25 +1,25 @@
 {% extends "base.html" %}
-{% block title %}Sign in · Techno Service AI{% endblock %}
+{% block title %}{{ "signin.title" | t(lang_code()) }} · {{ "site.title" | t(lang_code()) }}{% endblock %}
 {% block content %}
 <div class="narrow">
   <div class="card">
-    <h2>Sign in</h2>
-    <p class="muted">Access the Techno Service AI Intelligence System. All actions are recorded in the audit log (Constitution Article XX).</p>
+    <h2>{{ "signin.title" | t(lang_code()) }}</h2>
+    <p class="muted">{{ "site.tagline" | t(lang_code()) }}. All actions are recorded in the audit log (Constitution Article XX).</p>
 
     {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
-    {% if request.query_params.get('recovered') %}<div class="alert success">Password reset. Please sign in with your new password.</div>{% endif %}
+    {% if request.query_params.get('recovered') %}<div class="alert success">{{ "signin.title" | t(lang_code()) }}: Password reset. Please sign in with your new password.</div>{% endif %}
 
     <form method="post" action="/sign-in" autocomplete="on">
       <div class="form-row">
-        <label for="username">Username</label>
+        <label for="username">{{ "signin.username" | t(lang_code()) }}</label>
         <input id="username" name="username" type="text" autocomplete="username" required value="{{ username }}" />
       </div>
       <div class="form-row">
-        <label for="password">Password</label>
+        <label for="password">{{ "signin.password" | t(lang_code()) }}</label>
         <input id="password" name="password" type="password" autocomplete="current-password" required />
       </div>
-      <button class="btn" type="submit">Sign in</button>
-      <a class="btn secondary" href="/recover">Forgot password</a>
+      <button class="btn" type="submit">{{ "signin.submit" | t(lang_code()) }}</button>
+      <a class="btn secondary" href="/recover">{{ "signin.recover" | t(lang_code()) }}</a>
     </form>
   </div>
 

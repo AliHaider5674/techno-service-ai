@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Home · Techno Service AI{% endblock %}
+{% block title %}{{ "home.welcome" | t(lang_code()) }} · {{ "site.title" | t(lang_code()) }}{% endblock %}
 {% block content %}
 <div class="card">
-  <h2>Welcome, {{ principal.display_name }}</h2>
+  <h2>{{ "home.welcome" | t(lang_code()) }}, {{ principal.display_name }}</h2>
   {% if principal.persona_label %}
-    <p>Active persona: <strong>{{ principal.persona_label }}</strong></p>
+    <p>{{ "home.persona" | t(lang_code()) }}: <strong>{{ principal.persona_label }}</strong></p>
   {% else %}
     <div class="alert info">No persona is active. <a href="/persona/select">Select a persona</a> to proceed.</div>
   {% endif %}
@@ -25,6 +25,7 @@
     {% if 'ADMIN' in principal.role_codes or 'COMPLIANCE' in principal.role_codes or 'AUDITOR' in principal.role_codes %}
       <li><a href="/admin/audit-log">Audit log</a></li>
     {% endif %}
+    <li><a href="/proactive/"><strong>v2.4: Proactive Discovery Office (Office 18)</strong></a></li>
   </ul>
   <p class="muted">Subsequent phases (Data Foundation, Workflow / Verification / Approval, Discovery Order, Manufacturer / Commercial, etc.) are scoped in the Implementation Roadmap (Document 08).</p>
 </div>

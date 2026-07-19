@@ -413,3 +413,8 @@ def add_phase4_routes(app: FastAPI) -> None:
             n_opps=n_opps, n_signals=n_signals, n_comparatives=n_comparatives,
             title="Executive Dashboard",
         )
+
+
+# i18n (lite): register the 	 filter + i18n globals on this phase's templates.
+from .i18n import apply_to_jinja
+apply_to_jinja(templates)

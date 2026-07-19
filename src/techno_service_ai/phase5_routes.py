@@ -450,3 +450,8 @@ def add_phase5_routes(app: FastAPI) -> None:
             principal=principal, evaluations=evals_, pricing=pricing,
             engagements=engagements, registrations=regs,
         )
+
+
+# i18n (lite): register the 	 filter + i18n globals on this phase's templates.
+from .i18n import apply_to_jinja
+apply_to_jinja(templates)

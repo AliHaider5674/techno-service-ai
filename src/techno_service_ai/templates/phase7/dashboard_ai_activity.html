@@ -9,13 +9,14 @@
 <h3>Recent AI Activity</h3>
 {% if ai_logs %}
 <table>
-  <thead><tr><th>Date</th><th>Recommendation</th><th>Confidence</th></tr></thead>
+  <thead><tr><th>Date</th><th>Target</th><th>Description</th><th>Constitutional Impact</th></tr></thead>
   <tbody>
   {% for a in ai_logs %}
     <tr>
       <td>{{ a.created_at }}</td>
-      <td>{{ a.recommendation_id }}</td>
-      <td>{{ a.confidence if a.confidence else "—" }}</td>
+      <td>{{ a.target_type }}/{{ a.target_id[:8] }}</td>
+      <td>{{ a.description or "—" }}</td>
+      <td>{{ "YES" if a.constitutional_impact else "no" }}</td>
     </tr>
   {% endfor %}
   </tbody>

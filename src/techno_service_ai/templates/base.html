@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ lang_code() }}" dir="{{ dir_attr() }}">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>{% block title %}Techno Service AI{% endblock %}</title>
+  <title>{% block title %}{{ "site.title" | t(lang_code()) }}{% endblock %}</title>
   <link rel="stylesheet" href="/static/styles.css" />
   <meta name="theme-color" content="#1f3a8a" />
   {% block head %}{% endblock %}
@@ -14,6 +14,18 @@
       <div class="brand">
         TECHNO SERVICE
         <small>AI Intelligence System — Phase 1</small>
+      </div>
+      {# i18n: language switcher (EN | عربي) — opt-in; default is English. #}
+      <div class="lang-switcher" aria-label="{{ 'site.language.switcher' | t(lang_code()) }}">
+        {% set _cur = lang_code() %}
+        {% for _code, _label_en, _label_native in [('en', 'English', 'English'), ('ar', 'Arabic', 'العربية')] %}
+          <a href="/i18n/set?lang={{ _code }}&next={{ request.url.path }}"
+             class="lang-link {% if _cur == _code %}active{% endif %}"
+             rel="nofollow"
+             aria-current="{% if _cur == _code %}true{% else %}false{% endif %}">
+            {{ _label_native }}
+          </a>
+        {% endfor %}
       </div>
       {% if principal %}
         <div class="user-chip" title="{{ principal.display_name }}">

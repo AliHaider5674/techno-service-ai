@@ -1,40 +1,46 @@
 {% extends "phase9/base.html" %}
-{% block title %}Proactive Discovery Dashboard{% endblock %}
+{% block title %}{{ "pd.title" | t(lang_code()) }}{% endblock %}
 {% block content %}
-<h1>Office 18 — Product Discovery Proactive</h1>
-<p class="pd-meta">Constitution v2.4 (Class 4 adoption 2026-07-19) · 4 Principal Agents · 5 Qualification Filters · 10-Step Exclusive Agency Acquisition Workflow</p>
+<h1>{{ "pd.title" | t(lang_code()) }}</h1>
+<p class="pd-meta">{{ "pd.subtitle" | t(lang_code()) }}</p>
 
 <div class="pd-grid">
   <a class="pd-card" href="/proactive/scan" style="text-decoration:none;color:inherit;">
-    <h3>SCR-PD-002 — Global Product Monitor</h3>
-    <p class="pd-meta">§4.18.1 — Raise a discovery signal across all sectors.</p>
+    <h3>{{ "pd.nav.scan" | t(lang_code()) }}</h3>
+    <p class="pd-meta">§4.18.1 — {{ "scan.subtitle" | t(lang_code()) }}</p>
   </a>
   <a class="pd-card" href="/proactive/qualify" style="text-decoration:none;color:inherit;">
-    <h3>SCR-PD-003 — New Product Detector</h3>
-    <p class="pd-meta">§4.18.2 — Apply the 5 qualification filters (F1..F5).</p>
+    <h3>{{ "pd.nav.qualify" | t(lang_code()) }}</h3>
+    <p class="pd-meta">§4.18.2 — {{ "qualify.subtitle" | t(lang_code()) }}</p>
   </a>
   <a class="pd-card" href="/proactive/patents" style="text-decoration:none;color:inherit;">
-    <h3>SCR-PD-004 — Patent Watch</h3>
-    <p class="pd-meta">§4.18.4 — Surface patent alerts with relevance scoring.</p>
+    <h3>{{ "pd.nav.patents" | t(lang_code()) }}</h3>
+    <p class="pd-meta">§4.18.4 — {{ "patents.subtitle" | t(lang_code()) }}</p>
   </a>
   <a class="pd-card" href="/proactive/companies" style="text-decoration:none;color:inherit;">
-    <h3>SCR-PD-005 — Emerging Companies</h3>
-    <p class="pd-meta">§4.18.3 — Profile medium/emerging companies.</p>
+    <h3>{{ "pd.nav.companies" | t(lang_code()) }}</h3>
+    <p class="pd-meta">§4.18.3 — {{ "pd.nav.companies" | t(lang_code()) }}</p>
   </a>
   <a class="pd-card" href="/proactive/agency-workflow" style="text-decoration:none;color:inherit;">
-    <h3>SCR-PD-006 — Exclusive Agency Workflow</h3>
-    <p class="pd-meta">10 steps; Class 3 at step 6; Class 4 at step 8.</p>
+    <h3>{{ "pd.nav.workflow" | t(lang_code()) }}</h3>
+    <p class="pd-meta">{{ "workflow.subtitle" | t(lang_code()) }}</p>
   </a>
   <a class="pd-card" href="/proactive/report" style="text-decoration:none;color:inherit;">
-    <h3>SCR-PD-007 — Daily Proactive Discovery Report</h3>
-    <p class="pd-meta">ENT-PD-006 — Daily summary with source citation.</p>
+    <h3>{{ "pd.nav.report" | t(lang_code()) }}</h3>
+    <p class="pd-meta">ENT-PD-006 — {{ "report.subtitle" | t(lang_code()) }}</p>
   </a>
 </div>
 
-<h2 style="margin-top:1.5rem;">Recent Discoveries</h2>
+<h2 style="margin-top:1.5rem;">{{ "pd.dashboard.heading" | t(lang_code()) }}</h2>
 {% if discoveries %}
 <table class="pd-table">
-  <thead><tr><th>Product</th><th>Manufacturer</th><th>Category</th><th>Signal</th><th>Source</th></tr></thead>
+  <thead><tr>
+    <th>{{ "pd.table.product" | t(lang_code()) }}</th>
+    <th>{{ "pd.table.manufacturer" | t(lang_code()) }}</th>
+    <th>{{ "pd.table.category" | t(lang_code()) }}</th>
+    <th>{{ "pd.table.signal" | t(lang_code()) }}</th>
+    <th>{{ "pd.table.source" | t(lang_code()) }}</th>
+  </tr></thead>
   <tbody>
   {% for d in discoveries %}
     <tr>
@@ -47,12 +53,16 @@
   {% endfor %}
   </tbody>
 </table>
-{% else %}<p class="pd-meta">No discoveries yet.</p>{% endif %}
+{% else %}<p class="pd-meta">{{ "pd.dashboard.empty" | t(lang_code()) }}</p>{% endif %}
 
-<h2 style="margin-top:1.5rem;">Recent Qualification Results</h2>
+<h2 style="margin-top:1.5rem;">{{ "pd.filters.heading" | t(lang_code()) }}</h2>
 {% if filter_results %}
 <table class="pd-table">
-  <thead><tr><th>Discovery</th><th>Overall</th><th>F1</th><th>F2</th><th>F3</th><th>F4</th><th>F5</th></tr></thead>
+  <thead><tr>
+    <th>{{ "pd.filters.discovery" | t(lang_code()) }}</th>
+    <th>{{ "pd.filters.overall" | t(lang_code()) }}</th>
+    <th>F1</th><th>F2</th><th>F3</th><th>F4</th><th>F5</th>
+  </tr></thead>
   <tbody>
   {% for r in filter_results %}
     <tr>
@@ -67,12 +77,17 @@
   {% endfor %}
   </tbody>
 </table>
-{% else %}<p class="pd-meta">No filter results yet.</p>{% endif %}
+{% else %}<p class="pd-meta">{{ "pd.dashboard.empty" | t(lang_code()) }}</p>{% endif %}
 
-<h2 style="margin-top:1.5rem;">Recent Patent Alerts</h2>
+<h2 style="margin-top:1.5rem;">{{ "pd.patents.heading" | t(lang_code()) }}</h2>
 {% if patents %}
 <table class="pd-table">
-  <thead><tr><th>Patent</th><th>Title</th><th>Assignee</th><th>Relevance</th></tr></thead>
+  <thead><tr>
+    <th>{{ "pd.patents.patent" | t(lang_code()) }}</th>
+    <th>{{ "pd.patents.title" | t(lang_code()) }}</th>
+    <th>{{ "pd.patents.assignee" | t(lang_code()) }}</th>
+    <th>{{ "pd.patents.relevance" | t(lang_code()) }}</th>
+  </tr></thead>
   <tbody>
   {% for p in patents %}
     <tr>
@@ -84,12 +99,18 @@
   {% endfor %}
   </tbody>
 </table>
-{% else %}<p class="pd-meta">No patent alerts yet.</p>{% endif %}
+{% else %}<p class="pd-meta">{{ "pd.dashboard.empty" | t(lang_code()) }}</p>{% endif %}
 
-<h2 style="margin-top:1.5rem;">Exclusive Agency Opportunities</h2>
+<h2 style="margin-top:1.5rem;">{{ "pd.agency.heading" | t(lang_code()) }}</h2>
 {% if agency %}
 <table class="pd-table">
-  <thead><tr><th>Manufacturer</th><th>Step</th><th>Status</th><th>C3</th><th>C4</th></tr></thead>
+  <thead><tr>
+    <th>{{ "pd.agency.manufacturer" | t(lang_code()) }}</th>
+    <th>{{ "pd.agency.step" | t(lang_code()) }}</th>
+    <th>{{ "pd.agency.status" | t(lang_code()) }}</th>
+    <th>{{ "pd.agency.c3" | t(lang_code()) }}</th>
+    <th>{{ "pd.agency.c4" | t(lang_code()) }}</th>
+  </tr></thead>
   <tbody>
   {% for a in agency %}
     <tr>
@@ -102,5 +123,5 @@
   {% endfor %}
   </tbody>
 </table>
-{% else %}<p class="pd-meta">No exclusive agency opportunities yet.</p>{% endif %}
+{% else %}<p class="pd-meta">{{ "pd.dashboard.empty" | t(lang_code()) }}</p>{% endif %}
 {% endblock %}

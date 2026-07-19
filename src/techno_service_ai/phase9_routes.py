@@ -31,6 +31,8 @@ def add_phase9_routes(app: FastAPI) -> None:
 
     from fastapi.templating import Jinja2Templates
     _t = Jinja2Templates(directory=str(TEMPLATES_DIR))
+    from .i18n import apply_to_jinja
+    apply_to_jinja(_t)
 
     def _render(
         request: Request,

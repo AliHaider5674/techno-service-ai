@@ -261,3 +261,8 @@ def add_phase3_routes(app: FastAPI) -> None:
             priorities=list(NotificationPriority),
             title="Notification Inbox",
         )
+
+
+# i18n (lite): register the 	 filter + i18n globals on this phase's templates.
+from .i18n import apply_to_jinja
+apply_to_jinja(templates)

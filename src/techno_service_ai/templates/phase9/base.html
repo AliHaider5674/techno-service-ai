@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ lang_code() }}" dir="{{ dir_attr() }}">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{% block title %}Proactive Discovery{% endblock %} · Techno Service AI</title>
+  <title>{% block title %}{{ "site.title" | t(lang_code()) }}{% endblock %}</title>
   <link rel="stylesheet" href="/static/app.css" />
   <style>
     .pd-card { background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:.5rem 0; }
@@ -27,8 +27,19 @@
 </head>
 <body>
   <header style="background:#111827;color:#fff;padding:1rem;">
-    <a href="/home" style="color:#fff;text-decoration:none;font-weight:700;">Techno Service AI</a>
-    · <a href="/proactive/" style="color:#9ca3af;">Product Discovery Proactive (Office 18)</a>
+    <a href="/home" style="color:#fff;text-decoration:none;font-weight:700;">{{ "site.title" | t(lang_code()) }}</a>
+    · <a href="/proactive/" style="color:#9ca3af;">{{ "pd.title" | t(lang_code()) }}</a>
+    {# i18n: language switcher #}
+    <div class="lang-switcher" style="display:inline-block;margin-left:1rem;">
+      {% set _cur = lang_code() %}
+      {% for _code, _label_native in [('en', 'English'), ('ar', 'العربية')] %}
+        <a href="/i18n/set?lang={{ _code }}&next={{ request.url.path }}"
+           class="lang-link"
+           style="color:{% if _cur == _code %}#fff{% else %}#9ca3af{% endif %};text-decoration:none;margin-right:.5rem;font-weight:{% if _cur == _code %}700{% else %}400{% endif %};">
+          {{ _label_native }}
+        </a>
+      {% endfor %}
+    </div>
     {% if principal %}
     <span style="float:right;color:#9ca3af;font-size:.9rem;">
       {{ principal.display_name }}{% if principal.persona_label %} · {{ principal.persona_label }}{% endif %}

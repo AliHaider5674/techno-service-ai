@@ -1,53 +1,53 @@
 {% extends "phase9/base.html" %}
-{% block title %}Exclusive Agency Acquisition Workflow{% endblock %}
+{% block title %}{{ "workflow.title" | t(lang_code()) }}{% endblock %}
 {% block content %}
-<h1>Exclusive Agency Acquisition Workflow — 10 Steps</h1>
-<p class="pd-meta">SCR-PD-006. Class 3 approval REQUIRED at step 6. Class 4 approval REQUIRED at step 8.</p>
+<h1>{{ "workflow.title" | t(lang_code()) }}</h1>
+<p class="pd-meta">{{ "workflow.subtitle" | t(lang_code()) }}</p>
 
 {% if error %}<div class="pd-error">{{ error }}</div>{% endif %}
 
 <ol style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:1rem 1rem 1rem 2.5rem;">
-  <li><strong>Step 1</strong> — Discovery signal (Global Product Monitor)</li>
-  <li><strong>Step 2</strong> — Qualification (5 filters; all 5 must PASS)</li>
-  <li><strong>Step 3</strong> — Manufacturer profiling (Emerging Company Scout)</li>
-  <li><strong>Step 4</strong> — Patent check (Patent Watch)</li>
-  <li><strong>Step 5</strong> — Cost analysis (Operating Cost + Training Burden)</li>
-  <li><strong>Step 6</strong> — <span class="pd-badge">Class 3 approval</span> to proceed with outreach</li>
-  <li><strong>Step 7</strong> — Contact + NDA</li>
-  <li><strong>Step 8</strong> — <span class="pd-badge">Class 4 approval</span> to sign exclusive agency</li>
-  <li><strong>Step 9</strong> — Contract execution</li>
-  <li><strong>Step 10</strong> — Onboarding</li>
+  <li><strong>{{ "workflow.step.1" | t(lang_code()) }}</strong></li>
+  <li><strong>{{ "workflow.step.2" | t(lang_code()) }}</strong></li>
+  <li><strong>{{ "workflow.step.3" | t(lang_code()) }}</strong></li>
+  <li><strong>{{ "workflow.step.4" | t(lang_code()) }}</strong></li>
+  <li><strong>{{ "workflow.step.5" | t(lang_code()) }}</strong></li>
+  <li><strong><span class="pd-badge">{{ "workflow.step.6" | t(lang_code()) }}</span></strong></li>
+  <li><strong>{{ "workflow.step.7" | t(lang_code()) }}</strong></li>
+  <li><strong><span class="pd-badge">{{ "workflow.step.8" | t(lang_code()) }}</span></strong></li>
+  <li><strong>{{ "workflow.step.9" | t(lang_code()) }}</strong></li>
+  <li><strong>{{ "workflow.step.10" | t(lang_code()) }}</strong></li>
 </ol>
 
 <form method="post" action="/proactive/agency-workflow" style="margin-top:1rem;">
   <div class="pd-form-row">
-    <label for="discovery_id">Discovery ID</label>
+    <label for="discovery_id">{{ "workflow.discovery_id" | t(lang_code()) }}</label>
     <input id="discovery_id" name="discovery_id" required />
   </div>
   <div class="pd-form-row">
-    <label for="manufacturer_name">Manufacturer Name</label>
+    <label for="manufacturer_name">{{ "workflow.manufacturer_name" | t(lang_code()) }}</label>
     <input id="manufacturer_name" name="manufacturer_name" required />
   </div>
   <div class="pd-form-row">
-    <label for="product_summary">Product Summary</label>
+    <label for="product_summary">{{ "workflow.product_summary" | t(lang_code()) }}</label>
     <textarea id="product_summary" name="product_summary"></textarea>
   </div>
   <div class="pd-form-row">
-    <label for="current_step">Current Step (1..10)</label>
+    <label for="current_step">{{ "workflow.current_step" | t(lang_code()) }}</label>
     <input type="number" id="current_step" name="current_step" value="1" min="1" max="10" required />
   </div>
   <div class="pd-form-row">
-    <label for="target_step">Target Step (1..10)</label>
+    <label for="target_step">{{ "workflow.target_step" | t(lang_code()) }}</label>
     <input type="number" id="target_step" name="target_step" value="2" min="1" max="10" required />
   </div>
   <div class="pd-form-row">
-    <label for="class_3_approval_id">Class 3 Approval ID (REQUIRED for step 6+)</label>
+    <label for="class_3_approval_id">{{ "workflow.c3" | t(lang_code()) }}</label>
     <input id="class_3_approval_id" name="class_3_approval_id" />
   </div>
   <div class="pd-form-row">
-    <label for="class_4_approval_id">Class 4 Approval ID (REQUIRED for step 8+)</label>
+    <label for="class_4_approval_id">{{ "workflow.c4" | t(lang_code()) }}</label>
     <input id="class_4_approval_id" name="class_4_approval_id" />
   </div>
-  <button type="submit" style="padding:.5rem 1rem;background:#111827;color:#fff;border:none;border-radius:4px;">Advance Workflow</button>
+  <button type="submit" style="padding:.5rem 1rem;background:#111827;color:#fff;border:none;border-radius:4px;">{{ "workflow.submit" | t(lang_code()) }}</button>
 </form>
 {% endblock %}

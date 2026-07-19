@@ -161,10 +161,20 @@ def add_phase7_routes(app: FastAPI) -> None:
         request: Request,
         principal: Optional[Principal] = Depends(current_principal),
     ) -> HTMLResponse:
-        """AI Activity Dashboard — recent AI recommendations + history."""
-        from .phase2_schema import AIRecommendationLog
+        """AI Activity Dashboard — recent AI activity + history.
+
+        P1 fix (sprint 2026-07-19): The route previously referenced
+        `AIRecommendationLog` which is not in the schema. We use
+        `LearningUpdate` (the canonical AI activity entity per
+        Document 02 §4.17) instead.
+        """
+        from .phase2_schema import LearningUpdate
         with _db() as s:
-            ai_logs = s.execute(select(AIRecommendationLog).order_by(AIRecommendationLog.created_at.desc()).limit(50)).scalars().all()
+            ai_logs = s.execute(
+                select(LearningUpdate)
+                .order_by(LearningUpdate.created_at.desc())
+                .limit(50)
+            ).scalars().all()
         return _render(
             request, "dashboard_ai_activity.html",
             principal=principal, ai_logs=ai_logs,
@@ -404,3 +414,8 @@ def add_phase7_routes(app: FastAPI) -> None:
             request, "continuous_learning.html",
             principal=principal, learning_updates=learning_updates,
         )
+
+
+# i18n (lite): register the 	 filter + i18n globals on this phase's templates.
+from .i18n import apply_to_jinja
+apply_to_jinja(templates)

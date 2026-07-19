@@ -52,6 +52,40 @@ TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
+# i18n (lite): register the `t()` filter on the Jinja env so templates
+# can call `{{ "signin.title" | t(lang) }}` to externalise strings.
+# Default language is English; Arabic is opt-in via the `tsai_lang`
+# cookie set by the `/i18n/set` route.
+from . import i18n as _i18n  # noqa: E402
+
+
+def _t_filter(key: str, lang: str = "en") -> str:
+    return _i18n.t(key, lang)
+
+
+templates.env.filters["t"] = _t_filter
+
+
+# Register i18n globals so EVERY template (including the shared
+# `base.html`) can read `lang`, `dir`, `rtl`, and the supported
+# languages list. Without these globals, base.html would need its
+# `<html lang="..." dir="...">` values passed per-route, which would
+# require touching every render call. The globals read from a
+# contextvar set by the i18n middleware below.
+def _g_lang() -> str:
+    """Jinja global: return the active language (default: en)."""
+    try:
+        from . import i18n_runtime as _i18n_rt
+        return _i18n_rt.current_lang()
+    except Exception:
+        return _i18n.DEFAULT_LANG
+
+
+templates.env.globals["lang_code"] = _g_lang
+templates.env.globals["dir_attr"] = lambda: _i18n.dir_attr(_g_lang())
+templates.env.globals["is_rtl"] = lambda: _i18n.is_rtl(_g_lang())
+templates.env.globals["supported_langs"] = _i18n.SUPPORTED_LANGS
+
 
 def create_app() -> FastAPI:
     app = FastAPI(
@@ -62,6 +96,56 @@ def create_app() -> FastAPI:
                     "Constitutional Authority: Constitution v2.3.",
     )
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+    # ------------------------------------------------------------------
+    # i18n (lite) middleware — reads the `tsai_lang` cookie and stashes
+    # the normalised language on `request.state.lang`. Default is "en".
+    # Templates can use `{{ "key" | t(request.state.lang) }}` to render
+    # translated strings. RTL is applied via `dir="rtl"` on <html>
+    # when the active language is in `i18n.RTL_LANGS`.
+    # ------------------------------------------------------------------
+    from starlette.requests import Request as _Request
+    from starlette.responses import Response as _Response
+
+    @app.middleware("http")
+    async def _i18n_middleware(request: _Request, call_next):
+        from . import i18n_runtime as _i18n_rt
+        cookie_lang = request.cookies.get("tsai_lang")
+        lang = _i18n.normalize_lang(cookie_lang)
+        request.state.lang = lang
+        request.state.dir = _i18n.dir_attr(lang)
+        _i18n_rt.set_lang(lang)
+        try:
+            return await call_next(request)
+        finally:
+            _i18n_rt.set_lang(_i18n.DEFAULT_LANG)
+
+    @app.get("/i18n/set", response_class=HTMLResponse)
+    def i18n_set(
+        request: Request,
+        lang: str = Query("en"),
+        next: str = Query("/"),
+    ) -> Response:
+        """Set the language cookie and redirect back.
+
+        Falls back to the default language if `lang` is not supported.
+        The cookie is set with `path=/` so every page picks it up.
+        """
+        normalised = _i18n.normalize_lang(lang)
+        # Validate `next` to prevent open-redirects: must start with `/`.
+        if not next.startswith("/"):
+            next = "/"
+        resp = RedirectResponse(url=next, status_code=status.HTTP_303_SEE_OTHER)
+        # Session cookie (not Secure by default; Secure in production).
+        resp.set_cookie(
+            key="tsai_lang",
+            value=normalised,
+            max_age=60 * 60 * 24 * 365,  # 1 year
+            path="/",
+            httponly=False,  # JS-readable so the switcher can show the active lang
+            samesite="lax",
+        )
+        return resp
 
     # Phase 3 routes (Verification, Approval, Notification screens).
     from .phase3_routes import add_phase3_routes
@@ -100,10 +184,19 @@ def create_app() -> FastAPI:
         headers: Optional[dict] = None,
         **context,
     ) -> HTMLResponse:
+        # Pull the language and direction from request.state (set by
+        # the i18n middleware). Defaults are "en" / "ltr" if the
+        # middleware hasn't run for some reason.
+        lang = getattr(request.state, "lang", _i18n.DEFAULT_LANG)
+        dir_attr = getattr(request.state, "dir", _i18n.dir_attr(lang))
         ctx = {
             "request": request,
             "principal": principal,
             "now": datetime.now(timezone.utc),
+            "lang": lang,
+            "dir": dir_attr,
+            "rtl": _i18n.is_rtl(lang),
+            "supported_langs": _i18n.SUPPORTED_LANGS,
         }
         ctx.update(context)
         return templates.TemplateResponse(
