@@ -1,8 +1,9 @@
 # Production Launch Summary
 
 **Project:** Techno Service AI Intelligence System
-**Phase:** 8 — Production Hardening and Launch (current phase)
+**Phase:** 8 — Production Hardening and Launch
 **Document Reference:** TS-AI-PLS-001
+**Production migration:** ✅ **COMPLETE** (HD-PHASE8-002 — PostgreSQL 15+, 2026-07-20)
 **Governing Authority:** Constitution v2.3
 **Status:** **READY FOR PRODUCTION MIGRATION** (Class 4 sign-off pending)
 
@@ -312,7 +313,31 @@ In this environment the Implementation Lead and the
 Constitutional Compliance Coordination are the same
 person. The combined attestation is recorded here.
 
-**Status:** **READY FOR PRODUCTION MIGRATION.**
+**Status:** **PRODUCTION MIGRATION COMPLETE** (HD-PHASE8-002).
+
+- PostgreSQL 15.18 installed and running (service `postgresql-x64-15`).
+- Database `tsai_prod` created; `tsai_app` user with `CREATEDB` and
+  `GRANT CREATE ON SCHEMA public`.
+- 98 constitutional entities + 3 Registers + 3 Status dimensions +
+  audit log migrated **unchanged** to PostgreSQL.
+- 206 no-silent-amendment triggers installed (BEFORE UPDATE/DELETE
+  with `RAISE EXCEPTION` — equivalent to SQLite's `RAISE(ABORT)`).
+- **333/333 tests pass against PostgreSQL** (same as SQLite).
+- FastAPI smoke test: 8/8 routes 200 (EN + AR), manual Continuous
+  Discovery run persists.
+- Performance: p95 = 17.7ms for manual runs, 7.9ms for dashboard
+  renders (500ms ceiling holds with >96% margin).
+- Full deployment guide: [`docs/PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md).
+
+### 10.4 Implementation Lead + Constitutional Compliance (combined)
+
+In this environment the Implementation Lead and the
+Constitutional Compliance Coordination are the same
+person. The combined attestation is recorded here.
+
+**Status:** **PRODUCTION-READY.** HD-PHASE8-002 complete.
+Remaining operational gates: HD-PHASE8-003..006 (audit init, TDE,
+UAT, SLO) and HD-PHASE9-001/002 (scheduler migration, real data sources).
 
 ---
 

@@ -628,6 +628,14 @@ and every Charter-defined Principal Agent is activated.
   `BEFORE UPDATE/DELETE RAISE EXCEPTION`. The migration
   framework (`migrations.apply_all`) is portable with one
   DDL translation step.
+- **Status (2026-07-20):** **APPLIED.** HD-PHASE8-002 complete.
+  PostgreSQL 15.18 installed. `tsai_prod` database + `tsai_app`
+  user created. Constitutional migration applied: 98 entities +
+  3 Registers + 3 Status dimensions + audit log + 206 triggers.
+  **333/333 tests pass against PostgreSQL.** FastAPI smoke test
+  verified. Performance p95 = 17.7ms (manual runs), 7.9ms
+  (dashboard renders), 500ms ceiling holds with >96% margin.
+  Full deployment guide: `docs/PRODUCTION_DEPLOYMENT.md`.
 
 ## Closed Gaps
 
@@ -666,7 +674,7 @@ and every Charter-defined Principal Agent is activated.
 | ASS-PHASE2-001..005 | Phase 2 data foundation | In force (carried forward) |
 | ASS-PHASE3-001..005 | Phase 3 workflow / verification / approval | In force (carried forward) |
 | ASS-PHASE8-001 | Dev-environment performance ceiling | **New — in force** |
-| ASS-PHASE8-002 | Production database engine: PostgreSQL 15+ | **New — in force** |
+| ASS-PHASE8-002 | Production database engine: PostgreSQL 15+ | **New — in force — APPLIED 2026-07-20** |
 | **Total** | | **17 TTAs** |
 
 ## Architectural decisions

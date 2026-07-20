@@ -85,6 +85,40 @@ _AUDIT_IMMUTABILITY_TRIGGERS = [
 ]
 
 
+# PostgreSQL equivalents of the audit-immutability triggers.
+# Uses RAISE EXCEPTION instead of RAISE(ABORT).
+_AUDIT_IMMUTABILITY_TRIGGERS_PG = [
+    """
+    CREATE OR REPLACE FUNCTION audit_log_no_update_fn() RETURNS trigger AS $$
+    BEGIN
+        RAISE EXCEPTION 'audit_log is append-only: UPDATE is forbidden (Constitution Article XX)';
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+    """,
+    """
+    DROP TRIGGER IF EXISTS audit_log_no_update ON audit_log;
+    CREATE TRIGGER audit_log_no_update
+    BEFORE UPDATE ON audit_log
+    FOR EACH ROW EXECUTE FUNCTION audit_log_no_update_fn();
+    """,
+    """
+    CREATE OR REPLACE FUNCTION audit_log_no_delete_fn() RETURNS trigger AS $$
+    BEGIN
+        RAISE EXCEPTION 'audit_log is append-only: DELETE is forbidden (Constitution Article XX)';
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+    """,
+    """
+    DROP TRIGGER IF EXISTS audit_log_no_delete ON audit_log;
+    CREATE TRIGGER audit_log_no_delete
+    BEFORE DELETE ON audit_log
+    FOR EACH ROW EXECUTE FUNCTION audit_log_no_delete_fn();
+    """,
+]
+
+
 def apply_schema(engine: Engine | None = None) -> None:
     """Create all tables and install audit-immutability triggers.
 
@@ -97,6 +131,11 @@ def apply_schema(engine: Engine | None = None) -> None:
             for stmt in _AUDIT_IMMUTABILITY_TRIGGERS:
                 conn.execute(text(stmt))
         install_constitutional_triggers(eng)
+    elif eng.dialect.name == "postgresql":
+        with eng.begin() as conn:
+            for stmt in _AUDIT_IMMUTABILITY_TRIGGERS_PG:
+                conn.execute(text(stmt))
+        install_constitutional_triggers(eng)
 
 
 def install_constitutional_triggers(engine: Engine) -> None:
@@ -106,13 +145,14 @@ def install_constitutional_triggers(engine: Engine) -> None:
     Per Constitution Article XX paragraph 6 / DB-PRIN-018:
     No material record may be silently deleted or overwritten.
 
-    The triggers raise `RAISE(ABORT)` with a table-specific message
-    so the violation is auditable. Updates are implemented by inserting
-    a new versioned row (same canonical_id, new version) — see
-    `ConstitutionalMixin` and the Phase 2 docs.
+    The triggers raise a database-specific error (RAISE(ABORT) on SQLite,
+    RAISE EXCEPTION on PostgreSQL) with a table-specific message so the
+    violation is auditable. Updates are implemented by inserting a new
+    versioned row (same canonical_id, new version) — see `ConstitutionalMixin`
+    and the Phase 2 docs.
+
+    Supported dialects: SQLite, PostgreSQL.
     """
-    if engine.dialect.name != "sqlite":
-        return
     # Tables that legitimately need to be updated: audit_log, migration,
     # and the Phase 1 operational tables (user, role, user_role, persona,
     # user_session, access_policy, access_policy_role). These are
@@ -137,29 +177,80 @@ def install_constitutional_triggers(engine: Engine) -> None:
             constitutional_tables.add(t.name)
     # De-duplicate and exclude exempt tables.
     targets = sorted({t for t in constitutional_tables if t not in EXEMPT})
-    with engine.begin() as conn:
-        for table in targets:
-            # Idempotent: drop any prior triggers we may have installed.
-            for trig in (f"{table}_no_update", f"{table}_no_delete"):
-                conn.execute(text(f"DROP TRIGGER IF EXISTS {trig}"))
-            conn.execute(text(
-                f"""
-                CREATE TRIGGER {table}_no_update
-                BEFORE UPDATE ON {table}
-                BEGIN
-                    SELECT RAISE(ABORT, '{table} is constitutional and append-only: UPDATE is forbidden (Constitution Article XX / DB-PRIN-018)');
-                END;
-                """
-            ))
-            conn.execute(text(
-                f"""
-                CREATE TRIGGER {table}_no_delete
-                BEFORE DELETE ON {table}
-                BEGIN
-                    SELECT RAISE(ABORT, '{table} is constitutional and append-only: DELETE is forbidden (Constitution Article XX / DB-PRIN-018)');
-                END;
-                """
-            ))
+
+    dialect = engine.dialect.name
+
+    if dialect == "sqlite":
+        with engine.begin() as conn:
+            for table in targets:
+                # Idempotent: drop any prior triggers we may have installed.
+                for trig in (f"{table}_no_update", f"{table}_no_delete"):
+                    conn.execute(text(f"DROP TRIGGER IF EXISTS {trig}"))
+                conn.execute(text(
+                    f"""
+                    CREATE TRIGGER {table}_no_update
+                    BEFORE UPDATE ON {table}
+                    BEGIN
+                        SELECT RAISE(ABORT, '{table} is constitutional and append-only: UPDATE is forbidden (Constitution Article XX / DB-PRIN-018)');
+                    END;
+                    """
+                ))
+                conn.execute(text(
+                    f"""
+                    CREATE TRIGGER {table}_no_delete
+                    BEFORE DELETE ON {table}
+                    BEGIN
+                        SELECT RAISE(ABORT, '{table} is constitutional and append-only: DELETE is forbidden (Constitution Article XX / DB-PRIN-018)');
+                    END;
+                    """
+                ))
+    elif dialect == "postgresql":
+        with engine.begin() as conn:
+            for table in targets:
+                # Idempotent: drop any prior triggers we may have installed.
+                for trig in (f"{table}_no_update", f"{table}_no_delete"):
+                    conn.execute(text(f"DROP TRIGGER IF EXISTS {trig} ON {table}"))
+                # BEFORE UPDATE trigger.
+                conn.execute(text(
+                    f"""
+                    CREATE OR REPLACE FUNCTION {table}_no_update_fn() RETURNS trigger AS $$
+                    BEGIN
+                        RAISE EXCEPTION '{table} is constitutional and append-only: UPDATE is forbidden (Constitution Article XX / DB-PRIN-018)';
+                        RETURN NULL;
+                    END;
+                    $$ LANGUAGE plpgsql;
+                    """
+                ))
+                conn.execute(text(
+                    f"""
+                    DROP TRIGGER IF EXISTS {table}_no_update ON {table};
+                    CREATE TRIGGER {table}_no_update
+                    BEFORE UPDATE ON {table}
+                    FOR EACH ROW EXECUTE FUNCTION {table}_no_update_fn();
+                    """
+                ))
+                # BEFORE DELETE trigger.
+                conn.execute(text(
+                    f"""
+                    CREATE OR REPLACE FUNCTION {table}_no_delete_fn() RETURNS trigger AS $$
+                    BEGIN
+                        RAISE EXCEPTION '{table} is constitutional and append-only: DELETE is forbidden (Constitution Article XX / DB-PRIN-018)';
+                        RETURN NULL;
+                    END;
+                    $$ LANGUAGE plpgsql;
+                    """
+                ))
+                conn.execute(text(
+                    f"""
+                    DROP TRIGGER IF EXISTS {table}_no_delete ON {table};
+                    CREATE TRIGGER {table}_no_delete
+                    BEFORE DELETE ON {table}
+                    FOR EACH ROW EXECUTE FUNCTION {table}_no_delete_fn();
+                    """
+                ))
+    else:
+        # Unknown dialect: skip (not the constitutional DB we're supporting).
+        return
 
 
 def reset_schema(engine: Engine | None = None) -> None:

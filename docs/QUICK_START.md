@@ -1,13 +1,14 @@
-# Quick Start — Live Demo (Constitution v2.4)
+# Quick Start — Live Demo (Constitution v2.4 + Production PostgreSQL 15+)
 
 **Live server URL:** `http://127.0.0.1:8000/`
 **Constitutional authority:** Constitution v2.4 (Class 4 adoption 2026-07-19)
 **v1.0 baseline:** FROZEN (8 commits; 259/259 tests; 17 Offices; 69 Agents; 92 entities)
 **v2.4 surface:** 18 Offices; 73 Agents; 98 entities; 289/289 tests
+**Production migration:** ✅ HD-PHASE8-002 complete — PostgreSQL 15+ with 333/333 tests
 
 ---
 
-## 1. Start the server (SQLite dev)
+## 1. Start the server (SQLite dev — for local exploration)
 
 ```powershell
 cd C:\Users\malhu\.mavis\workspace\techno-service-ai
@@ -21,28 +22,43 @@ python -m uvicorn techno_service_ai.app:app --host 127.0.0.1 --port 8000
 
 Swagger UI: `http://127.0.0.1:8000/docs`
 
-## 2. Production database (PostgreSQL 15+)
+## 2. Production database (PostgreSQL 15+ — VERIFIED 2026-07-20)
+
+**Full deployment guide:** [`docs/PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md)
 
 ```powershell
-# Install (admin elevation required)
+# 1. Install PostgreSQL 15 (admin elevation required)
 winget install --id PostgreSQL.PostgreSQL.15 --accept-package-agreements --accept-source-agreements
 
-# Create dev DB
-createdb -U postgres tsai_demo
+# 2. Set postgres password (default is "postgres")
+$env:PGPASSWORD = "postgres"
+& "C:\Program Files\PostgreSQL\15\bin\psql.exe" -U postgres -c "ALTER USER postgres WITH PASSWORD 'Techno2026';"
 
-# Set env var
-$env:TSAI_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/tsai_demo"
+# 3. Create production database + app user
+& "C:\Program Files\PostgreSQL\15\bin\createdb.exe" -U postgres tsai_prod
+& "C:\Program Files\PostgreSQL\15\bin\psql.exe" -U postgres -c "CREATE USER tsai_app WITH PASSWORD 'Techno2026';"
+& "C:\Program Files\PostgreSQL\15\bin\psql.exe" -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE tsai_prod TO tsai_app;"
+& "C:\Program Files\PostgreSQL\15\bin\psql.exe" -U postgres -c "GRANT CREATE ON SCHEMA public TO tsai_app;"
+& "C:\Program Files\PostgreSQL\15\bin\psql.exe" -U postgres -c "ALTER USER tsai_app CREATEDB;"
 
-# Run constitutional migration framework
-python -c "from techno_service_ai import bootstrap, db; db.apply_schema(); bootstrap.seed()"
+# 4. Set env var
+$env:TSAI_DATABASE_URL = "postgresql://tsai_app:Techno2026@localhost:5432/tsai_prod"
 
-# Restart uvicorn pointing to PostgreSQL
-python -m uvicorn techno_service_ai.app:app --host 127.0.0.1 --port 8000
+# 5. Run constitutional migration (creates 98 entities + 3 Registers
+#    + 3 Status dimensions + audit log + 206 no-silent-amendment triggers)
+$env:PYTHONPATH = "src"
+python -m techno_service_ai.bootstrap
+
+# 6. Verify
+pytest -q   # 333/333 passing
+
+# 7. Start the server
+python -m uvicorn techno_service_ai.app:app --host 0.0.0.0 --port 8000
 ```
 
-The constitutional trigger pattern is portable to PostgreSQL with
-one DDL translation step
-(`BEFORE UPDATE/DELETE RAISE(ABORT)` → `RAISE EXCEPTION`).
+The trigger installer supports both SQLite (`RAISE(ABORT)`) and PostgreSQL
+(`RAISE EXCEPTION`) with identical constitutional semantics. The
+`apply_schema()` function is dialect-aware and idempotent.
 
 ## 3. 8 Demo Steps (Proactive Product Discovery, Office 18)
 
