@@ -26,6 +26,8 @@ _TMP = Path(tempfile.mkdtemp(prefix="tsai-tests-"))
 os.environ["TSAI_DATABASE_URL"] = f"sqlite:///{(_TMP / 'test.db').as_posix()}"
 os.environ["TSAI_JWT_SECRET"] = "test-secret-key-for-pytest-only-do-not-use-in-prod"
 os.environ["TSAI_DEFAULT_ADMIN_PASSWORD"] = "ChangeMe!2026"
+# HD-PHASE8-004: fixed encryption key for test reproducibility.
+os.environ["TSAI_ENCRYPTION_KEY"] = "test-encryption-key-for-pytest-only"
 
 # Imports must come AFTER env vars are set, so the config module picks them up.
 from techno_service_ai import bootstrap  # noqa: E402

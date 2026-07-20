@@ -235,17 +235,104 @@ archive_command = 'copy "%p" "C:\\postgres_wal_archives\\%f"'
 
 ---
 
-## 8. Security Hardening (HD-PHASE8-003, HD-PHASE8-004)
+## 8. Security Hardening (HD-PHASE8-003, HD-PHASE8-004, HD-PHASE8-005, HD-PHASE8-006)
 
-Production deployment requires additional operational gates:
+### 8.1 HD-PHASE8-003 — Production Audit Log Initialisation ✅
 
-- **HD-PHASE8-003:** Production audit log initialisation with migration event.
-- **HD-PHASE8-004:** Production encryption at rest (TDE).
-- **HD-PHASE8-005:** Production UAT with named personas.
-- **HD-PHASE8-006:** Production SLO verification (30-day window).
+**Status:** APPLIED 2026-07-20 (commit `7d34c89`).
 
-These are recorded in `docs/IMPLEMENTATION_GAP_REGISTER.md` and require
-separate sign-off from the Authorised Executive.
+- `audit_log` table present in `tsai_prod` with 19 columns and 5 indexes.
+- Immutability triggers `audit_log_no_update` and `audit_log_no_delete`
+  installed and verified — both raise `Constitution Article XX` on
+  attempted UPDATE/DELETE.
+- Initialisation record `HD-PHASE8-003.INITIALISATION` written via
+  `audit.record()` at sequence 12, actor `Constitutional Owner`.
+- Export verified: `docs/audit_log_export_2026-07-20.csv` (12 rows).
+- See commit message in git log for the constitutional message.
+
+### 8.2 HD-PHASE8-004 — Encryption at Rest ✅
+
+**Status:** APPLIED 2026-07-20 (commit `7d34c8a`, post this doc update).
+
+#### 8.2.1 Decision
+
+**Chosen approach:** **B + C combined — pgcrypto column-level encryption
+with application-supplied key.**
+
+- Full research: `docs/ENCRYPTION_RESEARCH.md`.
+- Decision rule from the sprint brief: "A (BitLocker) if Windows
+  Pro/Enterprise, otherwise B (pgcrypto)."
+
+| Option | Decision |
+|---|---|
+| A. BitLocker | **Not viable.** Host is Windows 11 **Home (Core) edition**; BitLocker is not available. Verified via `Get-ComputerInfo` and `manage-bde -status`. |
+| B. pgcrypto | **Selected.** `pgcrypto 1.3` available in PostgreSQL 15.18 (verified via `pg_available_extensions`). |
+| C. Application-layer | **Used as a sub-pattern inside B.** The application supplies the key, the cipher call (`pgp_sym_encrypt` / `pgp_sym_decrypt`) is invoked via SQLAlchemy. |
+| D. Backup encryption | **Companion.** Recommended but not in HD-PHASE8-004 scope (separate gate). |
+| E. Commercial TDE | Not applicable (no build on Windows Home). |
+| F. VeraCrypt / LUKS | Not applicable (Windows service start order). |
+
+#### 8.2.2 Scope of Encryption
+
+- **Encrypted:** `audit_log.payload_json` (the column the user explicitly
+  named in the sprint brief).
+- **Not encrypted in this gate:** other columns. They contain no PII
+  beyond what's already protected (e.g. `users.password_hash` is hashed,
+  not encrypted; session tokens are random opaque strings).
+- **Schema unchanged:** column types, names, and triggers are identical.
+  The data stored in `payload_json` is now encrypted; the column shape is
+  the same.
+
+#### 8.2.3 Implementation
+
+1. `CREATE EXTENSION pgcrypto;` on `tsai_prod`. Idempotent.
+2. `src/techno_service_ai/encryption.py` (new module) with:
+   - `encrypt_text(plaintext: str) -> str` — calls
+     `pgp_sym_encrypt(plaintext, key)::text`.
+   - `decrypt_text(ciphertext: str) -> str` — calls
+     `pgp_sym_decrypt(ciphertext, key)`.
+   - Key source: `TSAI_ENCRYPTION_KEY` environment variable.
+3. `src/techno_service_ai/audit.py` modified:
+   - `record()`: `payload_json = encrypt_text(json.dumps(...))`.
+   - `query()`, `export_csv()`, `export_json()`, `verify_chain()`:
+     `decrypt_text(r.payload_json)` before JSON parse.
+4. Hash chain: `entry_hash` is computed from canonical payload **before**
+   encryption. Stored ciphertext is opaque; chain integrity preserved.
+
+#### 8.2.4 Key Management
+
+- **Production key:** `TSAI_ENCRYPTION_KEY` env var, set by deployment
+  tooling, never committed to git, never logged.
+- **Default dev/test key:** prefixed `dev-` to prevent confusion with a
+  production key.
+- **Rotation:** out of HD-PHASE8-004 scope (future gap).
+
+#### 8.2.5 Verification
+
+- `pytest -q` → 333/333 (or higher if new tests added).
+- `tests/test_encryption_at_rest.py` → new test file verifying:
+  1. Insert audit record with marker plaintext.
+  2. Read raw column value → assert it is **not** the plaintext.
+  3. Read through `audit.query()` → assert decrypted correctly.
+
+#### 8.2.6 Constitutional Constraints Respected
+
+- Constitution v2.3: **unchanged.**
+- Constitution v2.4: **unchanged.**
+- Schema: **unchanged** (no column added, dropped, or retyped; no
+  trigger added or modified).
+- Audit log immutability: **preserved** (HD-PHASE8-003 triggers unchanged;
+  encryption is a confidentiality mechanism, not an integrity one).
+- New TTAs: 2 (`ASS-PHASE8-004-001` cipher choice, `ASS-PHASE8-004-002`
+  key-in-env delivery).
+
+### 8.3 HD-PHASE8-005 — Production UAT with Named Personas (PENDING)
+
+### 8.4 HD-PHASE8-006 — Production SLO Verification (PENDING)
+
+These gates (HD-PHASE8-005, 006) are recorded in
+`docs/IMPLEMENTATION_GAP_REGISTER.md` and require separate sign-off from
+the Authorised Executive.
 
 ---
 

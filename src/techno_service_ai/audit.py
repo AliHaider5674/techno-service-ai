@@ -6,6 +6,12 @@ of truth for who did what, when, from where, and with what outcome.
 
 AC-AUD-002 (immutable) is enforced at the database layer by triggers in
 `db.apply_schema` — this service cannot circumvent them.
+
+AC-AUD-006 (encryption at rest) is satisfied by HD-PHASE8-004. The
+`payload_json` column is stored as ciphertext via pgcrypto's
+`pgp_sym_encrypt`; the application layer transparently encrypts on write
+and decrypts on read. The column type, the schema, and the audit log
+immutability triggers are unchanged.
 """
 from __future__ import annotations
 
@@ -20,6 +26,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .db import chain_head, hash_chain, session_scope
+from .encryption import decrypt_text, encrypt_text
 from .schema import AuditLog
 
 
@@ -157,7 +164,13 @@ def record(
         outcome=outcome,
         ip=ip,
         user_agent=user_agent,
-        payload_json=json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str),
+        # HD-PHASE8-004: payload_json is stored as ciphertext. The hash
+        # chain above was computed from the plaintext canonical JSON, so
+        # the chain integrity is preserved.
+        payload_json=encrypt_text(
+            session,
+            json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str),
+        ),
         prev_hash=prev,
         entry_hash=entry_hash,
         retention_class="PERMANENT",
@@ -226,11 +239,16 @@ def count(session: Session, **filters: Any) -> int:
 # ---------------------------------------------------------------------------
 
 
-def export_csv(entries: Iterable[AuditLog]) -> str:
+def export_csv(entries: Iterable[AuditLog], session: Session) -> str:
     """Return a CSV export of the given entries.
 
     AC-AUD-003 requires that the export matches the database content. We
     include every column so that the export is a complete, lossless copy.
+
+    HD-PHASE8-004: `payload_json` is decrypted before writing. The
+    `session` argument is required to call pgcrypto's `pgp_sym_decrypt`
+    for each row. The session is also the same session used to fetch the
+    entries (see `app.py`'s `/admin/audit-log/export.csv` route).
     """
     buf = io.StringIO()
     writer = csv.writer(buf, lineterminator="\n")
@@ -256,6 +274,14 @@ def export_csv(entries: Iterable[AuditLog]) -> str:
         ]
     )
     for e in entries:
+        # HD-PHASE8-004: decrypt payload_json before writing to the CSV so
+        # the export is plaintext (the export is itself a record, not
+        # data at rest in the database sense; this matches the prior
+        # behaviour of `export_csv` which exposed the raw column).
+        # The session used for export is the same `session` that
+        # supplied `entries`; decrypt_text needs a session to call
+        # pgcrypto. When `entries` is built from `query()` it carries
+        # the same `session`.
         writer.writerow(
             [
                 e.sequence,
@@ -271,7 +297,7 @@ def export_csv(entries: Iterable[AuditLog]) -> str:
                 e.outcome,
                 e.ip or "",
                 e.user_agent or "",
-                e.payload_json,
+                _decrypt_payload_json_for_export(session, e.payload_json),
                 e.prev_hash,
                 e.entry_hash,
                 e.retention_class,
@@ -280,8 +306,27 @@ def export_csv(entries: Iterable[AuditLog]) -> str:
     return buf.getvalue()
 
 
-def export_json(entries: Iterable[AuditLog]) -> str:
-    """Return a JSON export (array of objects) of the given entries."""
+def _decrypt_payload_json_for_export(session: Session, payload_json: Optional[str]) -> str:
+    """Decrypt payload_json for export. Returns plaintext JSON string.
+
+    For HD-PHASE8-004, payload_json in the column is ciphertext. The
+    export functions previously wrote the raw column value; now they
+    write the plaintext so the CSV/JSON export remains useful.
+    """
+    if not payload_json:
+        return ""
+    try:
+        return decrypt_text(session, payload_json)
+    except Exception:
+        return payload_json
+
+
+def export_json(entries: Iterable[AuditLog], session: Session) -> str:
+    """Return a JSON export (array of objects) of the given entries.
+
+    HD-PHASE8-004: `payload_json` is decrypted before writing. The
+    `session` argument is required for pgcrypto decryption.
+    """
     return json.dumps(
         [
             {
@@ -298,7 +343,9 @@ def export_json(entries: Iterable[AuditLog]) -> str:
                 "outcome": e.outcome,
                 "ip": e.ip,
                 "user_agent": e.user_agent,
-                "payload": json.loads(e.payload_json or "{}"),
+                "payload": json.loads(
+                    _decrypt_payload_json_for_export(session, e.payload_json) or "{}"
+                ),
                 "prev_hash": e.prev_hash,
                 "entry_hash": e.entry_hash,
                 "retention_class": e.retention_class,
@@ -325,6 +372,17 @@ def verify_chain(session: Session) -> tuple[bool, Optional[int]]:
     rows = session.execute(select(AuditLog).order_by(AuditLog.sequence.asc())).scalars().all()
     prev = ""
     for r in rows:
+        # HD-PHASE8-004: payload_json is now stored as ciphertext. The
+        # hash chain was computed from the plaintext canonical JSON, so
+        # we must decrypt before recomputing the hash for verification.
+        # The pre-HD-PHASE8-004 entries (sequences 1-11 in the production
+        # database) are unencrypted plaintext; decrypt_text returns the
+        # input unchanged when decryption fails, so the chain continues
+        # to verify.
+        try:
+            payload_plain = json.loads(decrypt_text(session, r.payload_json) or "{}")
+        except Exception:
+            payload_plain = {}
         canonical = _canonical_payload(
             {
                 "occurred_at": r.occurred_at.isoformat() if r.occurred_at else "",
@@ -339,7 +397,7 @@ def verify_chain(session: Session) -> tuple[bool, Optional[int]]:
                 "outcome": r.outcome,
                 "ip": r.ip,
                 "user_agent": r.user_agent,
-                "payload": json.loads(r.payload_json or "{}"),
+                "payload": payload_plain,
             }
         )
         expected = hash_chain(prev, canonical)

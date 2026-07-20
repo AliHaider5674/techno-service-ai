@@ -826,6 +826,18 @@ def create_app() -> FastAPI:
             limit=limit,
         )
         chain_ok, _ = audit.verify_chain(db)
+        # HD-PHASE8-004: payload_json is stored as ciphertext. The
+        # template displays the plaintext for the auditor. We attach a
+        # transient `payload_plain` attribute to each entry. If
+        # decryption fails (legacy row), the original ciphertext is
+        # shown with a `_decryption_failed` flag.
+        for e in entries:
+            try:
+                e.payload_plain = audit._decrypt_payload_json_for_export(db, e.payload_json)
+                e.payload_decryption_failed = False
+            except Exception:
+                e.payload_plain = e.payload_json
+                e.payload_decryption_failed = True
         return _render(
             request, "admin/audit_log.html",
             principal=principal, entries=entries, chain_ok=chain_ok,
@@ -854,7 +866,7 @@ def create_app() -> FastAPI:
             db, event_type=event_type or None,
             actor_user_id=actor_user_id, target_id=target_id or None, limit=10000,
         )
-        csv_text = audit.export_csv(entries)
+        csv_text = audit.export_csv(entries, db)
         with session_scope() as s:
             actor = s.get(User, principal.user_id)
             actor_role_code = principal.role_codes[0] if principal.role_codes else None
@@ -893,7 +905,7 @@ def create_app() -> FastAPI:
             db, event_type=event_type or None,
             actor_user_id=actor_user_id, target_id=target_id or None, limit=10000,
         )
-        body = audit.export_json(entries)
+        body = audit.export_json(entries, db)
         with session_scope() as s:
             actor = s.get(User, principal.user_id)
             actor_role_code = principal.role_codes[0] if principal.role_codes else None

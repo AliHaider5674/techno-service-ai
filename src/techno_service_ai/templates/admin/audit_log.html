@@ -63,7 +63,7 @@
             {% if e.outcome == 'SUCCESS' %}<span class="badge ok">SUCCESS</span>
             {% else %}<span class="badge danger">{{ e.outcome }}</span>{% endif %}
           </td>
-          <td><code class="muted" style="font-size:11px;">{{ e.payload_json[:120] }}{% if e.payload_json|length > 120 %}…{% endif %}</code></td>
+          <td><code class="muted" style="font-size:11px;">{{ e.payload_plain[:120] }}{% if e.payload_plain|length > 120 %}…{% endif %}{% if e.payload_decryption_failed %} <span class="badge warn" title="Decryption failed; showing raw column value">[ciphertext]</span>{% endif %}</code></td>
           <td><code class="muted" title="{{ e.entry_hash }}">{{ e.entry_hash[:8] }}…</code></td>
         </tr>
       {% endfor %}
