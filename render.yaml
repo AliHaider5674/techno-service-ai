@@ -1,0 +1,55 @@
+# Render Infrastructure-as-Code manifest.
+#
+# STATUS: UNCOMMITTED — Constitutional Owner decides whether to commit
+# (this is a potential constitutional surface change because it adds
+# infrastructure-as-code to the repo, even though the Constitution
+# content itself is unchanged).
+#
+# HOW TO USE:
+#   Option A — Render Blueprint: In Render Dashboard, "New +" → "Blueprint",
+#              point at this repo, Render reads this file and provisions
+#              Web Service + Database + env vars automatically.
+#   Option B — Manual: Follow docs/RENDER_DEPLOYMENT_RUNBOOK.md Section 4-5.
+#
+# The yaml below defines:
+#   - 1 Web Service (techno-service-ai) — Python 3, Free plan
+#   - 1 PostgreSQL Database (tsai-database) — Free plan, 90 days
+#   - 6 environment variables:
+#       * TSAI_DATABASE_URL          (auto-injected from the database)
+#       * TSAI_JWT_SECRET            (auto-generated)
+#       * TSAI_ENCRYPTION_KEY        (auto-generated)
+#       * TSAI_COOKIE_SECURE=1       (required for HTTPS)
+#       * TSAI_AUDIT_RETENTION=PERMANENT  (Constitution Article XX)
+#       * TSAI_DEFAULT_ADMIN_PASSWORD    (auto-generated — change after first login)
+
+services:
+  - type: web
+    name: techno-service-ai
+    runtime: python
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn techno_service_ai.app:app --host 0.0.0.0 --port $PORT
+    autoDeploy: true
+    envVars:
+      - key: TSAI_DATABASE_URL
+        fromDatabase:
+          name: tsai-database
+          property: connectionString
+      - key: TSAI_JWT_SECRET
+        generateValue: true
+      - key: TSAI_ENCRYPTION_KEY
+        generateValue: true
+      - key: TSAI_COOKIE_SECURE
+        value: "1"
+      - key: TSAI_AUDIT_RETENTION
+        value: "PERMANENT"
+      - key: TSAI_DEFAULT_ADMIN_PASSWORD
+        generateValue: true
+
+databases:
+  - name: tsai-database
+    plan: free
+    databaseName: tsai_prod
+    user: tsai_app
+    region: virginia
