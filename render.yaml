@@ -32,6 +32,8 @@ services:
     startCommand: uvicorn techno_service_ai.app:app --host 0.0.0.0 --port $PORT
     autoDeploy: true
     envVars:
+      - key: PYTHONPATH
+        value: "/opt/render/project/src/src"
       - key: TSAI_DATABASE_URL
         fromDatabase:
           name: tsai-database
