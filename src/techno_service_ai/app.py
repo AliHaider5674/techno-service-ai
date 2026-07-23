@@ -175,7 +175,8 @@ def create_app() -> FastAPI:
 
     @app.on_event("startup")
     def _startup() -> None:
-        apply_schema()
+        from .bootstrap import seed
+        seed()
 
     # ---- Helpers --------------------------------------------------------
 
