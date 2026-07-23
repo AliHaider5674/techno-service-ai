@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "techno-service-ai"
-version = "1.0.0-phase1"
+version = "1.0.0a1"
 description = "Techno Service AI Intelligence System — Phase 1: Identity, Access, and Audit Foundation"
 readme = "README.md"
 requires-python = ">=3.11"
