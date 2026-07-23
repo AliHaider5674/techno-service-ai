@@ -27,7 +27,7 @@ services:
     name: techno-service-ai
     runtime: python
     plan: free
-    branch: patch-1
+    branch: main
     buildCommand: pip install -r requirements.txt && pip install .
     startCommand: uvicorn techno_service_ai.app:app --host 0.0.0.0 --port $PORT
     autoDeploy: true
