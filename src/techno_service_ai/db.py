@@ -139,6 +139,10 @@ def apply_schema(engine: Engine | None = None) -> None:
     Idempotent. Safe to call at startup and in tests.
     """
     eng = engine or _engine
+    # Ensure pgcrypto is available for PostgreSQL (needed by encryption.py).
+    if eng.dialect.name == "postgresql":
+        with eng.begin() as conn:
+            conn.execute(text("CREATE EXTENSION IF NOT EXISTS pgcrypto"))
     Base.metadata.create_all(eng)
     if eng.dialect.name == "sqlite":
         with eng.begin() as conn:
