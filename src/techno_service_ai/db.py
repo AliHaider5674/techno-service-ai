@@ -31,9 +31,23 @@ from .schema import Base
 # them. The constitutional trigger installation below then protects them.
 from . import phase2_schema  # noqa: F401  (side-effect import)
 
+
+def _resolve_db_url(url: str) -> str:
+    """Ensure PostgreSQL URLs use the psycopg (v3) driver dialect.
+
+    Render provides `postgresql://...` which SQLAlchemy maps to psycopg2
+    by default. We use psycopg3, so rewrite to `postgresql+psycopg://`.
+    """
+    if url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+psycopg://", 1)
+    if url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql+psycopg://", 1)
+    return url
+
+
 # Single shared engine. SQLite needs check_same_thread=False for FastAPI.
 _engine: Engine = create_engine(
-    SETTINGS.database_url,
+    _resolve_db_url(SETTINGS.database_url),
     echo=False,
     future=True,
     connect_args={"check_same_thread": False} if SETTINGS.database_url.startswith("sqlite") else {},
